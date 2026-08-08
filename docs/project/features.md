@@ -11,13 +11,13 @@ Status labels:
 
 | Feature | Status | Notes |
 | --- | --- | --- |
-| Normalized overlay state schema | mvp | `src/schemas/overlay-state.schema.json` |
+| Pokemon normalized state schema | mvp | Canonical domain contract at `src/domains/pokemon/schemas/overlay-state.schema.json`; former platform path is a compatibility `$ref` |
 | Static browser overlay | mvp | Reads sample JSON and renders party, opponent, route, catch, score, seed/frame |
 | Type effectiveness | mvp | Gen 2/3 style type chart in `src/domains/pokemon/type-chart.js` |
 | Damage range calculator | mvp | Pokemon domain package; basic level/stat/power/STAB/type/roll support |
 | Projected switch-in damage | mvp | Calculates incoming opponent damage against each party member |
 | Capture chance calculator | mvp | Pokemon domain package; basic Gen 3 style ball/status/HP odds |
-| Pokemon domain package boundary | mvp | Domain-neutral registry plus Pokemon-owned type, damage, and capture calculators; schema/UI migration remains deferred |
+| Pokemon domain package boundary | active | Domain-neutral registry plus Pokemon-owned state schema, type, damage, and capture calculators; presentation/UI migration remains deferred |
 | CI test workflow | mvp | `.github/workflows/ci.yml` |
 | Extension manifest schema | mvp | `src/schemas/extension.schema.json` |
 | Extension templates | mvp | `examples/extensions/` |

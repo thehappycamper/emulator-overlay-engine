@@ -27,12 +27,13 @@ This foundation does not include the Workbench GUI, live emulator export, event 
 
 ### Pokemon Domain Boundary Proof
 
-Status: implemented in `P02-T001`, pending independent review and merge.
+Status: active in `P02`; calculator boundary completed, state/schema boundary awaiting independent review.
 
 - Domain-neutral registry with explicit application composition.
 - Pokemon-owned type, damage, and capture calculators under `src/domains/pokemon/`.
+- Pokemon-owned normalized-state contract with a compatibility alias for the former platform path.
 - Existing calculator imports preserved through compatibility re-exports.
-- Pokemon state-schema and overlay-panel migration intentionally deferred.
+- Pokemon overlay-panel/presentation migration remains deferred.
 
 ## Near-Term Platform Foundation
 

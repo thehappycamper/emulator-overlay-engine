@@ -16,7 +16,7 @@ The engine is source-agnostic; an emulator is one source-provider type, not a pl
 An emulator adapter should:
 
 - Read live emulator/game state.
-- Emit a documented source contract for mapping into `src/schemas/overlay-state.schema.json`, or, during early integration, write that normalized shape directly as a reviewed exception (see `docs/knowledge/adapter-contracts.md`'s Source And Export Shape).
+- Emit a documented source contract for mapping into `src/domains/pokemon/schemas/overlay-state.schema.json`, or, during early integration, write that normalized shape directly as a reviewed exception (see `docs/knowledge/adapter-contracts.md`'s Source And Export Shape).
 - Avoid embedding UI behavior.
 - Avoid embedding generic damage/capture/scoring logic.
 - Document supported emulator version, ROM/game target, and known limitations.

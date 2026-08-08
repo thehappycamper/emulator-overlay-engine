@@ -3,9 +3,9 @@ flowchart LR
   Adapters --> SourceContract["Source Contract\nacquisition-independent boundary"]
   MappingProject["Declarative Mapping\nSafe JSON AST"] --> MappingRuntime["Mapping Runtime"]
   SourceContract --> MappingRuntime
-  MappingRuntime --> NormalizedState["Normalized State"]
+  MappingRuntime --> NormalizedState["Domain-owned Normalized State\nCurrent: Pokemon contract"]
   NormalizedState --> DomainBoundary["Domain Boundary\nExplicit package composition"]
-  DomainBoundary --> PokemonDomain["Pokemon Domain Package\nCurrent calculators"]
+  DomainBoundary --> PokemonDomain["Pokemon Domain Package\nCurrent state schema + calculators"]
   PokemonDomain --> CurrentConsumers["Current MVP\nCalculations + Overlay"]
 
   PokemonDomain -. future .-> EventDetection["Domain Event Detection\nFuture"]

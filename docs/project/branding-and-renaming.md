@@ -77,7 +77,7 @@ These are identifiers other files, other tools, or a user's local machine may al
 | `src/schemas/extension.schema.json:3` | `"$id": "https://emulator-overlay-engine.local/schemas/extension.schema.json"` | Canonical schema identity. `template.schema.json` resolves a cross-schema `$ref` against this exact URI (`src/schemas/template.schema.json:52`). Changing it without updating every referrer breaks schema resolution. |
 | `src/schemas/template.schema.json:3` | Same pattern | Same reason |
 | `src/schemas/mapping.schema.json:3` | Same pattern | Same reason |
-| `src/schemas/overlay-state.schema.json:3` | Same pattern | Same reason |
+| `src/domains/pokemon/schemas/overlay-state.schema.json:3` | `"$id": "https://emulator-overlay-engine.local/schemas/overlay-state.schema.json"` | Canonical Pokemon state-contract identity, preserved from its former physical location. The compatibility file at `src/schemas/overlay-state.schema.json` has no independent `$id` and delegates to this URI. |
 | `.env.example`, `docs/project/configuration.md` | `EOE_LIVE_STATE_PATH`, `EOE_MGBA_EXE`, `EOE_MGBA_SCRIPTS_DIR`, `EOE_VBA_RR_EXE`, `EOE_SAVE_DIR`, `EOE_DEFAULT_DOMAIN`, `EOE_DEFAULT_GENERATION`, `EOE_DEFAULT_GAME`, `EOE_DEFAULT_ROM_ID` | Environment variable prefix. Anyone who has already copied `.env.example` to `.env` locally has these exact names in a file `.gitignore` keeps out of the repository, so the repository itself can't detect or migrate their copy. |
 | `package.json:2` (also listed under Category 2) | `"name"` | If this package is ever published (currently `"private": true`), consumers would depend on the published name. |
 
@@ -123,7 +123,7 @@ When a final brand is chosen, work through this checklist. Items are grouped by 
 **Needs a deliberate decision, not just a text swap (Category 2/3):**
 - [ ] GitHub repository name/organization (redirects exist after a GitHub rename, but update the remote and any hardcoded URLs anyway)
 - [ ] `package.json` `"name"` (and npm registry publish, if this package is ever made public)
-- [ ] Schema `$id` values in all four `src/schemas/*.json` files — must be changed together, and the cross-schema `$ref` in `template.schema.json` must be updated in the same commit, or schema resolution breaks
+- [ ] Schema `$id` values in `src/schemas/*.json` and domain-owned schemas — update every compatibility/cross-schema `$ref` in the same commit, including the Pokemon state path alias, or schema resolution breaks
 - [ ] Environment variable prefix (`EOE_*`) — requires a migration note in `docs/project/configuration.md` and probably a deprecation window (support both old and new variable names for one release) rather than a hard cutover, since `.env` files are never in the repository and can't be auto-migrated
 - [ ] SDK/package names, if any packages are ever published (none exist today — do not invent this ahead of need)
 - [ ] CLI name, if a CLI is ever introduced (none exists today)

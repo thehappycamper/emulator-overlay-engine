@@ -18,7 +18,7 @@
     "generations": []
   },
   "exports": {
-    "stateSchema": "src/schemas/overlay-state.schema.json",
+    "stateSchema": "src/domains/pokemon/schemas/overlay-state.schema.json",
     "transport": ["file"]
   },
   "publicSafety": {

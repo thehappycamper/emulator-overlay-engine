@@ -85,8 +85,10 @@ An adapter MAY produce an already-normalized named target directly when the adap
 The current Pokemon-oriented live-export target is:
 
 ```text
-src/schemas/overlay-state.schema.json
+src/domains/pokemon/schemas/overlay-state.schema.json
 ```
+
+`src/schemas/overlay-state.schema.json` remains a compatibility reference for older integrations; it delegates to the Pokemon-owned contract and is not a platform-owned payload definition.
 
 The first live implementation may write `public/live-state.json` for polling. A later transport may differ, but payload semantics should remain tied to the selected named target contract rather than acquisition mechanics.
 

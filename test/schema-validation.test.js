@@ -7,6 +7,8 @@ import Ajv2020 from "ajv/dist/2020.js";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const schemaDirectory = join(repositoryRoot, "src", "schemas");
+const pokemonSchemaDirectory = join(repositoryRoot, "src", "domains", "pokemon", "schemas");
+const pokemonStateSchemaId = "https://emulator-overlay-engine.local/schemas/overlay-state.schema.json";
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
@@ -25,15 +27,16 @@ function findFiles(directory, predicate) {
   return matches.sort();
 }
 
-const schemas = [
+const platformSchemas = [
   "extension.schema.json",
   "template.schema.json",
-  "overlay-state.schema.json",
   "mapping.schema.json"
 ].map((name) => readJson(join(schemaDirectory, name)));
+const pokemonStateSchema = readJson(join(pokemonSchemaDirectory, "overlay-state.schema.json"));
+const legacyStateSchema = readJson(join(schemaDirectory, "overlay-state.schema.json"));
 
 const ajv = new Ajv2020({ allErrors: true, strict: true, allowUnionTypes: true });
-for (const schema of schemas) {
+for (const schema of [...platformSchemas, pokemonStateSchema]) {
   ajv.addSchema(schema);
 }
 
@@ -70,7 +73,7 @@ test("all template examples satisfy the template manifest contract", async (t) =
   }
 });
 
-test("applicable normalized state fixtures satisfy the overlay state contract", async (t) => {
+test("applicable normalized state fixtures satisfy the canonical Pokemon state contract", async (t) => {
   const files = [
     join(repositoryRoot, "public", "sample-state.json"),
     ...findFiles(
@@ -81,9 +84,40 @@ test("applicable normalized state fixtures satisfy the overlay state contract", 
 
   for (const file of files) {
     await t.test(relative(repositoryRoot, file), () => {
-      assertValid("https://emulator-overlay-engine.local/schemas/overlay-state.schema.json", file);
+      assertValid(pokemonStateSchemaId, file);
     });
   }
+});
+
+test("canonical Pokemon state contract rejects invalid Pokemon state", () => {
+  const validate = ajv.getSchema(pokemonStateSchemaId);
+  const state = readJson(join(repositoryRoot, "public", "sample-state.json"));
+  delete state.player.party;
+
+  assert.equal(validate(state), false);
+  assert.ok(validate.errors.some((error) => error.keyword === "required" && error.params.missingProperty === "party"));
+});
+
+test("legacy platform schema path delegates to the Pokemon-owned contract", () => {
+  assert.equal(legacyStateSchema.$ref, pokemonStateSchemaId);
+  assert.equal("properties" in legacyStateSchema, false);
+  assert.equal("$defs" in legacyStateSchema, false);
+
+  const validate = ajv.compile(legacyStateSchema);
+  const validState = readJson(join(repositoryRoot, "public", "sample-state.json"));
+  const invalidState = { ...validState, player: {} };
+
+  assert.equal(validate(validState), true);
+  assert.equal(validate(invalidState), false);
+});
+
+test("Pokemon state remains a direct payload for current consumers", () => {
+  const state = readJson(join(repositoryRoot, "public", "sample-state.json"));
+
+  assert.ok(state.player.party);
+  assert.ok(state.battle);
+  assert.equal("domain" in state, false);
+  assert.equal("payload" in state, false);
 });
 
 test("mapping example satisfies the mapping project contract", () => {

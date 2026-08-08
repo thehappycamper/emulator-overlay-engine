@@ -58,9 +58,9 @@ Transforms source JSON into a named and versioned target contract through direct
 
 4. Domain Engine
 
-Calculates domain-specific outputs. The first implemented boundary is `src/domains/pokemon/`, which owns the existing damage, capture, and type-effectiveness calculations. A small domain-neutral registry in `src/platform/domain-registry.js` resolves explicitly composed domain packages without importing Pokemon itself.
+Owns domain-specific contracts and calculates domain-specific outputs. The first implemented boundary is `src/domains/pokemon/`, which owns the current normalized-state schema plus the existing damage, capture, and type-effectiveness calculations. Its descriptor publishes named state-contract metadata. A small domain-neutral registry in `src/platform/domain-registry.js` resolves explicitly composed domain packages without importing Pokemon itself.
 
-The current Pokemon state schema and browser presentation remain outside the package and are intentionally deferred for incremental migration. Source acquisition remains independent from domain interpretation: providers emit source contracts, mappings produce normalized targets, and domain packages interpret those targets.
+The browser presentation remains Pokemon-specific outside the package and is intentionally deferred for incremental migration. Source acquisition remains independent from domain interpretation: providers emit source contracts, mappings produce named domain-owned targets, and domain packages interpret those targets.
 
 5. Semantic Event Detection (Future)
 
@@ -88,6 +88,8 @@ A future layer above sessions (see Multiplayer And Sessions and Session Referee 
 - Mapping calculations use the whitelisted JSON expression AST, never arbitrary JavaScript.
 - Domain engine functions should be deterministic and testable.
 - Shared platform registries accept domain packages through explicit composition and do not import Pokemon implementations.
+- Normalized domain-state contracts are owned by domain packages; shared schema infrastructure must not define Pokemon payload fields.
+- Pokemon games should reuse a single Pokemon domain through future generation/mechanics, game-configuration, and revision/mod override composition rather than separate game domains.
 - Future semantic events should sit above normalized state and domain interpretation.
 - Event consumers should not depend on raw memory addresses, bits, or source field names.
 - Automation and multiplayer should reuse the semantic event foundation where practical, without forcing either concern into the current mapping/state runtime.

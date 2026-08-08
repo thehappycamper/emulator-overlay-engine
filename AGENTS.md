@@ -124,7 +124,7 @@ worktrees-or-clones/
 - Semantic event detection is future architecture above normalized state and domain interpretation; no event contract or runtime exists yet.
 - Do not introduce cloud or multiplayer dependencies into local core without an explicit architecture decision. Local EOE Core must remain useful without hosted services.
 - Overlay code consumes normalized state and engine outputs.
-- Public schemas belong in `src/schemas/` until domain package boundaries are introduced.
+- Domain-neutral public schemas belong in `src/schemas/`; domain-specific schemas belong to their domain package. Compatibility aliases may remain in `src/schemas/` when a documented migration requires them.
 - Do not hardcode ROM hack behavior into generic engine modules.
 - Do not add new Pokemon-specific assumptions to shared platform code when the concept belongs in a Pokemon domain package.
 

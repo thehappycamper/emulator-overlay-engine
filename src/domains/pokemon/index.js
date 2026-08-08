@@ -10,8 +10,16 @@ const calculators = Object.freeze({
   typeEffectiveness
 });
 
+export const pokemonStateContract = Object.freeze({
+  id: "pokemon.overlay-state",
+  type: "normalized-state",
+  version: "0.1.0",
+  schema: "https://emulator-overlay-engine.local/schemas/overlay-state.schema.json"
+});
+
 export const pokemonDomain = Object.freeze({
   id: "pokemon",
+  stateContract: pokemonStateContract,
   calculators
 });
 

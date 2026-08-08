@@ -1,5 +1,7 @@
 # Domain Model
 
+These concepts belong to the Pokemon domain. Their canonical current contract is `src/domains/pokemon/schemas/overlay-state.schema.json`; shared platform schemas do not define these fields.
+
 ## Normalized Pokemon
 
 A normalized Pokemon should include:
@@ -19,7 +21,7 @@ A normalized Pokemon should include:
 - Optional display metadata for forms or custom names.
 - Optional components/source IDs for fused or composed Pokemon.
 
-The source generation may represent these differently. Adapters are responsible for mapping them into this shape.
+Source generations and games may represent these differently. Source contracts and mappings are responsible for producing this domain-owned shape, or a reviewed adapter may emit it directly as documented in `adapter-contracts.md`.
 
 ## Normalized Battle
 

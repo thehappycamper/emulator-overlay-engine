@@ -9,14 +9,17 @@ The first concrete domain package now lives at `src/domains/pokemon/`. It owns:
 - Type effectiveness data and calculation.
 - Damage range and projected incoming-damage calculations.
 - Capture and bag-ball chance calculations.
+- The canonical Pokemon normalized-state schema at `src/domains/pokemon/schemas/overlay-state.schema.json`.
+- Named state-contract metadata exposed through `pokemonDomain.stateContract`.
 
 `src/platform/domain-registry.js` is the minimal domain-neutral boundary. It accepts explicitly supplied domain packages and resolves them by stable domain ID. `src/domains/index.js` is the current application composition root and registers `pokemon`; shared platform code does not import the Pokemon implementation.
 
 Compatibility re-exports remain under `src/engine/` so existing imports do not break during incremental migration. The current overlay resolves the Pokemon package through the application boundary.
 
+The former platform schema path, `src/schemas/overlay-state.schema.json`, remains a compatibility `$ref` only. It contains no independently maintained Pokemon payload fields. New integrations should use the canonical domain path and schema ID.
+
 Pokemon-specific code still outside the package:
 
-- `overlay-state.schema.json`
 - Browser overlay rendering and party/team presentation assumptions.
 - Species, moves, IVs, EVs, abilities, items, encounters, and trainer concepts.
 - Pokemon examples, fixtures, and domain documentation.
@@ -61,17 +64,20 @@ src/
       capture.js
       damage.js
       type-chart.js
+      schemas/
+        overlay-state.schema.json
 ```
 
 Future Pokemon-owned areas may include:
 
 ```text
 src/domains/pokemon/
-  schemas/
   overlay-panels/
 ```
 
-The state schema and overlay panels should move only through separately scoped slices with compatibility decisions. A second domain should be added only when a real game integration can prove the boundary. The workbench could then create extensions against a selected domain. Platform mapping projects identify source and target contracts without hardcoding domain payloads. Future event detection should sit above normalized domain state rather than expose source memory semantics directly.
+The state schema moved wholesale rather than gaining a platform envelope because current consumers use its direct payload and the mapping runtime already identifies targets through opaque named/versioned descriptors. See ADR 0015. Overlay panels should move only through a separately scoped slice with its own compatibility decision.
+
+Pokemon games should share one Pokemon domain. Future composition should layer generation/mechanics, game configuration, and revision/ROM-hack/mod overrides where they genuinely differ. This slice does not define those package contracts. A second domain should be added only when a real game integration can prove the boundary. The workbench could then create extensions against a selected domain. Platform mapping projects identify source and target contracts without hardcoding domain payloads. Future event detection should sit above normalized domain state rather than expose source memory semantics directly.
 
 ## Rule
 

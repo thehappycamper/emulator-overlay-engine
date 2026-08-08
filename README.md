@@ -12,7 +12,7 @@ The larger product direction, including future automation, sessions, and optiona
 
 The implemented foundation is intentionally small and Pokemon-focused:
 
-- Normalized JSON state contract for party, opponent, bag, location, encounter data, seed, and scoring.
+- Pokemon-owned normalized JSON state contract for party, opponent, bag, location, encounter data, seed, and scoring.
 - Dependency-free browser overlay that renders a useful challenge dashboard from that state.
 - Pokemon domain package with damage, catch, and type-effectiveness calculators plus Node tests.
 - Domain-neutral mapping contract with safe calculated expressions and schema-validated examples.

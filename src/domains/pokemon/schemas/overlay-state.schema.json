@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emulator-overlay-engine.local/schemas/overlay-state.schema.json",
+  "title": "Pokemon Overlay State",
+  "type": "object",
+  "required": ["schemaVersion", "game", "player", "battle", "location", "bag"],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "game": {
+      "type": "object",
+      "required": ["generation", "title", "adapter"],
+      "properties": {
+        "generation": { "type": "integer", "minimum": 1 },
+        "title": { "type": "string" },
+        "adapter": { "type": "string" },
+        "romId": { "type": "string" },
+        "seed": { "type": "string" },
+        "frame": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "player": {
+      "type": "object",
+      "required": ["party"],
+      "properties": {
+        "trainerId": { "type": "integer" },
+        "secretId": { "type": "integer" },
+        "party": {
+          "type": "array",
+          "maxItems": 6,
+          "items": { "$ref": "#/$defs/pokemon" }
+        }
+      }
+    },
+    "battle": {
+      "type": "object",
+      "properties": {
+        "activePlayerIndex": { "type": "integer", "minimum": 0 },
+        "opponent": { "$ref": "#/$defs/pokemon" },
+        "weather": { "type": "string" },
+        "turn": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "location": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "mapId": { "type": "string" },
+        "encounters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/encounter" }
+        }
+      }
+    },
+    "bag": {
+      "type": "object",
+      "properties": {
+        "balls": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/bagItem" }
+        },
+        "tms": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/bagItem" }
+        }
+      }
+    },
+    "score": {
+      "type": "object",
+      "properties": {
+        "ruleset": { "type": "string" },
+        "current": { "type": "number" }
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Namespaced extension runtime data keyed by extension ID.",
+      "additionalProperties": {
+        "type": ["object", "array", "string", "number", "boolean", "null"]
+      }
+    }
+  },
+  "$defs": {
+    "pokemon": {
+      "type": "object",
+      "required": ["speciesId", "name", "level", "currentHp", "maxHp", "stats", "moves"],
+      "properties": {
+        "speciesId": { "type": "integer" },
+        "name": { "type": "string" },
+        "nickname": { "type": "string" },
+        "level": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "types": { "type": "array", "items": { "type": "string" } },
+        "ability": { "type": "string" },
+        "item": { "type": "string" },
+        "status": { "type": "string" },
+        "pid": { "type": "string" },
+        "display": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "form": { "type": "string" },
+            "sprite": { "type": "string" }
+          }
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["role", "speciesId", "name"],
+            "properties": {
+              "role": { "type": "string" },
+              "speciesId": { "type": "integer" },
+              "name": { "type": "string" }
+            }
+          }
+        },
+        "sourceIds": {
+          "type": "object",
+          "additionalProperties": {
+            "type": ["string", "integer", "number"]
+          }
+        },
+        "currentHp": { "type": "integer", "minimum": 0 },
+        "maxHp": { "type": "integer", "minimum": 1 },
+        "stats": { "$ref": "#/$defs/stats" },
+        "ivs": { "$ref": "#/$defs/stats" },
+        "evs": { "$ref": "#/$defs/stats" },
+        "moves": {
+          "type": "array",
+          "maxItems": 4,
+          "items": { "$ref": "#/$defs/move" }
+        }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "properties": {
+        "hp": { "type": "integer" },
+        "atk": { "type": "integer" },
+        "def": { "type": "integer" },
+        "spa": { "type": "integer" },
+        "spd": { "type": "integer" },
+        "spe": { "type": "integer" }
+      }
+    },
+    "move": {
+      "type": "object",
+      "required": ["id", "name", "type", "category", "power"],
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "category": { "enum": ["physical", "special", "status"] },
+        "power": { "type": "integer", "minimum": 0 },
+        "accuracy": { "type": "integer" },
+        "pp": { "type": "integer" }
+      }
+    },
+    "encounter": {
+      "type": "object",
+      "required": ["speciesId", "name", "method", "minLevel", "maxLevel", "rate"],
+      "properties": {
+        "speciesId": { "type": "integer" },
+        "name": { "type": "string" },
+        "method": { "type": "string" },
+        "minLevel": { "type": "integer" },
+        "maxLevel": { "type": "integer" },
+        "rate": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "bagItem": {
+      "type": "object",
+      "required": ["id", "name", "quantity"],
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "quantity": { "type": "integer", "minimum": 0 },
+        "modifier": { "type": "number" }
+      }
+    }
+  }
+}
