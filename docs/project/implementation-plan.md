@@ -15,7 +15,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | --- | --- | --- |
 | `P00` | Initial MVP | completed |
 | `P01` | Platform Mapping Foundation | completed |
-| `P02` | Domain Boundary | active — `P02-T001` implemented, independent review pending |
+| `P02` | Domain Boundary | active — `P02-T001` (calculators) merged; `P02-T002`/`P02-T003` planned |
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
 | `P05` | Live Gameplay Source | planned |
@@ -81,18 +81,20 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P02 — Domain Boundary
 
-**Status:** active. Entry conditions are met (`P01` completed at `f1cc577`). [`P02-T001`](../tasks/P02/P02-T001.md) is implemented on `feat/P02-T001-pokemon-domain-boundary` and has status `review`; it is not merged or complete. Independent review and explicit merge approval remain pending.
+**Status:** active. `P01` completed at `f1cc577`; `P02-T001` completed and merged at `2617f4a` (independent review APPROVE WITH FIXES — one non-blocking finding, deferred to `P02-T003`). The phase itself remains open: calculators are now behind a domain boundary, but Pokemon state-schema ownership and presentation/UI migration are not yet done.
 
-**Objective:** Extract Pokemon-specific assumptions (currently `src/schemas/overlay-state.schema.json`'s Pokemon-shaped payload, `src/engine/{damage,capture,type-chart}.js`, and `src/overlay/app.js`'s Pokemon-specific rendering) behind a real Pokemon domain boundary, per the direction already recorded in ADR 0008 and `docs/knowledge/domain-extensibility.md`, while keeping shared platform code domain-neutral.
+**Objective:** Extract Pokemon-specific assumptions (currently `src/schemas/overlay-state.schema.json`'s Pokemon-shaped payload, and `src/overlay/app.js`'s Pokemon-specific rendering) behind a real Pokemon domain boundary, per the direction already recorded in ADR 0008 and `docs/knowledge/domain-extensibility.md`, while keeping shared platform code domain-neutral. (`src/engine/{damage,capture,type-chart}.js` is done — see `P02-T001`.)
 
 **Entry conditions:** `P01` complete. ✅ Met.
 
 **Major tasks:**
-- [`P02-T001`](../tasks/P02/P02-T001.md) — Introduce the first Pokemon domain boundary around existing calculators. **Review — blocking.**
+- [`P02-T001`](../tasks/P02/P02-T001.md) — Introduce the first Pokemon domain boundary around existing calculators. Completed (merged to `main` at `2617f4a`).
+- [`P02-T002`](../tasks/P02/P02-T002.md) — Pokemon state/schema boundary (decide and implement envelope-vs-move for `overlay-state.schema.json`). Planned.
+- [`P02-T003`](../tasks/P02/P02-T003.md) — Domain registry descriptor immutability hardening (closes `P02-T001`'s non-blocking review finding). Planned.
 
-Further separately scoped tasks must decide Pokemon state-schema ownership and migrate remaining Pokemon presentation/UI. `P02-T001` intentionally does not complete the full Pokemon domain migration or satisfy the full P02 exit gate by itself.
+`P02-T002` and `P02-T003` are intentionally parallelizable — they touch disjoint files (schema/fixture paths vs. `src/platform/domain-registry.js` only). Further separately scoped tasks must still migrate remaining Pokemon presentation/UI. No single completed task above satisfies the full `P02` exit gate by itself.
 
-**Exit criteria:** Pokemon-specific schema/engine/rendering code lives under a domain boundary; shared platform code (`src/schemas/{extension,template,mapping}.schema.json`, `src/expressions/`, `src/mapping/`) contains no Pokemon-specific assumptions; existing MVP behavior (overlay renders, calculators produce the same results) is preserved and covered by tests.
+**Exit criteria:** Pokemon-specific schema/engine/rendering code lives under a domain boundary; shared platform code (`src/schemas/{extension,template,mapping}.schema.json`, `src/expressions/`, `src/mapping/`) contains no Pokemon-specific assumptions; existing MVP behavior (overlay renders, calculators produce the same results) is preserved and covered by tests. Calculator boundary: ✅ met (`P02-T001`). Schema boundary and remaining presentation migration: ⏳ not yet done.
 
 **Dependencies:** `P01`.
 
