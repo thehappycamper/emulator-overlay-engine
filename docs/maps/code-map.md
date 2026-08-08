@@ -78,7 +78,7 @@
 | `docs/knowledge/product-vision.md` | Canonical product definition, pipeline, and local/hosted boundary. |
 | `docs/knowledge/architecture.md` | Current telemetry layers and future event-driven architecture. |
 | `docs/knowledge/domain-model.md` | Shared domain concepts. |
-| `docs/knowledge/adapter-contracts.md` | Adapter responsibilities and contracts. |
+| `docs/knowledge/adapter-contracts.md` | Source-provider/adapter responsibilities and acquisition-independent boundaries. |
 | `docs/knowledge/extension-types.md` | Extension taxonomy and composition model. |
 | `docs/knowledge/custom-data-and-fusions.md` | Guidance for custom tables, fan games, and fusion data. |
 | `docs/knowledge/ui-extension-model.md` | UI panel extension slots and data flow. |

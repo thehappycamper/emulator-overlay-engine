@@ -1,6 +1,6 @@
 flowchart LR
-  Sources["Game / Emulator /\nExternal Source"] --> Adapters["Adapters\nfuture live implementations"]
-  Adapters --> SourceContract["Source Contract"]
+  Sources["Gameplay Sources\nEmulator / Native / Web /\nTelemetry / Files / Vision / Hardware"] --> Adapters["Source Providers / Adapters\nfuture live implementations"]
+  Adapters --> SourceContract["Source Contract\nacquisition-independent boundary"]
   MappingProject["Declarative Mapping\nSafe JSON AST"] --> MappingRuntime["Mapping Runtime"]
   SourceContract --> MappingRuntime
   MappingRuntime --> NormalizedState["Normalized State"]

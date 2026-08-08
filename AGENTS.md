@@ -8,6 +8,8 @@ Emulator Overlay Engine is an extensible game telemetry and interaction platform
 
 The long-term direction is to turn source data into normalized state, semantic events, and experiences such as overlays, calculations, rulesets, automations, and sessions. Events, actions, sessions, multiplayer, and hosted services are not implemented. Do not imply otherwise or build them without an approved architecture slice.
 
+EOE is source-agnostic. Emulator memory is one possible gameplay source, not a shared-platform assumption. Core should consume source contracts whether data came from an emulator, native game API, web integration, telemetry protocol, file, existing platform, inferred vision/audio adapter, or hardware provider.
+
 > **EOE turns game state into events, and events into experiences.**
 
 See `docs/knowledge/product-vision.md` for the canonical product direction.
@@ -45,10 +47,12 @@ See `docs/knowledge/product-vision.md` for the canonical product direction.
 
 ## Architecture Rules
 
-- Shared platform code must not read emulator memory directly.
-- Emulator adapters own emulator APIs, memory addresses, and live export mechanics.
+- Shared platform code must not acquire gameplay data directly. Source providers/adapters own acquisition and expose source contracts.
+- Emulator adapters own emulator APIs, memory addresses, and live export mechanics, but emulator memory must not become a platform-wide assumption.
 - Game/data adapters own generation, ROM, and ROM-hack mappings.
 - Raw emulator and source details must remain at source/adapter boundaries; future consumers should use normalized domain state or semantic events.
+- Preserve `Source Provider -> Source Contract -> Mapping -> Normalized State`; downstream code must not branch on acquisition method.
+- Different providers may eventually need fidelity, provenance, or confidence metadata. Do not invent those fields without a separate architecture/schema decision.
 - Shared platform contracts and infrastructure must remain domain-neutral. Pokemon semantics belong in the Pokemon domain boundary.
 - Future event, action, and session compatibility is an architectural concern, not a requirement to add premature abstractions to every change.
 - Do not add arbitrary executable behavior to data-driven mappings or templates. Preserve the safe, reviewable contract model from ADR 0012.

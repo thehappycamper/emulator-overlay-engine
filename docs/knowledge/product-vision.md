@@ -13,7 +13,7 @@ The intended long-term pipeline is:
 ```text
 Game / Emulator / External Source
             |
-         Adapter
+ Source Provider / Adapter
             |
       Source Contract
             |
@@ -42,6 +42,34 @@ The following are architectural direction only and are not implemented:
 - Multiplayer sessions, session rules, or matchmaking.
 - Accounts, profiles, hosted synchronization, or cloud persistence.
 - Spectator services, leagues, or tournaments.
+
+## Source-Agnostic Input
+
+**EOE is source-agnostic. Emulator memory is one gameplay data source, not a platform assumption.**
+
+EOE Core should consume gameplay information through source-provider and adapter contracts regardless of how that information was acquired:
+
+```text
+Source Provider -> Source Contract -> Mapping -> Normalized State
+```
+
+Potential source classes include:
+
+- Emulator memory or debugger APIs.
+- Emulator scripts or plugins.
+- Native PC game APIs or plugins.
+- Browser and web-game integrations.
+- WebSocket, HTTP, or UDP telemetry.
+- Log files and save files.
+- Publisher or companion APIs.
+- Existing gaming platforms and protocols.
+- Capture-card and computer-vision adapters.
+- Audio-recognition adapters.
+- External hardware and sensor adapters.
+
+These are architectural examples, not commitments to support every source class. The downstream platform should not need to know whether normalized state came from emulator memory, a web game, a native game API, a console capture-card vision adapter, or another supported provider.
+
+Sources may eventually differ in fidelity, provenance, and confidence. Direct memory may provide exact values while computer vision or audio recognition may provide inferred observations. Future state or event contracts may need metadata describing those characteristics, but no such schema is defined by this product direction. That requires a separate architecture decision.
 
 ## State, Events, And Actions
 

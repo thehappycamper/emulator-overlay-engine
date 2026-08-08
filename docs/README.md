@@ -16,7 +16,7 @@ This directory is the human and agent knowledge base for Emulator Overlay Engine
 - `maps/code-map.md` - repository file map and module ownership.
 - `knowledge/architecture.md` - current and future system layers and responsibilities.
 - `knowledge/domain-model.md` - normalized Pokemon overlay concepts.
-- `knowledge/adapter-contracts.md` - how emulator/game/data adapters map into shared contracts.
+- `knowledge/adapter-contracts.md` - source-provider and adapter boundaries for acquisition-independent contracts.
 - `knowledge/extension-types.md` - extension taxonomy and composition model.
 - `knowledge/custom-data-and-fusions.md` - how custom tables and fusion data should be modeled.
 - `knowledge/ui-extension-model.md` - panel slots and UI extension data flow.
