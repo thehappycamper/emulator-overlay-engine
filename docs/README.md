@@ -10,6 +10,7 @@ This directory is the human and agent knowledge base for Emulator Overlay Engine
 - `project/implementation-plan.md` - engineering execution sequence: phases with entry/exit criteria.
 - `tasks/README.md` - task-record system: per-task execution history, one file per task.
 - `project/branding-and-renaming.md` - brand-agnostic coding rule and future-rename inventory.
+- `project/repository-boundaries.md` - canonical public core / private hosted-services architecture boundary, including the sibling `gameplay-interaction-hosted-services` repository.
 - `project/roadmap.md` - planned delivery slices.
 - `project/features.md` - feature inventory and status.
 - `project/emulators.md` - emulator compatibility and adapter notes.

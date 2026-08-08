@@ -14,6 +14,20 @@ EOE is source-agnostic. Emulator memory is one possible gameplay source, not a s
 
 See `docs/knowledge/product-vision.md` for the canonical product direction.
 
+## Repository Boundary
+
+This repository (`thehappycamper/emulator-overlay-engine`) is the **public, open-source core**. Core/public contracts live here. A separate **private** sibling repository, [`thehappycamper/gameplay-interaction-hosted-services`](https://github.com/thehappycamper/gameplay-interaction-hosted-services), owns hosted/commercial service implementation (identity, matchmaking, hosted sessions, ratings, communities, entitlements/billing, and similar). Its name is a temporary infrastructure identifier, not a final brand — see `docs/project/branding-and-renaming.md`.
+
+Rules for agents working here:
+
+- Do not introduce private-cloud implementation into this repository — no account/identity persistence, no billing, no hosted-session server, no database, no private service models.
+- If a task appears to require hosted identity, matchmaking, billing, persistent ratings, or private service orchestration, check whether it belongs in the hosted repository instead of here.
+- Cross-repository protocol changes must keep the public contract authoritative: if a hosted feature needs a new interoperability contract (an event envelope, a session message, a capability manifest), that contract is designed and versioned here, not invented privately.
+- Changes affecting both repositories should be represented by separate task branches/records in each repository, cross-referenced by task ID — never a shared mutable file. See `docs/tasks/README.md`.
+- Neither repository may silently modify the other's `main`.
+
+See `docs/project/repository-boundaries.md` for the full, canonical detail: dependency direction, responsibility matrix, the Account-vs-Participant identity distinction, the local-first principle, and contract ownership.
+
 ## Required Agent Behavior
 
 - Read this file before making changes.
@@ -161,6 +175,10 @@ Where a task requires independent review, the implementing agent's own self-asse
 ### Parallel task planning
 
 Choose parallel tasks only when their dependencies actually permit concurrent execution. Before starting a task alongside another in-progress one, check the Dependencies and Scope sections of both task records: if they touch the same files, the same schema/contract, or one's exit criteria depends on the other's output, they are not safely parallel — sequence them instead. `docs/project/implementation-plan.md`'s phase dependencies and each task record's Dependencies/Scope fields exist specifically so this check can be made without guessing.
+
+### Task ID allocation
+
+Before allocating a new task ID during concurrent work, inspect current remote task branches and existing task records, not just `main` — task IDs are globally unique within a repository, including unmerged active branches. This is the same coordination problem as file/branch ownership, applied to task identity: two agents working concurrently can each correctly check `main` and still collide if neither has pushed yet, so a same-instant allocation race is possible even when this check is done properly. When a collision is discovered after the fact, the earlier-claimed ID remains authoritative and the later task is renumbered — see `docs/tasks/P02/P02-T005.md`'s Implementation Notes for a worked example.
 
 ## Documentation Checklist
 
