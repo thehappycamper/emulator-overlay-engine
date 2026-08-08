@@ -27,7 +27,7 @@ This foundation does not include the Workbench GUI, live emulator export, event 
 
 ### Pokemon Domain Boundary Proof
 
-Status: complete.
+Status: implemented in `P02-T001`, pending independent review and merge.
 
 - Domain-neutral registry with explicit application composition.
 - Pokemon-owned type, damage, and capture calculators under `src/domains/pokemon/`.

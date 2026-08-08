@@ -15,7 +15,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | --- | --- | --- |
 | `P00` | Initial MVP | completed |
 | `P01` | Platform Mapping Foundation | completed |
-| `P02` | Domain Boundary | active — entry conditions met, no task independently reviewed/merged yet |
+| `P02` | Domain Boundary | active — `P02-T001` implemented, independent review pending |
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
 | `P05` | Live Gameplay Source | planned |
@@ -81,13 +81,16 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P02 — Domain Boundary
 
-**Status:** active. Entry conditions are now met (`P01` completed at `f1cc577`). A `feat/P02-T001-pokemon-domain-boundary` branch with pending implementation already exists on `origin`, separate from and not yet merged into `main`. It has not been independently reviewed as part of this update and is not marked complete — its status should be recorded in its own `docs/tasks/P02/P02-T001.md` task record (create or update that record, following the same review/merge-approval workflow `P01-T007` went through, before any of that work is considered `ready-to-merge` or `completed`).
+**Status:** active. Entry conditions are met (`P01` completed at `f1cc577`). [`P02-T001`](../tasks/P02/P02-T001.md) is implemented on `feat/P02-T001-pokemon-domain-boundary` and has status `review`; it is not merged or complete. Independent review and explicit merge approval remain pending.
 
 **Objective:** Extract Pokemon-specific assumptions (currently `src/schemas/overlay-state.schema.json`'s Pokemon-shaped payload, `src/engine/{damage,capture,type-chart}.js`, and `src/overlay/app.js`'s Pokemon-specific rendering) behind a real Pokemon domain boundary, per the direction already recorded in ADR 0008 and `docs/knowledge/domain-extensibility.md`, while keeping shared platform code domain-neutral.
 
 **Entry conditions:** `P01` complete. ✅ Met.
 
-**Major tasks:** `P02-T001` (branch `feat/P02-T001-pokemon-domain-boundary`) is in progress but not yet reviewed by this update. Expected shape, per `docs/knowledge/domain-extensibility.md`'s sketch: introduce `domains/pokemon/{schemas,engine,overlay-panels}/`, decide whether `overlay-state.schema.json` becomes a thin domain-neutral envelope or moves wholesale into the domain package, and refactor `src/overlay/app.js` into a thin host over domain-registered panels.
+**Major tasks:**
+- [`P02-T001`](../tasks/P02/P02-T001.md) — Introduce the first Pokemon domain boundary around existing calculators. **Review — blocking.**
+
+Further separately scoped tasks must decide Pokemon state-schema ownership and migrate remaining Pokemon presentation/UI. `P02-T001` intentionally does not complete the full Pokemon domain migration or satisfy the full P02 exit gate by itself.
 
 **Exit criteria:** Pokemon-specific schema/engine/rendering code lives under a domain boundary; shared platform code (`src/schemas/{extension,template,mapping}.schema.json`, `src/expressions/`, `src/mapping/`) contains no Pokemon-specific assumptions; existing MVP behavior (overlay renders, calculators produce the same results) is preserved and covered by tests.
 

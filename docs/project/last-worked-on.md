@@ -4,8 +4,8 @@ This is a short pointer, not the project history. For full history, see `docs/ta
 
 ## Current status
 
-- **Active phase:** `P02` — Domain Boundary (just activated; `P01` is fully closed). See [implementation plan](implementation-plan.md).
-- **Active/review task:** `P02-T001` (branch `feat/P02-T001-pokemon-domain-boundary`) — pending work exists on `origin`, not yet independently reviewed or merged. See its own `docs/tasks/P02/P02-T001.md` record (create or update it, following the same review/merge-approval workflow `P01-T007` went through) before treating it as `ready-to-merge` or `completed`.
+- **Active phase:** `P02` — Domain Boundary; `P01` remains completed. See [implementation plan](implementation-plan.md).
+- **Active/review task:** [`P02-T001` — Introduce Pokemon domain boundary](../tasks/P02/P02-T001.md) — status `review`; rebased implementation commit `0e08449` on `feat/P02-T001-pokemon-domain-boundary`; 51/51 tests pass; independent review and merge approval remain pending. This task establishes the first calculator/package boundary but does not complete the full Pokemon domain migration.
 - **Last completed task:** [`P01-T007` — Harden JSON Pointer array writes](../tasks/P01/P01-T007.md) (2026-08-08, independent review APPROVE, merged at `f1cc577`) — this closed the `P01` phase gate. See also [`P01-T008`](../tasks/P01/P01-T008.md)/[`P01-T009`](../tasks/P01/P01-T009.md) (governance/vision, merged earlier the same day at `a267950`).
 - **Next planned phase:** `P03` — Semantic Event Foundation, entry-gated on `P02` closing.
 
