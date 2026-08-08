@@ -79,6 +79,10 @@ Overlay -> Show celebration
 
 Event detection, rules, actions, and automation authoring are not implemented. Their schemas and runtimes require separate decisions. The Workbench must generate human-readable, machine-readable, versioned, and reviewable contracts rather than opaque GUI-only logic or arbitrary executable template code.
 
+After the underlying contracts exist, future authoring may also select domain/ruleset progress providers, define objectives and cross-domain objective mappings, configure spatial/map views, and connect action providers or external workflow integrations. The Workbench should help users select what progress means rather than require manual denominator arithmetic for common supported objectives. External systems such as n8n or Node-RED remain optional integrations behind generic event/action surfaces; they do not replace EOE's internal semantic, rule, permission, or action-routing layers.
+
+None of these progress, map, scoring, session, or workflow-authoring capabilities exists today, and this direction does not define their schemas.
+
 The workbench should generate reviewable module/extension files and user-facing templates that contributors can commit:
 
 ```text
@@ -107,6 +111,10 @@ For users, the main export should usually be a template. Under the hood, that te
 | Export | Write public-safe extension files for Git review. |
 | Template sharing | Save a complete game overlay setup that others can install or copy. |
 | Event/rule/action authoring | Future visual authoring after contracts and runtimes are separately designed. |
+| Progress/objective authoring | Future selection of progress providers and ruleset objectives after contracts exist. |
+| Spatial/map authoring | Future map-data association and view configuration without assuming universal coordinates. |
+| Cross-domain objective mapping | Future ruleset-layer translation of domain events into shared session objectives. |
+| External workflow integration | Future configuration of generic, authorized event/action surfaces; not a replacement rules engine. |
 
 ## Data Exploration Flow
 

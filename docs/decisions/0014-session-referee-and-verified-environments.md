@@ -6,6 +6,8 @@ Status: accepted
 
 Extends: ADR 0013 (and by extension ADR 0008)
 
+Clarified by: ADR 0016 (identical game/revision requirements are ruleset-specific, not universal)
+
 ## Context
 
 ADR 0013 established semantic events as a future platform primitive. Once events and sessions exist (see `docs/knowledge/product-vision.md`'s Multiplayer And Sessions), passively sharing events between participants is not enough for competitive or cooperative formats that depend on a shared, agreed-upon environment: a race or tournament needs participants to actually be playing the same game revision, seed, ruleset version, and modification set, not merely claim to be.

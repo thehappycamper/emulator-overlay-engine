@@ -68,7 +68,7 @@ Interprets changes between previous and current normalized domain state and emit
 
 6. Rules, Subscriptions, And Actions (Future)
 
-Rules and subscribers consume semantic events. Actions represent requested outcomes through future providers such as overlay, audio, streaming, webhook, MQTT, IPC, or hardware bridges. No action-provider contract exists yet.
+Rules and subscribers consume semantic events. The internal engine should own game semantics, routing, permissions, session policy, provider-capability checks, and native action execution. Actions represent requested outcomes through future providers such as overlay, audio, streaming, webhook, WebSocket, MQTT, IPC, or hardware bridges. External workflow systems may consume events or request authorized actions through generic integration surfaces, but do not replace the internal engine. No event router, action-provider contract, or inbound Action API exists yet.
 
 7. Experiences
 
@@ -77,6 +77,14 @@ The current browser overlay renders state and engine outputs. Future experiences
 8. Session Referee (Future, Later Product Track)
 
 A future layer above sessions (see Multiplayer And Sessions and Session Referee And Verified Environments in `product-vision.md`) that can declare, negotiate, verify, and — where a provider explicitly supports it — enforce the environment participants play under, and consume a future reviewed game-modification registry. No referee, verification, capability, or modification-registry contract exists yet; this layer is not scheduled into `P02`–`P05` (see `docs/project/implementation-plan.md`).
+
+## Progress, Results, And Spatial Context (Future)
+
+Progress is intended to be a normalized ruleset/session output, not a formula embedded in platform core. Domain data and semantic events may feed a domain- or ruleset-specific progress provider; sessions and views may consume its normalized output. Common session results should likewise provide a comparison surface without imposing one scoring formula across games.
+
+Cross-domain rulesets may translate rich domain events into shared objectives at the rules/session layer. Source providers should not perform that translation, and domain events should retain their semantic meaning.
+
+Normalized location state and game/domain map data are separate inputs to future map views. Spatial maps describe where things are; progression graphs describe prerequisites, reachability, and completion paths. Neither requires the other, and shared platform code must not assume tile coordinates or one global coordinate system. See `product-vision.md` for the canonical direction.
 
 ## Design Constraints
 
@@ -93,6 +101,10 @@ A future layer above sessions (see Multiplayer And Sessions and Session Referee 
 - Future semantic events should sit above normalized state and domain interpretation.
 - Event consumers should not depend on raw memory addresses, bits, or source field names.
 - Automation and multiplayer should reuse the semantic event foundation where practical, without forcing either concern into the current mapping/state runtime.
+- EOE's future rules/action engine owns gameplay semantics and execution policy; external workflow systems integrate through generic, authorized surfaces and are not core runtime dependencies.
+- Progress and scoring are ruleset/session outputs. Shared platform infrastructure must not impose a universal denominator, point conversion, or game-specific scoring formula.
+- Cross-domain objective translation belongs to rules/session logic, while domain events retain rich domain meaning.
+- Spatial maps and progression graphs are separate optional capabilities; do not require graphical maps for progress or assume universal coordinate semantics.
 - Local core must remain useful without cloud accounts or hosted infrastructure.
 - Session verification claims must describe reproducible, verifiable configuration and rule enforcement — never an absolute anti-cheat guarantee (see `product-vision.md`).
 - Gameplay-mutating actions (input, save/snapshot, reviewed game-modification activation) require explicit user authorization and provider-advertised capability; no action may assume a source is writable, and no template or extension may enable mutation silently.

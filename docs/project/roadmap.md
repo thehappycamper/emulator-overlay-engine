@@ -65,9 +65,14 @@ These are future tracks, not committed implementation slices:
 - Richer Pokemon assistant functionality: battle projections, route/capture support, scoring, facility set identification, and move prediction.
 - Extension Workbench for mapping and later event/rule/action authoring through reviewable contracts.
 - Local automation and extensible action providers.
-- Local sessions and rules for cooperative, competitive, and asynchronous experiences.
+- Optional interoperability with general-purpose workflow systems through generic event/action surfaces; EOE retains game semantics and safe execution.
+- Local sessions and rules for cooperative, competitive, asynchronous, and cross-domain experiences.
+- Ruleset-defined normalized progress, progression graphs, and common session results without a universal scoring formula.
+- Domain-aware location/map capabilities, kept separate from route/dependency progression graphs.
 - A Session Referee that declares, negotiates, verifies, and (where supported) enforces the shared session environment, plus a reviewed game-modification registry — see `docs/knowledge/product-vision.md` and ADR 0014.
 - A second game/domain proof.
 - Optional EOE Cloud sessions, synchronization, spectator experiences, and persistence.
 - Matchmaking and community features, kept separate from session/rules behavior.
 - Marketplace and other hosted commercial services around the MIT-licensed core.
+
+The canonical direction for progress, spatial capabilities, scoring/results, cross-domain competition, and external workflow interoperability is in `docs/knowledge/product-vision.md` and ADR 0016. These entries do not define contracts or commit implementation dates.

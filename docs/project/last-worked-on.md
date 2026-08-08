@@ -7,18 +7,15 @@ This is a short pointer, not the project history. For full history, see `docs/ta
 - **Active phase:** `P02` — Domain Boundary; `P01` remains completed. See [implementation plan](implementation-plan.md).
 - **Last completed task:** [`P02-T002` — Pokemon state/schema boundary](../tasks/P02/P02-T002.md) (2026-08-08, independent review APPROVE — no blocking findings, merged at `d2c24f1`). Pokemon now canonically owns its normalized-state schema; the former platform path is a compatibility `$ref` only.
 - **Active task:** [`P02-T003` — Domain registry descriptor immutability hardening](../tasks/P02/P02-T003.md) is implemented on `fix/P02-T003-domain-registry-immutability` and awaiting its own independent review — unresolved until reviewed and merged.
+- **Product-memory task:** [`P02-T004` — progress, spatial, cross-domain, and workflow-interoperability direction](../tasks/P02/P02-T004.md) is documentation-only and ready for review/merge approval on `docs/product-vision-progress-spatial-cross-domain`; it does not change `P02` runtime scope or gates.
 - **Remaining `P02` work:** a separately scoped Pokemon presentation/UI migration is still required to close the full phase exit gate; not yet started.
 - **Next planned phase:** `P03` — Semantic Event Foundation, entry-gated on `P02` closing.
 
 ## Most recent session (2026-08-08)
 
-`P02-T002` (Pokemon state/schema boundary) received independent review (verdict: APPROVE, no blocking findings) and project-owner merge approval, then was merged into `main` via fast-forward at `d2c24f1` (branch `feat/P02-T002-pokemon-state-schema-boundary`, implementation commit `3d8c6d2`). The Pokemon-shaped normalized-state schema — unchanged content, verified byte-identical to its pre-migration form — is now canonically owned at `src/domains/pokemon/schemas/overlay-state.schema.json` (ADR 0015); the former platform path `src/schemas/overlay-state.schema.json` is a non-duplicating compatibility `$ref` preserving the original schema `$id`; `pokemonDomain.stateContract` publishes named contract metadata (`pokemon.overlay-state` / `normalized-state` / `0.1.0`).
+`P02-T004` records future-only product direction for internal automation ownership, external workflow interoperability, normalized progress/results, progression graphs, spatial/map capabilities, cross-domain objectives, and the score/rating distinction. Canonical detail is in `docs/knowledge/product-vision.md` and ADR 0016; implementation and validation detail is in the task record.
 
-Post-merge validation: `npm test` on `main` — 54/54 passing; `git diff --check` — no whitespace errors; full documentation-link check — no broken links; independently re-verified on merged `main` (fresh script, not the branch's own tests) that the canonical schema and compatibility shim both validate `public/sample-state.json` correctly, `resolveDomain("pokemon").stateContract` matches the canonical schema's `$id`, and the mapping runtime still executes correctly.
-
-`P02` — Domain Boundary remains active. Calculator ownership (`P02-T001`) and schema ownership (`P02-T002`) are both complete; `P02-T003` (registry immutability hardening) is implemented but not yet independently reviewed/merged, and Pokemon presentation/UI migration has not started — both remain open before the phase can close.
-
-For the prior session (governance/branding/task-system establishment, Session Referee product vision, and `P01-T007`'s merge that closed `P01`), see `docs/tasks/P01/P01-T007.md`, `docs/tasks/P01/P01-T008.md`, and `docs/tasks/P01/P01-T009.md`.
+`P02` remains active. `P02-T004` is non-gating documentation work and does not alter the open registry-hardening or presentation/UI work.
 
 ## Updating this file
 

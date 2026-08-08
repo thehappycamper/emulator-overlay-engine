@@ -56,13 +56,24 @@ Status labels:
 | Event bus and subscriptions | planned | Future local event distribution after the event contract is proven |
 | Action-provider contract | planned | Future extensible boundary for overlay, audio, OBS, HTTP, MQTT, IPC, and hardware bridges |
 | Local automation rules | planned | Future event-to-action rules; no authoring or runtime exists |
+| Internal event/action routing | planned | Future native rules, permissions, session policy, capability checks, and action execution remain platform-owned |
+| External workflow interoperability | planned | Optional webhook, WebSocket, MQTT, IPC, or authenticated Action API surfaces for n8n, Node-RED, Home Assistant, and custom services; no runtime exists |
 | Local multiplayer/session engine | planned | Shared objectives, scoring, and win conditions; not emulator netplay |
+| Normalized session progress | planned | Ruleset/provider-defined `0..1` completion output; no universal denominator or schema yet |
+| Progress providers | planned | Future derivation from metadata, state, events, objectives, progression graphs, or seed manifests |
+| Progression graphs | planned | Optional objectives, prerequisites, branches, reachability, and route-aware completion data |
+| Spatial/location capability | planned | Domain-owned location meaning without assuming tiles or one global coordinate system |
+| Map data and views | planned | Separate map data plus live location for objectives, routes, participants, and spectator views |
+| Common session results | planned | Comparable completion/outcome surface with ruleset-specific scoring; public schema not designed |
+| Cross-domain rulesets | planned | Future shared objectives and competition across different games while preserving domain semantics |
+| Cross-domain objective mapping | planned | Rules/session-layer translation from rich domain events to shared objectives |
 | Session Referee (verified environments) | planned | Declares/negotiates/verifies session environment (game/version/hash/seed/ruleset/modifications); see `docs/knowledge/product-vision.md` and ADR 0014 |
 | Reviewed game modification registry | planned | Broader than legacy cheat-code libraries; identity, provenance, review status, mechanism, reversibility, save risk; gameplay mutation requires explicit user authorization |
 | Rule enforcement spectrum | planned | Architectural distinction (observed / session-enforced / game-enforced), not public enum names yet |
 | Source/provider capability advertisement | planned | Sources advertise capabilities (e.g. read, input, snapshot, modification) instead of every action assuming every source is writable; schema not designed |
 | Hosted sessions | planned | Optional EOE Cloud orchestration and synchronization |
 | Matchmaking | planned | Future participant discovery, separate from session/rules behavior |
+| Player rating | planned | Future matchmaking estimate across sessions; intentionally distinct from one session's score/result |
 | Spectator and session views | planned | Future live/session-history experiences built on normalized telemetry |
 | Shareable templates | planned | Base manifest exists; full mappings/calculated-fields/fixtures embedding remains deferred |
 | Template manifest schema | mvp | `src/schemas/template.schema.json` and example template under `examples/templates/` |
