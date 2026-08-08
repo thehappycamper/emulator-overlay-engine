@@ -27,6 +27,7 @@ test("registering a mutable descriptor still resolves correctly", () => {
   const registry = createDomainRegistry([widget]);
   const resolved = registry.resolve("widget");
 
+  assert.strictEqual(resolved, widget);
   assert.equal(resolved.id, "widget");
   assert.equal(resolved.calculators.double(21), 42);
 });
@@ -117,4 +118,89 @@ test("registering an already-frozen descriptor is a harmless no-op", () => {
 
   assert.equal(registry.resolve("widget"), widget);
   assert.equal(registry.resolve("widget").calculators.double(3), 6);
+});
+
+test("a frozen root does not prevent mutable descendants from being frozen", () => {
+  const metadata = { mutable: true };
+  const widget = Object.freeze({ id: "widget", metadata });
+  const registry = createDomainRegistry([widget]);
+
+  assert.strictEqual(registry.resolve("widget"), widget);
+  assert.ok(Object.isFrozen(metadata));
+  assert.throws(() => { metadata.mutable = false; }, TypeError);
+  assert.equal(registry.resolve("widget").metadata.mutable, true);
+});
+
+test("a frozen intermediate container does not hide mutable descendants", () => {
+  const deeper = { mutable: true };
+  const metadata = Object.freeze({ deeper });
+  const widget = { id: "widget", metadata };
+  const registry = createDomainRegistry([widget]);
+
+  assert.ok(Object.isFrozen(deeper));
+  assert.throws(() => { deeper.mutable = false; }, TypeError);
+  assert.equal(registry.resolve("widget").metadata.deeper.mutable, true);
+});
+
+test("multi-object cycles are traversed once and frozen", () => {
+  const widget = { id: "widget" };
+  const metadata = {};
+  const links = [];
+  widget.metadata = metadata;
+  metadata.links = links;
+  links.push(widget);
+
+  const registry = createDomainRegistry([widget]);
+
+  assert.strictEqual(registry.resolve("widget").metadata.links[0], widget);
+  assert.ok(Object.isFrozen(widget));
+  assert.ok(Object.isFrozen(metadata));
+  assert.ok(Object.isFrozen(links));
+});
+
+test("repeated references retain identity and are frozen once", () => {
+  const shared = { value: 1 };
+  const widget = { id: "widget", first: shared, second: shared };
+  const registry = createDomainRegistry([widget]);
+  const resolved = registry.resolve("widget");
+
+  assert.strictEqual(resolved.first, shared);
+  assert.strictEqual(resolved.second, shared);
+  assert.strictEqual(resolved.first, resolved.second);
+  assert.ok(Object.isFrozen(shared));
+});
+
+test("class-instance domain descriptors are rejected", () => {
+  class WidgetDomain {
+    constructor() {
+      this.id = "widget";
+    }
+  }
+
+  assert.throws(
+    () => createDomainRegistry([new WidgetDomain()]),
+    { name: "TypeError", message: "Domain packages must be plain objects" }
+  );
+});
+
+test("custom-prototype domain descriptors are rejected", () => {
+  const widget = Object.create({ domainKind: "custom" });
+  widget.id = "widget";
+
+  assert.throws(
+    () => createDomainRegistry([widget]),
+    { name: "TypeError", message: "Domain packages must be plain objects" }
+  );
+});
+
+test("null-prototype domain descriptors are accepted and frozen", () => {
+  const widget = Object.create(null);
+  widget.id = "widget";
+  widget.metadata = { value: 1 };
+
+  const registry = createDomainRegistry([widget]);
+
+  assert.strictEqual(registry.resolve("widget"), widget);
+  assert.ok(Object.isFrozen(widget));
+  assert.ok(Object.isFrozen(widget.metadata));
 });
