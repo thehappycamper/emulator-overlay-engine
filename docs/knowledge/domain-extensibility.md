@@ -46,6 +46,8 @@ Future domain responsibilities:
 - Semantic interpretation of normalized domain state.
 - Domain event detection and domain event definitions.
 - Domain-specific rules, calculators, analysis, and panels.
+- Domain location semantics and optional map/progression data or providers.
+- Domain-specific inputs to progress and scoring implementations.
 
 Normalized semantic events remain future work. This boundary does not define event, action, source-provider, or session interfaces. Source acquisition also remains separate from domain interpretation through `Source Provider -> Source Contract -> Mapping -> Normalized State`.
 
@@ -79,7 +81,20 @@ src/domains/pokemon/
 
 The state schema moved wholesale rather than gaining a platform envelope because current consumers use its direct payload and the mapping runtime already identifies targets through opaque named/versioned descriptors. See ADR 0015. Overlay panels should move only through a separately scoped slice with its own compatibility decision.
 
-Pokemon games should share one Pokemon domain. Future composition should layer generation/mechanics, game configuration, and revision/ROM-hack/mod overrides where they genuinely differ. This slice does not define those package contracts. A second domain should be added only when a real game integration can prove the boundary. The workbench could then create extensions against a selected domain. Platform mapping projects identify source and target contracts without hardcoding domain payloads. Future event detection should sit above normalized domain state rather than expose source memory semantics directly.
+Pokemon games should share one Pokemon domain. Future composition should layer generation/mechanics, game configuration, and revision/ROM-hack/mod overrides where they genuinely differ:
+
+```text
+Pokemon Domain
+  + Generation / Mechanics
+  + Game Configuration
+  + Revision / ROM Hack / Mod Overrides
+```
+
+Ruby, Sapphire, Emerald, FireRed, and LeafGreen should reuse genuinely shared Gen III behavior rather than duplicate complete implementations. Game differences should be explicit data, configuration, or overrides where practical; ROM hacks and randomizers should compose shared behavior and override only what differs. Prefer composition to class-style inheritance.
+
+This direction does not define those package contracts. A second domain should be added only when a real game integration can prove the boundary. The Workbench could then create extensions against a selected domain. Platform mapping projects identify source and target contracts without hardcoding domain payloads. Future event detection should sit above normalized domain state rather than expose source memory semantics directly.
+
+Cross-domain objective mapping belongs to future ruleset/session composition, not to source providers or domain-neutral core. Domain packages should retain rich semantic state and events; a session may translate selected meanings into common progress or result concepts without weakening the domain model.
 
 ## Rule
 

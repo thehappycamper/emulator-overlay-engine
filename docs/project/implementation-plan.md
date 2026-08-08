@@ -15,7 +15,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | --- | --- | --- |
 | `P00` | Initial MVP | completed |
 | `P01` | Platform Mapping Foundation | completed |
-| `P02` | Domain Boundary | active — calculators, schema, and registry hardening merged; presentation/UI migration and any explicitly required compatibility cleanup remain |
+| `P02` | Domain Boundary | active — calculators, schema, and registry hardening merged; presentation/UI migration and any explicitly required compatibility cleanup remain; `P02-T004` and `P02-T005` are non-gating documentation/governance |
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
 | `P05` | Live Gameplay Source | planned |
@@ -81,7 +81,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P02 — Domain Boundary
 
-**Status:** active. `P01` completed at `f1cc577`. Within `P02`: calculator ownership is complete (`P02-T001`, merged at `2617f4a`); Pokemon state/schema ownership is complete (`P02-T002`, merged at `d2c24f1`, independent review APPROVE); registry descriptor immutability hardening is complete (`P02-T003`, independent re-review APPROVE, merged at `7fa074b`). Cross-repository governance task `P02-T005` is also complete but is not a phase exit criterion. The phase remains open because Pokemon presentation/UI migration and any explicitly required compatibility cleanup are not yet done.
+**Status:** active. `P01` completed at `f1cc577`. Within `P02`: calculator ownership is complete (`P02-T001`, merged at `2617f4a`); Pokemon state/schema ownership is complete (`P02-T002`, merged at `d2c24f1`, independent review APPROVE); registry descriptor immutability hardening is complete (`P02-T003`, independent re-review APPROVE, merged at `7fa074b`). Product-direction task `P02-T004` and cross-repository governance task `P02-T005` are also complete but are not phase exit criteria. The phase remains open because Pokemon presentation/UI migration and any explicitly required compatibility cleanup are not yet done.
 
 **Objective:** Extract Pokemon-specific state, mechanics, and presentation assumptions behind a real Pokemon domain boundary, per ADR 0008 and `docs/knowledge/domain-extensibility.md`, while keeping shared platform code domain-neutral. Calculators are complete (`P02-T001`); state-schema ownership is complete (`P02-T002`); presentation remains deferred.
 
@@ -91,6 +91,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 - [`P02-T001`](../tasks/P02/P02-T001.md) — Introduce the first Pokemon domain boundary around existing calculators. Completed (merged to `main` at `2617f4a`).
 - [`P02-T002`](../tasks/P02/P02-T002.md) — Pokemon state/schema boundary (Pokemon-owned canonical schema plus compatibility alias). Completed (merged to `main` at `d2c24f1`).
 - [`P02-T003`](../tasks/P02/P02-T003.md) — Domain registry descriptor immutability hardening (closes `P02-T001`'s non-blocking review finding). Completed (independent re-review APPROVE, merged to `main` at `7fa074b`).
+- [`P02-T004`](../tasks/P02/P02-T004.md) — Record progress, spatial, cross-domain, and workflow-interoperability product direction. Documentation-only and non-gating; no `P02` runtime behavior or exit criterion changes.
 - [`P02-T005`](../tasks/P02/P02-T005.md) — Public/private repository boundary governance. Completed; cross-cutting documentation work, not a `P02` exit criterion.
 
 `P02-T002` and `P02-T003` were intentionally parallelizable — they touched disjoint files (schema/fixture paths vs. `src/platform/domain-registry.js` only) and landed independently. A separately scoped task must still migrate remaining Pokemon presentation/UI. No single completed task above satisfies the full `P02` exit gate by itself.
@@ -177,7 +178,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## Later Product Tracks (not yet phased)
 
-Kept coarse until the earlier contracts above are proven, per `docs/project/roadmap.md`'s "Subsequent Product Tracks": Extension Workbench GUI, richer Pokemon assistant functionality (battle projections, route/capture support, scoring, facility set identification, move prediction), local automation and action providers, local sessions/rules, a Session Referee capable of declaring/negotiating/verifying/enforcing session environments (game/version/hash/seed/ruleset/modification-set), a reviewed game-modification registry with explicit user-authorized activation, optional hosted services ("EOE Cloud" in current product-vision naming — see `docs/project/branding-and-renaming.md`), matchmaking and community features, and marketplace/commercial services. Full detail on the Session Referee/verified-environments direction is in `docs/knowledge/product-vision.md`'s "Session Referee And Verified Environments" section and ADR 0014 — it depends on events (`P03`), actions (`P04`), and source/provider capability advertisement (not yet phased), so it is not pulled into the near-term `P02`–`P06` sequence. These will be broken into phases (`P07`+) once the contracts they build on (`P02`–`P06`) are proven — assigning IDs and task records to them now would be planning ahead of the evidence this repository is built to require.
+Kept coarse until the earlier contracts above are proven, per `docs/project/roadmap.md`'s "Subsequent Product Tracks": Extension Workbench GUI, richer Pokemon assistant functionality (battle projections, route/capture support, scoring, facility set identification, move prediction), ruleset-defined progress and common session results, progression graphs and spatial/map views, local automation and action providers, optional external workflow interoperability, local same-domain or cross-domain sessions/rules, a Session Referee capable of declaring/negotiating/verifying/enforcing session environments (game/version/hash/seed/ruleset/modification-set), a reviewed game-modification registry with explicit user-authorized activation, optional hosted services ("EOE Cloud" in current product-vision naming — see `docs/project/branding-and-renaming.md`), matchmaking and community features, and marketplace/commercial services. Full detail lives in `docs/knowledge/product-vision.md`; ADR 0014 records Session Referee direction and ADR 0016 records progress/spatial/cross-domain/workflow boundaries. These tracks depend on contracts not yet proven, so they are not pulled into the near-term `P02`–`P06` sequence. They will be broken into phases (`P07`+) only when the earlier contracts justify it.
 
 ## Updating this plan
 
