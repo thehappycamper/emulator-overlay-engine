@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { resolveDomain } from "../src/domains/index.js";
-import { pokemonDomain, pokemonStateContract } from "../src/domains/pokemon/index.js";
+import {
+  pokemonDomain,
+  pokemonPresentation,
+  pokemonStateContract
+} from "../src/domains/pokemon/index.js";
 import { calculateCaptureChance as legacyCalculateCaptureChance } from "../src/engine/capture.js";
 
 test("Pokemon resolves through the application domain boundary", () => {
@@ -17,6 +21,8 @@ test("Pokemon resolves through the application domain boundary", () => {
     schema: "https://emulator-overlay-engine.local/schemas/overlay-state.schema.json"
   });
   assert.equal(domain.calculators.typeEffectiveness("ice", ["dragon", "flying"]), 4);
+  assert.strictEqual(domain.presentation, pokemonPresentation);
+  assert.equal(typeof domain.presentation.renderOverlay, "function");
 });
 
 test("unknown application domains fail deterministically", () => {

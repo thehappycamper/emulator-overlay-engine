@@ -58,9 +58,9 @@ Transforms source JSON into a named and versioned target contract through direct
 
 4. Domain Engine
 
-Owns domain-specific contracts and calculates domain-specific outputs. The first implemented boundary is `src/domains/pokemon/`, which owns the current normalized-state schema plus the existing damage, capture, and type-effectiveness calculations. Its descriptor publishes named state-contract metadata. A small domain-neutral registry in `src/platform/domain-registry.js` resolves explicitly composed domain packages without importing Pokemon itself.
+Owns domain-specific contracts, calculations, and presentation. The first implemented boundary is `src/domains/pokemon/`, which owns the current normalized-state schema, damage/capture/type-effectiveness calculations, and static overlay rendering/styles. Its descriptor publishes named state-contract metadata and a presentation capability. A small domain-neutral registry in `src/platform/domain-registry.js` resolves explicitly composed domain packages without importing Pokemon itself.
 
-The browser presentation remains Pokemon-specific outside the package and is intentionally deferred for incremental migration. Source acquisition remains independent from domain interpretation: providers emit source contracts, mappings produce named domain-owned targets, and domain packages interpret those targets.
+The browser bootstrap and presentation dispatcher remain domain-neutral. Source acquisition remains independent from domain interpretation: providers emit source contracts, mappings produce named domain-owned targets, and domain packages interpret and present those targets.
 
 5. Semantic Event Detection (Future)
 
@@ -72,7 +72,7 @@ Rules and subscribers consume semantic events. The internal engine should own ga
 
 7. Experiences
 
-The current browser overlay renders state and engine outputs. Future experiences may include automations and local or hosted sessions. Hosted services are optional consumers, not dependencies of local EOE Core.
+The current browser overlay host loads state and invokes the selected domain presentation. Future experiences may include automations and local or hosted sessions. Hosted services are optional consumers, not dependencies of local EOE Core.
 
 8. Session Referee (Future, Later Product Track)
 

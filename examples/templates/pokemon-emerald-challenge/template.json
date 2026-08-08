@@ -24,9 +24,9 @@
   ],
   "ui": {
     "panels": [
-      { "id": "party", "slot": "party", "module": "example.overlay-panel" },
-      { "id": "battle", "slot": "battle", "module": "example.overlay-panel" },
-      { "id": "route", "slot": "location", "module": "example.overlay-panel" }
+      { "id": "party", "slot": "pokemon.party", "module": "example.overlay-panel" },
+      { "id": "battle", "slot": "pokemon.battle", "module": "example.overlay-panel" },
+      { "id": "route", "slot": "pokemon.location", "module": "example.overlay-panel" }
     ]
   },
   "publicSafety": {

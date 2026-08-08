@@ -11,21 +11,22 @@ Overlays are EOE's first visible product surface. They currently consume normali
 - Let panels consume normalized state and extension-provided data.
 - Keep private/local data out of public manifests.
 
-## Panel Slots
+## Panel Slot Identifiers
 
-Overlay panel extensions should declare one or more preferred slots:
+Overlay panel extensions may declare one or more preferred semantic slot identifiers. The shared extension schema validates identifier syntax but does not enumerate domain vocabulary. The eventual host decides placement; slots are preferences, not absolute layout control.
 
-| Slot | Purpose |
+New domain-specific identifiers should be qualified:
+
+| Example | Purpose |
 | --- | --- |
-| `party` | Party/team information. |
-| `battle` | Current opponent, damage, prediction, and switch projections. |
-| `location` | Route, encounter, and catch information. |
-| `score` | Challenge scoring and projected penalties. |
-| `inspector` | Detailed selected Pokemon, move, item, or trainer data. |
-| `sidebar` | Compact persistent panels. |
-| `custom` | Extension-specific layouts that do not fit standard slots. |
+| `pokemon.party` | Pokemon party information. |
+| `pokemon.battle` | Pokemon battle and projection information. |
+| `pokemon.location` | Pokemon route and encounter information. |
+| `sidebar` | An unqualified host/layout convention where a template and host agree on it. |
 
-The host overlay decides final placement. Slots are preferences, not absolute layout control.
+Legacy unqualified values such as `party`, `battle`, and `location` remain schema-valid for existing manifests and templates. They are compatibility identifiers, not platform-defined gameplay concepts. A future panel-host contract must either continue supporting them or define an explicit versioned migration.
+
+The current static overlay does not load panel extensions. It uses the statically registered Pokemon domain presentation described by ADR 0017. Full panel placement and runtime loading remain future work.
 
 ## Data Flow
 

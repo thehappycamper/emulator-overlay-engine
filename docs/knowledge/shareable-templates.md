@@ -47,7 +47,7 @@ emulator: mGBA
 game mapping: Pokemon Emerald US
 data: Gen 3 vanilla data
 mechanics: Gen 3 Pokemon mechanics
-panels: party, battle, route, capture, score
+panels: pokemon.party, pokemon.battle, pokemon.location, pokemon.capture, pokemon.score
 ```
 
 Fusion game template:
@@ -57,7 +57,7 @@ emulator: mGBA or supported runtime
 game mapping: custom fusion game memory/state
 data: fusion species and learnsets
 mechanics: fusion stat/type formulas
-panels: fusion inspector, party, battle, route
+panels: pokemon.fusion-inspector, pokemon.party, pokemon.battle, pokemon.location
 ```
 
 Non-Pokemon game template:

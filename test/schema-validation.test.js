@@ -32,6 +32,7 @@ const platformSchemas = [
   "template.schema.json",
   "mapping.schema.json"
 ].map((name) => readJson(join(schemaDirectory, name)));
+const extensionSchema = platformSchemas.find((schema) => schema.$id.endsWith("/extension.schema.json"));
 const pokemonStateSchema = readJson(join(pokemonSchemaDirectory, "overlay-state.schema.json"));
 const legacyStateSchema = readJson(join(schemaDirectory, "overlay-state.schema.json"));
 
@@ -142,4 +143,23 @@ test("template module types reuse and enforce the extension type contract", () =
 
   assert.equal(validate(template), false);
   assert.ok(validate.errors.some((error) => error.keyword === "enum"));
+});
+
+test("UI slot identifiers are domain-extensible and preserve legacy values", () => {
+  const validateExtension = ajv.getSchema("https://emulator-overlay-engine.local/schemas/extension.schema.json");
+  const extension = readJson(join(repositoryRoot, "examples", "extensions", "overlay-panel-extension", "extension.json"));
+  extension.ui.slots = ["party", "pokemon.party", "sidebar"];
+
+  assert.equal(validateExtension(extension), true);
+  assert.equal(extensionSchema.properties.ui.properties.slots.items.$ref, "#/$defs/uiSlotId");
+  assert.equal("enum" in extensionSchema.$defs.uiSlotId, false);
+
+  extension.ui.slots = ["Pokemon Party"];
+  assert.equal(validateExtension(extension), false);
+  assert.ok(validateExtension.errors.some((error) => error.keyword === "pattern"));
+
+  const validateTemplate = ajv.getSchema("https://emulator-overlay-engine.local/schemas/template.schema.json");
+  const template = readJson(join(repositoryRoot, "examples", "templates", "pokemon-emerald-challenge", "template.json"));
+  assert.ok(template.ui.panels.every((panel) => panel.slot.startsWith("pokemon.")));
+  assert.equal(validateTemplate(template), true);
 });

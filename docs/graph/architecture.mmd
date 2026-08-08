@@ -5,8 +5,8 @@ flowchart LR
   SourceContract --> MappingRuntime
   MappingRuntime --> NormalizedState["Domain-owned Normalized State\nCurrent: Pokemon contract"]
   NormalizedState --> DomainBoundary["Domain Boundary\nExplicit package composition"]
-  DomainBoundary --> PokemonDomain["Pokemon Domain Package\nCurrent state schema + calculators"]
-  PokemonDomain --> CurrentConsumers["Current MVP\nCalculations + Overlay"]
+  DomainBoundary --> PokemonDomain["Pokemon Domain Package\nCurrent state schema + calculators + presentation"]
+  PokemonDomain --> CurrentConsumers["Current MVP\nCalculations + generic overlay host"]
 
   PokemonDomain -. future .-> EventDetection["Domain Event Detection\nFuture"]
   EventDetection -.-> NormalizedEvents["Normalized Events\nFuture"]

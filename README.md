@@ -13,8 +13,8 @@ The larger product direction, including future automation, sessions, and optiona
 The implemented foundation is intentionally small and Pokemon-focused:
 
 - Pokemon-owned normalized JSON state contract for party, opponent, bag, location, encounter data, seed, and scoring.
-- Dependency-free browser overlay that renders a useful challenge dashboard from that state.
-- Pokemon domain package with damage, catch, and type-effectiveness calculators plus Node tests.
+- Dependency-free, domain-neutral browser host that renders a useful challenge dashboard through the selected domain presentation.
+- Pokemon domain package with its normalized-state contract, overlay presentation, and damage, catch, and type-effectiveness calculators plus Node tests.
 - Domain-neutral mapping contract with safe calculated expressions and schema-validated examples.
 - Gen 3 mGBA adapter notes describing how live Lua export should reach normalized state, via the mapping runtime or as a documented direct-export exception.
 - GitHub Actions CI for tests.
@@ -33,7 +33,7 @@ Then open:
 http://127.0.0.1:5173
 ```
 
-The overlay currently reads `public/sample-state.json`. A live emulator adapter can later reach `public/live-state.json` with normalized state (via the mapping runtime, or a documented direct-export exception — see `docs/knowledge/adapter-contracts.md`), and the UI can be switched to that feed.
+The overlay currently reads `public/sample-state.json`. A live emulator adapter can later reach `public/live-state.json` with normalized state (via the mapping runtime, or a documented direct-export exception — see `docs/knowledge/adapter-contracts.md`), and the UI can select it with `?state=/public/live-state.json`. The current overlay loads once; polling or transport for continuous updates remains future live-integration work.
 
 ## Local Configuration
 

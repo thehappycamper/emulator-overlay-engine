@@ -11,20 +11,17 @@ The first concrete domain package now lives at `src/domains/pokemon/`. It owns:
 - Capture and bag-ball chance calculations.
 - The canonical Pokemon normalized-state schema at `src/domains/pokemon/schemas/overlay-state.schema.json`.
 - Named state-contract metadata exposed through `pokemonDomain.stateContract`.
+- Pokemon overlay field interpretation, calculator-backed projections, markup, and styles through `pokemonDomain.presentation`.
 
 `src/platform/domain-registry.js` is the minimal domain-neutral boundary. It accepts explicitly supplied domain packages and resolves them by stable domain ID. `src/domains/index.js` is the current application composition root and registers `pokemon`; shared platform code does not import the Pokemon implementation.
 
 The registry owns structural descriptor-container immutability as a platform guarantee, not a per-domain convention. A top-level domain descriptor must be a plain object with either `Object.prototype` or a null prototype. Registration freezes that object and every reachable plain-object/array container in place through own enumerable string-keyed properties, including mutable descendants beneath already-frozen containers. Descriptor and calculator-function identity are preserved. Functions, class instances, Maps, Sets, and other nested non-container values are left untouched; executable behavior and closed-over mutable state remain trusted, repository-reviewed code rather than part of the structural freeze guarantee.
 
-Compatibility re-exports remain under `src/engine/` so existing imports do not break during incremental migration. The current overlay resolves the Pokemon package through the application boundary.
+Compatibility re-exports remain under `src/engine/` so existing imports do not break during incremental migration. The domain-neutral browser host resolves the selected package through the application boundary and invokes its presentation capability; `public/index.html` selects Pokemon for the current MVP.
 
 The former platform schema path, `src/schemas/overlay-state.schema.json`, remains a compatibility `$ref` only. It contains no independently maintained Pokemon payload fields. New integrations should use the canonical domain path and schema ID.
 
-Pokemon-specific code still outside the package:
-
-- Browser overlay rendering and party/team presentation assumptions.
-- Species, moves, IVs, EVs, abilities, items, encounters, and trainer concepts.
-- Pokemon examples, fixtures, and domain documentation.
+Pokemon-specific artifacts intentionally remain outside the package where they are not shared runtime ownership: the public sample fixture, Pokemon extension/template examples, domain documentation, and compatibility-only `src/engine/*` re-exports. Shared platform runtime and schemas no longer interpret Pokemon fields or enumerate Pokemon panel slots.
 
 Implemented shared platform foundation:
 
@@ -67,19 +64,16 @@ src/
       index.js
       capture.js
       damage.js
+      presentation.js
+      presentation.css
       type-chart.js
       schemas/
         overlay-state.schema.json
 ```
 
-Future Pokemon-owned areas may include:
+The state schema moved wholesale rather than gaining a platform envelope because current consumers use its direct payload and the mapping runtime already identifies targets through opaque named/versioned descriptors. See ADR 0015. The separately scoped presentation migration and its compatible slot decision are recorded in ADR 0017.
 
-```text
-src/domains/pokemon/
-  overlay-panels/
-```
-
-The state schema moved wholesale rather than gaining a platform envelope because current consumers use its direct payload and the mapping runtime already identifies targets through opaque named/versioned descriptors. See ADR 0015. Overlay panels should move only through a separately scoped slice with its own compatibility decision.
+ADR 0017 records the implemented presentation boundary. The current static Pokemon presentation is domain-owned; a dynamic panel extension host remains future work and should not be inferred from this narrow descriptor capability.
 
 Pokemon games should share one Pokemon domain. Future composition should layer generation/mechanics, game configuration, and revision/ROM-hack/mod overrides where they genuinely differ:
 

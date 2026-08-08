@@ -10,7 +10,7 @@
     "main": "panel.js"
   },
   "ui": {
-    "slots": ["battle", "sidebar"],
+    "slots": ["pokemon.battle", "sidebar"],
     "requiresStateFields": ["player.party", "battle.opponent"],
     "optionalStateFields": ["extensions.example.overlay-panel"]
   },

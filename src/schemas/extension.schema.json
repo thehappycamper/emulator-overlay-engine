@@ -88,9 +88,7 @@
       "properties": {
         "slots": {
           "type": "array",
-          "items": {
-            "enum": ["party", "battle", "location", "score", "inspector", "sidebar", "custom"]
-          }
+          "items": { "$ref": "#/$defs/uiSlotId" }
         },
         "requiresStateFields": {
           "type": "array",
@@ -126,6 +124,10 @@
         "overlay-panel",
         "transport"
       ]
+    },
+    "uiSlotId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
     }
   },
   "additionalProperties": true

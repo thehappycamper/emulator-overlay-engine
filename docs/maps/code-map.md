@@ -23,15 +23,18 @@
 | --- | --- |
 | `src/platform/domain-registry.js` | Domain-neutral immutable registry for explicitly composed domain packages. |
 | `src/domains/index.js` | Application composition root that registers the currently supported domains. |
-| `src/domains/pokemon/index.js` | Pokemon domain descriptor, named state-contract metadata, and public calculator surface. |
+| `src/domains/pokemon/index.js` | Pokemon domain descriptor, named state-contract metadata, calculator surface, and presentation capability. |
 | `src/domains/pokemon/type-chart.js` | Pokemon type effectiveness lookup and multiplier calculation. |
 | `src/domains/pokemon/damage.js` | Pokemon damage range and projected switch-in damage calculations. |
 | `src/domains/pokemon/capture.js` | Pokemon capture chance and bag ball chance calculations. |
+| `src/domains/pokemon/presentation.js` | Pokemon-owned static overlay rendering and calculator-backed presentation projections. |
+| `src/domains/pokemon/presentation.css` | Pokemon-owned overlay layout and component styles. |
 | `src/domains/pokemon/schemas/overlay-state.schema.json` | Canonical Pokemon normalized-state contract. |
 | `src/engine/*.js` | Compatibility re-exports for calculator imports that predate the domain package. |
 | `src/expressions/evaluate.js` | Pure evaluator for the whitelisted JSON expression AST. |
 | `src/mapping/apply.js` | Executes direct, value, and calculated mappings into a new target value. |
-| `src/overlay/app.js` | Browser overlay rendering from normalized state and domain module outputs. |
+| `src/overlay/host.js` | Domain-neutral validation and dispatch for a selected domain overlay presentation. |
+| `src/overlay/app.js` | Domain-neutral browser bootstrap: state loading, domain lookup, stylesheets, errors, and presentation dispatch. |
 | `src/schemas/overlay-state.schema.json` | Compatibility `$ref` from the former platform path to the Pokemon-owned state contract. |
 | `src/schemas/extension.schema.json` | Public extension manifest contract. |
 | `src/schemas/template.schema.json` | Public template manifest contract. |
@@ -42,7 +45,7 @@
 | Path | Purpose |
 | --- | --- |
 | `public/index.html` | Browser overlay entry point. |
-| `public/styles.css` | Overlay styles. |
+| `public/styles.css` | Domain-neutral overlay shell variables, reset, and error styles. |
 | `public/sample-state.json` | Static sample state used by MVP overlay. |
 
 ## Adapters
@@ -64,6 +67,7 @@
 | --- | --- |
 | `test/engine.test.js` | Node tests for type, damage, projection, and capture calculators. |
 | `test/domain-boundary.test.js` | Pokemon package resolution, behavior, unknown-domain, and compatibility tests. |
+| `test/presentation-boundary.test.js` | Generic presentation dispatch and Pokemon static-rendering regression coverage. |
 | `test/platform-domain-registry.test.js` | Platform-only proof that no domain implementation is registered implicitly. |
 | `test/expressions.test.js` | Safe expression behavior and negative security tests. |
 | `test/mapping.test.js` | Mapping pipeline and fusion example execution tests. |
