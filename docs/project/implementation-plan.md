@@ -63,6 +63,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 - [`P01-T005`](../tasks/P01/P01-T005.md) — Document event-driven platform vision. Completed.
 - [`P01-T006`](../tasks/P01/P01-T006.md) — Clarify source-agnostic platform boundary. Completed.
 - [`P01-T007`](../tasks/P01/P01-T007.md) — Harden JSON Pointer array writes. **Active — blocking.**
+- [`P01-T008`](../tasks/P01/P01-T008.md) — Establish project task governance and rename strategy. Ready-to-merge, pending approval.
 
 **Exit criteria (phase gate):**
 - All of `P01-T001`–`P01-T006` complete. ✅

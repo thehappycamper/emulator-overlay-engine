@@ -31,12 +31,77 @@ See `docs/knowledge/product-vision.md` for the canonical product direction.
 
 ## Branching And Releases
 
-- Default branch: `main`.
-- Regular work should land on `main` quickly after tests pass.
-- Use short-lived branches only for risky, experimental, or multi-session work.
+`main` represents approved, integrated project state.
+
+### Protected main
+
+Agents must not:
+
+- develop directly on `main`;
+- commit task work directly to `main`;
+- merge into `main` without explicit approval;
+- force-push `main`;
+- reset `main`;
+- use `main` as scratch space.
+
+### Task branches
+
+Every repository-changing task must:
+
+1. Start from an up-to-date approved `main`.
+2. Create a dedicated short-lived task branch.
+3. Make only task-scoped changes.
+4. Run required tests/validation.
+5. Update the applicable task/project records (see Task Governance below).
+6. Commit.
+7. Push the task branch.
+8. Stop.
+9. Report branch, commit, tests/results, task status, and review concerns.
+10. Request merge approval.
+
+Implementation completion means the task is `ready-to-merge`, not `completed`. A task becomes `completed` only after approved integration into `main` and any required post-merge bookkeeping/validation. Explicit merge approval comes from the project-management/owner workflow, not from the implementing agent deciding its own work is ready.
+
+Normal lifecycle:
+
+```text
+main
+ -> task branch
+ -> implementation
+ -> tests / validation
+ -> push
+ -> independent review where required
+ -> fixes where required
+ -> ready-to-merge
+ -> explicit merge approval
+ -> merge into main
+ -> post-merge validation
+ -> completed
+```
+
 - Delete merged branches after merge.
 - Avoid long-lived isolated branches.
 - Public releases should be tagged from `main` after CI passes.
+
+### Concurrent agents and working-tree isolation
+
+Branches alone are insufficient when multiple agents share the same filesystem checkout — one agent switching branches (or resetting, or leaving uncommitted changes) in a shared working tree can corrupt or confuse another agent's in-progress work.
+
+- Agents must not switch branches in a working tree another active agent may be using.
+- Agents must not carry unrelated uncommitted changes between task branches.
+- For concurrent work, use **one task branch + one independent worktree or clone** per active agent/task. If a branch is already checked out in the primary working tree (`git worktree add` will refuse a second checkout of the same branch), use an independent `git clone` of the repository instead — clone from `origin`, not from the shared local checkout, so the isolated copy has no dependency on the shared tree's state.
+- Do not hardcode machine-specific worktree/clone paths into documentation or scripts; a sibling directory alongside the repository (e.g. `../<repo>-worktrees/<task-branch>/`) is a reasonable convention, not a fixed path.
+- Before starting work, check whether the current checkout could be in use by another agent (recent unexpected branch changes, uncommitted changes you didn't make, another branch with recent commits). If so, isolate before editing rather than after.
+
+Preferred conceptual layout:
+
+```text
+repository-main/
+    main
+
+worktrees-or-clones/
+    task-a/ -> branch A
+    task-b/ -> branch B
+```
 
 ## CI Expectations
 
@@ -75,12 +140,27 @@ The current product name (Emulator Overlay Engine / EOE) is temporary and intent
 
 ## Task Governance
 
-Implementation work beyond trivial fixes should be tracked in `docs/tasks/`. See `docs/tasks/README.md` and `docs/project/implementation-plan.md` for the phase/task structure.
+Implementation work beyond trivial fixes should be tracked in `docs/tasks/`. See `docs/tasks/README.md`, `docs/tasks/TEMPLATE.md`, and `docs/project/implementation-plan.md` for the phase/task structure.
 
 - Non-trivial implementation work should have or reference a task ID (e.g. `P01-T004`).
 - Update the task record during completion: status, result, tests run, and the completing commit.
 - Update the owning phase's status in `docs/project/implementation-plan.md` when a phase gate changes (a phase completes, a new phase starts, or a blocking task is identified).
 - Update architecture/ADR docs when the task changes architecture, public APIs, or long-term direction — routine implementation work does not require a new ADR.
+
+### Task statuses
+
+`planned` -> `active` -> `blocked` (if applicable) -> `review` (if applicable) -> `ready-to-merge` -> `completed`, or `cancelled` at any point.
+
+- `ready-to-merge` means implementation, tests, and any required review are done and the branch is pushed — it is not merged and not `completed`.
+- `completed` means the work is merged into `main` (with explicit approval) and any required post-merge validation/bookkeeping is done.
+
+### Independent review
+
+Where a task requires independent review, the implementing agent's own self-assessment does not satisfy that requirement — a separate reviewing pass (a different agent, session, or human) is needed before the task can be marked `ready-to-merge`. This role is not permanently assigned to any specific agent or tool — whichever agent or human is doing the implementing, someone else does the reviewing for tasks that call for it. Not every task needs independent review; routine, low-risk, or documentation-only tasks can skip it, and the task record should say so rather than leaving the field blank.
+
+### Parallel task planning
+
+Choose parallel tasks only when their dependencies actually permit concurrent execution. Before starting a task alongside another in-progress one, check the Dependencies and Scope sections of both task records: if they touch the same files, the same schema/contract, or one's exit criteria depends on the other's output, they are not safely parallel — sequence them instead. `docs/project/implementation-plan.md`'s phase dependencies and each task record's Dependencies/Scope fields exist specifically so this check can be made without guessing.
 
 ## Documentation Checklist
 

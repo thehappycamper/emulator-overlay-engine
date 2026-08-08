@@ -11,7 +11,7 @@ This is a short pointer, not the project history. For full history, see `docs/ta
 
 ## Most recent session (2026-08-08)
 
-Governance work on branch `chore/project-governance-brand-agnostic`: established `docs/project/branding-and-renaming.md` (brand-agnostic coding rule + rename inventory) and the `docs/tasks/`/`docs/project/implementation-plan.md` task-governance system, and backfilled task records for `P00`–`P01`'s prior work (previously only narrated here). No product runtime/schema behavior changed. See that branch's own task record once created, and `docs/tasks/P01/P01-T006.md` for the prior session's actual product-facing work (source-agnostic platform clarification).
+Governance work on branch `chore/project-governance-brand-agnostic`, tracked as [`P01-T008`](../tasks/P01/P01-T008.md) (status: `ready-to-merge`, pending approval — not yet on `main`): established `docs/project/branding-and-renaming.md`, the `docs/tasks/`/`docs/project/implementation-plan.md` task-governance system, backfilled `P00`–`P01` task records, and — in a follow-up increment — formalized the Protected Main / Task Branches / Concurrent Agents / merge-approval workflow in `AGENTS.md` after this task's own working directory was found switched to another branch by a concurrent agent mid-session (see `P01-T008`'s Implementation Notes). No product runtime/schema behavior changed. For the prior session's actual product-facing work, see `docs/tasks/P01/P01-T006.md` (source-agnostic platform clarification).
 
 ## Updating this file
 
