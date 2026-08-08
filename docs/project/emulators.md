@@ -1,6 +1,6 @@
 # Emulator Compatibility
 
-The engine is emulator-agnostic. Compatibility is provided by emulator extensions that export normalized state.
+The engine is source-agnostic; an emulator is one source-provider type, not a platform assumption (see `docs/knowledge/adapter-contracts.md`). Compatibility is provided by emulator extensions that emit a source contract for declarative mapping, or — as a documented early-integration exception — a reviewed normalized target directly.
 
 ## Known Local Targets
 
@@ -16,7 +16,7 @@ The engine is emulator-agnostic. Compatibility is provided by emulator extension
 An emulator adapter should:
 
 - Read live emulator/game state.
-- Normalize state into `src/schemas/overlay-state.schema.json`.
+- Emit a documented source contract for mapping into `src/schemas/overlay-state.schema.json`, or, during early integration, write that normalized shape directly as a reviewed exception (see `docs/knowledge/adapter-contracts.md`'s Source And Export Shape).
 - Avoid embedding UI behavior.
 - Avoid embedding generic damage/capture/scoring logic.
 - Document supported emulator version, ROM/game target, and known limitations.

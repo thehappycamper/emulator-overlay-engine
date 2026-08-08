@@ -26,7 +26,7 @@ Users should eventually be able to share complete templates that bundle these pi
 - Do not commit ROMs, BIOS files, copyrighted game assets, personal saves, or secrets.
 - Contributed data should document its source and target version.
 - ROM-hack mappings must identify the hack name and version they support.
-- Extensions should map into the normalized API instead of changing the engine for one specific ROM.
+- Extensions should reach the normalized API through the mapping runtime (or a documented direct-export exception, see `docs/knowledge/adapter-contracts.md`) instead of changing the engine for one specific ROM.
 - Add sample fixtures where possible.
 - Add or update tests for parser, mapping, or calculator behavior.
 - Update `docs/project/features.md`, `docs/project/emulators.md`, and `docs/maps/code-map.md` when relevant.

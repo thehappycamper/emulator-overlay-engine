@@ -11,7 +11,12 @@ This is a short pointer, not the project history. For full history, see `docs/ta
 
 ## Most recent session (2026-08-08)
 
-Governance work on branch `chore/project-governance-brand-agnostic`, tracked as [`P01-T008`](../tasks/P01/P01-T008.md) (status: `ready-to-merge`, pending approval — not yet on `main`): established `docs/project/branding-and-renaming.md`, the `docs/tasks/`/`docs/project/implementation-plan.md` task-governance system, backfilled `P00`–`P01` task records, and — in a follow-up increment — formalized the Protected Main / Task Branches / Concurrent Agents / merge-approval workflow in `AGENTS.md` after this task's own working directory was found switched to another branch by a concurrent agent mid-session (see `P01-T008`'s Implementation Notes). No product runtime/schema behavior changed. For the prior session's actual product-facing work, see `docs/tasks/P01/P01-T006.md` (source-agnostic platform clarification).
+Governance and product-vision work on branch `chore/project-governance-brand-agnostic`, tracked as [`P01-T008`](../tasks/P01/P01-T008.md) and [`P01-T009`](../tasks/P01/P01-T009.md) (both `ready-to-merge`, pending approval — not yet on `main`):
+
+- `P01-T008` established `docs/project/branding-and-renaming.md`, the `docs/tasks/`/`docs/project/implementation-plan.md` task-governance system, backfilled `P00`–`P01` task records, and formalized the Protected Main / Task Branches / Concurrent Agents / merge-approval workflow in `AGENTS.md` after this task's own working directory was found switched to another branch by a concurrent agent mid-session (see `P01-T008`'s Implementation Notes).
+- `P01-T009` recorded a new Session Referee/verified-environment/reviewed-modification-registry product-vision direction (`docs/knowledge/product-vision.md`, ADR 0014), then ran a repository-wide consistency audit that found and fixed six files still describing adapters/extensions as bypassing the mapping runtime to write normalized state directly, without noting that's a documented exception rather than the general pattern.
+
+No product runtime/schema behavior changed by either task. For the prior session's actual product-facing work, see `docs/tasks/P01/P01-T006.md` (source-agnostic platform clarification).
 
 ## Updating this file
 

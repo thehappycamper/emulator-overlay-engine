@@ -72,6 +72,10 @@ Rules and subscribers consume semantic events. Actions represent requested outco
 
 The current browser overlay renders state and engine outputs. Future experiences may include automations and local or hosted sessions. Hosted services are optional consumers, not dependencies of local EOE Core.
 
+8. Session Referee (Future, Later Product Track)
+
+A future layer above sessions (see Multiplayer And Sessions and Session Referee And Verified Environments in `product-vision.md`) that can declare, negotiate, verify, and — where a provider explicitly supports it — enforce the environment participants play under, and consume a future reviewed game-modification registry. No referee, verification, capability, or modification-registry contract exists yet; this layer is not scheduled into `P02`–`P05` (see `docs/project/implementation-plan.md`).
+
 ## Design Constraints
 
 - Normalized state APIs are integration boundaries.
@@ -85,6 +89,8 @@ The current browser overlay renders state and engine outputs. Future experiences
 - Event consumers should not depend on raw memory addresses, bits, or source field names.
 - Automation and multiplayer should reuse the semantic event foundation where practical, without forcing either concern into the current mapping/state runtime.
 - Local core must remain useful without cloud accounts or hosted infrastructure.
+- Session verification claims must describe reproducible, verifiable configuration and rule enforcement — never an absolute anti-cheat guarantee (see `product-vision.md`).
+- Gameplay-mutating actions (input, save/snapshot, reviewed game-modification activation) require explicit user authorization and provider-advertised capability; no action may assume a source is writable, and no template or extension may enable mutation silently.
 - ROM hacks should be handled by adapter/data mappings, not generic engine forks.
 - Overlay rendering should degrade gracefully when optional data is unavailable.
 - Any long-term API change should have an ADR.

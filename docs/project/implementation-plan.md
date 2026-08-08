@@ -64,6 +64,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 - [`P01-T006`](../tasks/P01/P01-T006.md) — Clarify source-agnostic platform boundary. Completed.
 - [`P01-T007`](../tasks/P01/P01-T007.md) — Harden JSON Pointer array writes. **Active — blocking.**
 - [`P01-T008`](../tasks/P01/P01-T008.md) — Establish project task governance and rename strategy. Ready-to-merge, pending approval.
+- [`P01-T009`](../tasks/P01/P01-T009.md) — Record Session Referee and verified-environment product vision (ADR 0014). Ready-to-merge, pending approval.
 
 **Exit criteria (phase gate):**
 - All of `P01-T001`–`P01-T006` complete. ✅
@@ -168,7 +169,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 
 ## Later Product Tracks (not yet phased)
 
-Kept coarse until the earlier contracts above are proven, per `docs/project/roadmap.md`'s "Subsequent Product Tracks": Extension Workbench GUI, richer Pokemon assistant functionality (battle projections, route/capture support, scoring, facility set identification, move prediction), local automation and action providers, local sessions/rules, optional hosted services ("EOE Cloud" in current product-vision naming — see `docs/project/branding-and-renaming.md`), matchmaking and community features, and marketplace/commercial services. These will be broken into phases (`P07`+) once the contracts they build on (`P02`–`P06`) are proven — assigning IDs and task records to them now would be planning ahead of the evidence this repository is built to require.
+Kept coarse until the earlier contracts above are proven, per `docs/project/roadmap.md`'s "Subsequent Product Tracks": Extension Workbench GUI, richer Pokemon assistant functionality (battle projections, route/capture support, scoring, facility set identification, move prediction), local automation and action providers, local sessions/rules, a Session Referee capable of declaring/negotiating/verifying/enforcing session environments (game/version/hash/seed/ruleset/modification-set), a reviewed game-modification registry with explicit user-authorized activation, optional hosted services ("EOE Cloud" in current product-vision naming — see `docs/project/branding-and-renaming.md`), matchmaking and community features, and marketplace/commercial services. Full detail on the Session Referee/verified-environments direction is in `docs/knowledge/product-vision.md`'s "Session Referee And Verified Environments" section and ADR 0014 — it depends on events (`P03`), actions (`P04`), and source/provider capability advertisement (not yet phased), so it is not pulled into the near-term `P02`–`P06` sequence. These will be broken into phases (`P07`+) once the contracts they build on (`P02`–`P06`) are proven — assigning IDs and task records to them now would be planning ahead of the evidence this repository is built to require.
 
 ## Updating this plan
 

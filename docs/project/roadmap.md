@@ -57,6 +57,7 @@ These are future tracks, not committed implementation slices:
 - Extension Workbench for mapping and later event/rule/action authoring through reviewable contracts.
 - Local automation and extensible action providers.
 - Local sessions and rules for cooperative, competitive, and asynchronous experiences.
+- A Session Referee that declares, negotiates, verifies, and (where supported) enforces the shared session environment, plus a reviewed game-modification registry — see `docs/knowledge/product-vision.md` and ADR 0014.
 - A second game/domain proof.
 - Optional EOE Cloud sessions, synchronization, spectator experiences, and persistence.
 - Matchmaking and community features, kept separate from session/rules behavior.

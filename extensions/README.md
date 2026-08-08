@@ -18,7 +18,7 @@ Extensions add backend capabilities without hardcoding source-specific behavior 
 
 ## Rules
 
-- Extensions must map into the normalized API instead of forking core behavior.
+- Extensions must reach the normalized API through the mapping runtime (or a documented direct-export exception, see `docs/knowledge/adapter-contracts.md`) instead of forking core behavior.
 - Each extension should include an `extension.json` manifest.
 - Manifests should follow `src/schemas/extension.schema.json`.
 - Each extension should include a README with setup, supported versions, exported fields, limitations, and data sources.

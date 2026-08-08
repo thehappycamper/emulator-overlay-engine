@@ -16,7 +16,7 @@ The implemented foundation is intentionally small and Pokemon-focused:
 - Dependency-free browser overlay that renders a useful challenge dashboard from that state.
 - Core damage and catch calculators with Node tests.
 - Domain-neutral mapping contract with safe calculated expressions and schema-validated examples.
-- Gen 3 mGBA adapter notes describing how live Lua export should map into the API.
+- Gen 3 mGBA adapter notes describing how live Lua export should reach normalized state, via the mapping runtime or as a documented direct-export exception.
 - GitHub Actions CI for tests.
 
 ## Local Use
@@ -33,7 +33,7 @@ Then open:
 http://127.0.0.1:5173
 ```
 
-The overlay currently reads `public/sample-state.json`. A live emulator adapter can later write normalized state to `public/live-state.json`, and the UI can be switched to that feed.
+The overlay currently reads `public/sample-state.json`. A live emulator adapter can later reach `public/live-state.json` with normalized state (via the mapping runtime, or a documented direct-export exception — see `docs/knowledge/adapter-contracts.md`), and the UI can be switched to that feed.
 
 ## Local Configuration
 

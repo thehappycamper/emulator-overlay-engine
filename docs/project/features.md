@@ -57,6 +57,10 @@ Status labels:
 | Action-provider contract | planned | Future extensible boundary for overlay, audio, OBS, HTTP, MQTT, IPC, and hardware bridges |
 | Local automation rules | planned | Future event-to-action rules; no authoring or runtime exists |
 | Local multiplayer/session engine | planned | Shared objectives, scoring, and win conditions; not emulator netplay |
+| Session Referee (verified environments) | planned | Declares/negotiates/verifies session environment (game/version/hash/seed/ruleset/modifications); see `docs/knowledge/product-vision.md` and ADR 0014 |
+| Reviewed game modification registry | planned | Broader than legacy cheat-code libraries; identity, provenance, review status, mechanism, reversibility, save risk; gameplay mutation requires explicit user authorization |
+| Rule enforcement spectrum | planned | Architectural distinction (observed / session-enforced / game-enforced), not public enum names yet |
+| Source/provider capability advertisement | planned | Sources advertise capabilities (e.g. read, input, snapshot, modification) instead of every action assuming every source is writable; schema not designed |
 | Hosted sessions | planned | Optional EOE Cloud orchestration and synchronization |
 | Matchmaking | planned | Future participant discovery, separate from session/rules behavior |
 | Spectator and session views | planned | Future live/session-history experiences built on normalized telemetry |
