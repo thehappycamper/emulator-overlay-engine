@@ -1,14 +1,16 @@
 # Emulator Overlay Engine
 
-A domain-neutral game overlay engine for exposing live game data, mapping it through a GUI, and sharing reusable overlay templates. Pokemon is the first supported domain.
+Emulator Overlay Engine is an extensible game telemetry and interaction platform. It turns game, emulator, and external-source data into structured state and, in the future, semantic events that can power useful experiences.
 
-The project keeps emulator, game, and domain details at the edges. Adapters read live data from an emulator or save source, users map and enrich that data through shared contracts, and domain engines power overlay panels such as team summaries, route encounters, capture odds, damage ranges, scoring, and move prediction.
+Overlays are the first visible product surface, not the platform's architectural boundary. Pokemon is the first domain and proving ground.
 
-Long term, users should be able to create, save, review, and share templates for games and ROM hacks so the public can reuse working overlays without rebuilding mappings from scratch.
+> **EOE turns game state into events, and events into experiences.**
 
-## MVP
+The larger product direction, including future automation, sessions, and optional hosted services, is documented in the [product vision](docs/knowledge/product-vision.md).
 
-The first shippable slice is intentionally small and Pokemon-focused:
+## Current Foundation
+
+The implemented foundation is intentionally small and Pokemon-focused:
 
 - Normalized JSON state contract for party, opponent, bag, location, encounter data, seed, and scoring.
 - Dependency-free browser overlay that renders a useful challenge dashboard from that state.
@@ -39,27 +41,19 @@ Copy `.env.example` to `.env` for machine-specific paths such as emulator execut
 
 Do not commit `.env`.
 
-## Architecture
+## Architecture Direction
 
 ```text
-Emulator Adapter
-  Reads memory from mGBA, VBA-RR, BizHawk, or another source.
-
-Game Adapter
-  Exposes generation and ROM-specific source data.
-
-Mapping Runtime
-  Applies declarative field/value mappings and safe calculated expressions into a named target contract.
-
-Data Adapter
-  Supplies species, moves, items, type chart, learnsets, trainers, encounters, and hack-specific changes.
-
-Domain Modules
-  Calculate domain-specific outputs such as damage, capture odds, scoring, legality, projections, and predictions.
-
-Overlay
-  Displays mapped state, module outputs, and template-selected panels.
+Sources -> Adapters -> Safe Mapping -> Normalized State
+                                      |
+                                      +-> Current calculations and overlay
+                                      |
+                                      +-> Future semantic events
+                                          -> Rules / Actions
+                                          -> Overlays / Automations / Sessions
 ```
+
+The current implementation does not include event detection, actions, automation, multiplayer, or hosted services.
 
 ## Roadmap
 
@@ -70,6 +64,7 @@ The canonical phased plan and current status live in the [project roadmap](docs/
 - `AGENTS.md` - required guide for coding agents.
 - `CONTRIBUTING.md` - public contribution flow.
 - `docs/README.md` - documentation index, project memory, architecture notes, and roadmap.
+- `docs/knowledge/product-vision.md` - canonical long-term product and platform direction.
 - `docs/project/community-extensions.md` - policy for reviewed community adapters, ROM-hack mappings, data packs, rulesets, and overlay panels.
 - `docs/knowledge/shareable-templates.md` - template model for saving and sharing complete overlay setups.
 
@@ -77,4 +72,4 @@ The canonical phased plan and current status live in the [project roadmap](docs/
 
 This repository uses the MIT License. Commercial use is allowed.
 
-Future paid offerings may include hosted services, support, and premium template packs or marketplace features, but normal repository use remains MIT-licensed.
+EOE Core is intended to remain local-first and useful without a hosted account. Future paid offerings may include optional hosted services, support, and premium template packs or marketplace features, but normal repository use remains MIT-licensed.

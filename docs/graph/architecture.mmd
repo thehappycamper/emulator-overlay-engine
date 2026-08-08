@@ -1,16 +1,23 @@
 flowchart LR
-  Emulator["Emulator\nmGBA / VBA-RR / BizHawk"] --> EmulatorAdapter["Emulator Adapter\nLua / API / Exporter"]
-  EmulatorAdapter --> GameAdapter["Game Adapter\nGeneration + ROM mapping"]
-  StaticData["Domain Data\nSpecies / Moves / Items / Encounters / Trainers"] --> DataAdapter["Data Extension"]
-  GameAdapter --> SourceData["Source Data\nNamed contract"]
-  MappingProject["Mapping Project\nFields / Values / Safe AST"] --> MappingRuntime["Mapping Runtime\nPure transform + validation"]
-  SourceData --> MappingRuntime
-  MappingRuntime --> NormalizedState["Normalized Target\nNamed contract + JSON schema"]
-  DataAdapter --> DomainModules["Domain Modules\nCalculators / Rulesets / Analysis"]
-  NormalizedState --> DomainModules
-  DomainModules --> Overlay["Browser Overlay\nTemplate panels and visualizations"]
-  NormalizedState --> Overlay
-  Decisions["Docs + ADRs\nProject memory"] -. guides .-> EmulatorAdapter
-  Decisions -. guides .-> MappingRuntime
-  Decisions -. guides .-> DomainModules
-  Decisions -. guides .-> Overlay
+  Sources["Game / Emulator /\nExternal Source"] --> Adapters["Adapters\nfuture live implementations"]
+  Adapters --> SourceContract["Source Contract"]
+  MappingProject["Declarative Mapping\nSafe JSON AST"] --> MappingRuntime["Mapping Runtime"]
+  SourceContract --> MappingRuntime
+  MappingRuntime --> NormalizedState["Normalized State"]
+  NormalizedState --> CurrentConsumers["Current MVP\nCalculations + Overlay"]
+
+  NormalizedState -. future .-> EventDetection["Domain Event Detection\nFuture"]
+  EventDetection -.-> NormalizedEvents["Normalized Events\nFuture"]
+  NormalizedEvents -.-> EventConsumers["Rules / Analysis /\nSubscriptions\nFuture"]
+  EventConsumers -.-> Actions["Actions / Providers\nFuture"]
+  Actions -.-> Experiences["Overlays / Automations /\nSessions\nFuture"]
+
+  NormalizedEvents -. optional derived telemetry .-> Cloud["EOE Cloud\nOptional Future Consumer"]
+  Cloud -.-> Experiences
+
+  classDef current fill:#e8f5e9,stroke:#2e7d32,color:#111
+  classDef future fill:#fafafa,stroke:#777,stroke-dasharray:5 5,color:#333
+  classDef external fill:#f5f5f5,stroke:#555,color:#111
+  class Sources external
+  class SourceContract,MappingProject,MappingRuntime,NormalizedState,CurrentConsumers current
+  class Adapters,EventDetection,NormalizedEvents,EventConsumers,Actions,Experiences,Cloud future

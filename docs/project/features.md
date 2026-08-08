@@ -28,7 +28,7 @@ Status labels:
 | Executable mapping pipeline | mvp | Direct fields, ID/value maps, calculated fields, and validation hooks |
 | Repository schema validation | mvp | `npm test` validates extension, template, mapping, and normalized-state examples |
 
-## Planned Core Features
+## Planned And Future Features
 
 | Feature | Status | Notes |
 | --- | --- | --- |
@@ -48,8 +48,18 @@ Status labels:
 | Extension loader | planned | Needs decision on runtime loading and trust model |
 | UI panel extension host | planned | Slot model documented; runtime not implemented |
 | Extension Workbench | planned | GUI authoring layer; executable mapping contract now exists, but no GUI is implemented |
-| Domain packages | planned | Future path for multiple games without weakening domain-specific logic |
-| Domain-neutral platform core | planned | Shared extension/workbench/transport/UI host layer, with Pokemon as first domain |
+| Pokemon domain package boundary | planned | First domain-boundary proof without weakening Pokemon-specific models |
+| Second-domain proof | planned | Validate shared contracts against a non-Pokemon game after the domain boundary exists |
+| Domain-neutral platform core | planned | Remaining shared registry, transport, Workbench, and UI-host infrastructure |
+| Normalized event contract | planned | Future domain-neutral event envelope; schema not designed yet |
+| Semantic event detection | planned | Derive domain meaning from previous/current normalized state |
+| Event bus and subscriptions | planned | Future local event distribution after the event contract is proven |
+| Action-provider contract | planned | Future extensible boundary for overlay, audio, OBS, HTTP, MQTT, IPC, and hardware bridges |
+| Local automation rules | planned | Future event-to-action rules; no authoring or runtime exists |
+| Local multiplayer/session engine | planned | Shared objectives, scoring, and win conditions; not emulator netplay |
+| Hosted sessions | planned | Optional EOE Cloud orchestration and synchronization |
+| Matchmaking | planned | Future participant discovery, separate from session/rules behavior |
+| Spectator and session views | planned | Future live/session-history experiences built on normalized telemetry |
 | Shareable templates | planned | Base manifest exists; full mappings/calculated-fields/fixtures embedding remains deferred |
 | Template manifest schema | mvp | `src/schemas/template.schema.json` and example template under `examples/templates/` |
 | Premium template marketplace | planned | Future commercial layer; not implemented and needs policy ADR before build |

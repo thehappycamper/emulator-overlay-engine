@@ -1,6 +1,8 @@
 # Roadmap
 
-## Phase 0 - Static MVP
+## Completed
+
+### Static MVP
 
 Status: complete.
 
@@ -9,7 +11,7 @@ Status: complete.
 - Basic damage and capture calculators.
 - Tests and CI.
 
-## Phase 0.5 - Safe Mapping Foundation
+### Safe Mapping Foundation
 
 Status: complete.
 
@@ -21,7 +23,18 @@ Status: complete.
 
 This foundation does not include the Workbench GUI, live emulator export, event processing, sessions, multiplayer, or a runtime extension installer.
 
-## Phase 1 - Live Gen 3 Export
+## Near-Term Platform Foundation
+
+These are the intended next architecture slices. Each requires separate approval, design, tests, and documentation; none is implemented by this roadmap update.
+
+1. Pokemon domain boundary and domain-package proof.
+2. State/source pipeline stabilization.
+3. Normalized event contract and semantic event-detection proof.
+4. Event bus and action-contract proof.
+
+## First Real Live Integration
+
+### Live Gen 3 mGBA Export
 
 Goal:
 
@@ -34,104 +47,15 @@ Deliverables:
 - Documentation for emulator setup.
 - Tests for exported sample fixtures.
 
-## Phase 2 - Better Battle Assistant
+## Subsequent Product Tracks
 
-Goal:
+These are future tracks, not committed implementation slices:
 
-- Make switching and battle decisions easier.
-
-Deliverables:
-
-- Projected incoming damage for each party member from each opponent move.
-- Best/worst case highlights.
-- Status, weather, item, ability, and stat stage modifiers.
-
-## Phase 3 - Route And Capture Assistant
-
-Goal:
-
-- Surface route encounters and catch odds live.
-
-Deliverables:
-
-- Map ID to encounter table data.
-- Encounter method filtering.
-- Ball odds from live bag.
-- Shiny/PID/seed/frame display.
-
-## Phase 4 - Challenge Systems
-
-Goal:
-
-- Support Nuzlocke and custom score-based challenge rules.
-
-Deliverables:
-
-- Ruleset config.
-- Event tracker.
-- Per-run and per-Pokemon score breakdown.
-- Projection of score impact for current choices.
-
-## Phase 5 - Battle Factory And AI Prediction
-
-Goal:
-
-- Identify likely opponent sets and rank likely next moves.
-
-Deliverables:
-
-- Battle Factory rental set data adapter.
-- Opponent team/set matcher.
-- Move prediction scoring model.
-
-## Phase 6 - ROM Hack Adapter Support
-
-Goal:
-
-- Make hack support data-driven.
-
-Deliverables:
-
-- Adapter template.
-- Data extraction/import docs.
-- At least one ROM hack mapping proof of concept.
-
-## Phase 7 - Extension Workbench
-
-Goal:
-
-- Give users a GUI for creating and maintaining game, data, mechanics, ruleset, and overlay panel extensions.
-
-Deliverables:
-
-- Data import and exploration UI.
-- Field and ID mapping UI.
-- Calculated field editor.
-- Normalized target preview against the selected contract.
-- Overlay panel slot preview.
-- Extension and template export to reviewable files.
-
-## Future - Domain-Neutral Platform And Domain Packages
-
-Goal:
-
-- Move shared extension/workbench infrastructure toward a domain-neutral platform and keep Pokemon as the first domain package.
-
-Deliverables:
-
-- Domain package contract.
-- Pokemon domain package extraction if needed.
-- Separate schemas and calculators per supported domain.
-
-## Future - Hosted Services And Marketplace
-
-Goal:
-
-- Add optional paid services without restricting the MIT-licensed repository.
-
-Deliverables:
-
-- Hosted template sharing concept.
-- Premium template pack policy.
-- Marketplace review and safety policy.
-- Licensing and revenue split decision.
+- Richer Pokemon assistant functionality: battle projections, route/capture support, scoring, facility set identification, and move prediction.
+- Extension Workbench for mapping and later event/rule/action authoring through reviewable contracts.
+- Local automation and extensible action providers.
+- Local sessions and rules for cooperative, competitive, and asynchronous experiences.
+- A second game/domain proof.
+- Optional EOE Cloud sessions, synchronization, spectator experiences, and persistence.
+- Matchmaking and community features, kept separate from session/rules behavior.
+- Marketplace and other hosted commercial services around the MIT-licensed core.

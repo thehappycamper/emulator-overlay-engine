@@ -1,8 +1,8 @@
 # Extension Workbench
 
-The Extension Workbench is a planned web interface for creating and maintaining extensions.
+The Extension Workbench is a planned web interface for visually authoring reviewable EOE contracts and extensions.
 
-The goal is to let users build support for new games, ROM hacks, fusion games, rulesets, and UI panels without hand-editing every JSON file.
+The initial goal is to help users build support for new games, ROM hacks, fusion games, rulesets, and UI panels without hand-editing every JSON file. Its longer-term direction includes event detection, rules, and actions.
 
 ## Core Idea
 
@@ -48,6 +48,35 @@ Paths use RFC 6901 JSON Pointer. Calculated fields use a JSON expression AST rat
 
 The evaluator only supports documented operations and supplied `source`, `target`, and `context` data. It cannot invoke methods, execute code, import modules, or access host globals. See ADR 0012.
 
+## Future Authoring Direction
+
+Eventually the Workbench may visually author the broader product pipeline:
+
+```text
+SOURCE -> MAP -> STATE -> DETECT -> EVENT -> RULE -> ACTION
+```
+
+A future configuration might read:
+
+```text
+WHEN
+Pokemon -> Gym Leader Defeated
+
+WHERE
+Gym Number = 8
+
+DO
+Audio -> Play victory sound
+
+AND
+Lights -> Flash
+
+AND
+Overlay -> Show celebration
+```
+
+Event detection, rules, actions, and automation authoring are not implemented. Their schemas and runtimes require separate decisions. The Workbench must generate human-readable, machine-readable, versioned, and reviewable contracts rather than opaque GUI-only logic or arbitrary executable template code.
+
 The workbench should generate reviewable module/extension files and user-facing templates that contributors can commit:
 
 ```text
@@ -75,6 +104,7 @@ For users, the main export should usually be a template. Under the hood, that te
 | Preview | Render the overlay using generated extension data before export. |
 | Export | Write public-safe extension files for Git review. |
 | Template sharing | Save a complete game overlay setup that others can install or copy. |
+| Event/rule/action authoring | Future visual authoring after contracts and runtimes are separately designed. |
 
 ## Data Exploration Flow
 

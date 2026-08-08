@@ -75,13 +75,14 @@
 | `docs/project/community-extensions.md` | Extension contribution and review policy. |
 | `docs/project/commercial-model.md` | MIT license and future commercial services/template marketplace notes. |
 | `docs/project/roadmap.md` | Phased delivery plan. |
-| `docs/knowledge/architecture.md` | System architecture notes. |
+| `docs/knowledge/product-vision.md` | Canonical product definition, pipeline, and local/hosted boundary. |
+| `docs/knowledge/architecture.md` | Current telemetry layers and future event-driven architecture. |
 | `docs/knowledge/domain-model.md` | Shared domain concepts. |
 | `docs/knowledge/adapter-contracts.md` | Adapter responsibilities and contracts. |
 | `docs/knowledge/extension-types.md` | Extension taxonomy and composition model. |
 | `docs/knowledge/custom-data-and-fusions.md` | Guidance for custom tables, fan games, and fusion data. |
 | `docs/knowledge/ui-extension-model.md` | UI panel extension slots and data flow. |
-| `docs/knowledge/extension-workbench.md` | Planned GUI authoring layer for mappings and extensions. |
+| `docs/knowledge/extension-workbench.md` | Planned visual authoring for mappings and future event/rule/action contracts. |
 | `docs/knowledge/domain-extensibility.md` | Domain-neutral platform and domain package guidance. |
 | `docs/knowledge/shareable-templates.md` | User-facing template bundles for sharing complete overlay setups. |
 | `docs/graph/architecture.mmd` | Mermaid architecture graph. |

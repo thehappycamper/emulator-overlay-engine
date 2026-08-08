@@ -2,6 +2,8 @@
 
 The overlay UI should be extensible without requiring every new panel to become core code.
 
+Overlays are EOE's first visible product surface. They currently consume normalized state and engine outputs. In the future, overlays may also react to normalized semantic events or be targeted by actions, but no event subscription or action contract exists yet.
+
 ## Goals
 
 - Let community extensions add panels for new games, ROM hacks, facilities, routes, score systems, or fusion mechanics.

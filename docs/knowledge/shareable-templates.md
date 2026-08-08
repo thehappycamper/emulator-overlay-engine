@@ -29,6 +29,8 @@ Full embedding or file references for mapping projects, calculated fields, and f
 
 Mapping projects have their own executable contract in `src/schemas/mapping.schema.json`. A future template-schema revision can reference versioned mapping projects without copying their expression model.
 
+Future templates may also assemble references to event detectors, rules, and action providers after those contracts exist. The current template schema does not model these concepts, and this direction does not authorize executable code in data-driven templates.
+
 ## What Templates Enable
 
 - A user maps a game once and exports a template.

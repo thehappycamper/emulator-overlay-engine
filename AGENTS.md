@@ -4,9 +4,13 @@ This repository is intended to be maintained by both humans and coding agents. K
 
 ## Product Direction
 
-Emulator Overlay Engine currently ships Pokemon as the first supported domain, but the long-term architecture is a domain-neutral emulator overlay platform for exposing live game data, mapping it through a GUI, and sharing reusable templates.
+Emulator Overlay Engine is an extensible game telemetry and interaction platform. Overlay rendering is the first visible product surface, not the architectural boundary. Pokemon is the first domain and proving ground.
 
-Adapters normalize emulator, game, and domain-specific data into shared contracts. The workbench should help users create mappings, calculated fields, UI panel mappings, and shareable templates. Pokemon-specific schemas and calculators should move toward a Pokemon domain boundary instead of becoming permanent shared-platform assumptions.
+The long-term direction is to turn source data into normalized state, semantic events, and experiences such as overlays, calculations, rulesets, automations, and sessions. Events, actions, sessions, multiplayer, and hosted services are not implemented. Do not imply otherwise or build them without an approved architecture slice.
+
+> **EOE turns game state into events, and events into experiences.**
+
+See `docs/knowledge/product-vision.md` for the canonical product direction.
 
 ## Required Agent Behavior
 
@@ -44,6 +48,12 @@ Adapters normalize emulator, game, and domain-specific data into shared contract
 - Shared platform code must not read emulator memory directly.
 - Emulator adapters own emulator APIs, memory addresses, and live export mechanics.
 - Game/data adapters own generation, ROM, and ROM-hack mappings.
+- Raw emulator and source details must remain at source/adapter boundaries; future consumers should use normalized domain state or semantic events.
+- Shared platform contracts and infrastructure must remain domain-neutral. Pokemon semantics belong in the Pokemon domain boundary.
+- Future event, action, and session compatibility is an architectural concern, not a requirement to add premature abstractions to every change.
+- Do not add arbitrary executable behavior to data-driven mappings or templates. Preserve the safe, reviewable contract model from ADR 0012.
+- Semantic event detection is future architecture above normalized state and domain interpretation; no event contract or runtime exists yet.
+- Do not introduce cloud or multiplayer dependencies into local core without an explicit architecture decision. Local EOE Core must remain useful without hosted services.
 - Overlay code consumes normalized state and engine outputs.
 - Public schemas belong in `src/schemas/` until domain package boundaries are introduced.
 - Do not hardcode ROM hack behavior into generic engine modules.
@@ -65,4 +75,4 @@ Before finishing a task, check whether these need updates:
 
 ## Current MVP
 
-The first MVP is a static normalized-state browser overlay with core damage and capture calculators. Live emulator export is not implemented yet.
+The implemented foundation is a static Pokemon-oriented normalized-state browser overlay, core damage/capture calculators, and a domain-neutral safe mapping runtime. Live emulator export, semantic events, actions, automation, sessions, multiplayer, and hosted services are not implemented.

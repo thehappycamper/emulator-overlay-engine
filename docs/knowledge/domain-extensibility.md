@@ -1,6 +1,6 @@
 # Domain Extensibility
 
-The project is moving toward a domain-neutral platform with Pokemon as the first supported domain.
+The project is moving toward a domain-neutral telemetry and interaction platform with Pokemon as the first supported domain and proving ground.
 
 ## Current Boundary
 
@@ -12,16 +12,26 @@ Pokemon-specific today:
 - Party/team assumptions.
 - Species, moves, IVs, EVs, abilities, items, encounters, and trainer concepts.
 
-Shared platform:
+Implemented shared platform foundation:
 
 - Extension manifests.
-- Extension registry.
-- Transport model.
 - Named and versioned source/target mapping contracts.
 - Safe declarative field, value, and calculated-field mapping.
-- Workbench data import, exploration, validation, preview, and export.
-- UI panel slot model.
 - Documentation and review workflow.
+
+Future shared platform responsibilities:
+
+- Extension registry and transport runtime.
+- Workbench authoring, validation, preview, and export.
+- Domain-neutral event contracts, subscriptions, and event transport.
+- Action-provider and local automation infrastructure.
+- Session infrastructure and optional hosted consumers.
+
+Future domain responsibilities:
+
+- Semantic interpretation of normalized domain state.
+- Domain event detection and domain event definitions.
+- Domain-specific rules, calculators, analysis, and panels.
 
 ## Direction
 
@@ -41,7 +51,7 @@ domains/
     overlay-panels/
 ```
 
-The workbench could then create extensions against a selected domain. Platform mapping projects identify their source and target contracts without constraining whether a target represents snapshot state, a domain record, or a future event contract.
+The workbench could then create extensions against a selected domain. Platform mapping projects identify source and target contracts without hardcoding domain payloads. Future event detection should sit above normalized domain state rather than expose source memory semantics directly.
 
 ## Rule
 

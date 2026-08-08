@@ -5,6 +5,7 @@ This directory is the human and agent knowledge base for Emulator Overlay Engine
 ## Start Here
 
 - `../AGENTS.md` - required operating rules for coding agents.
+- `knowledge/product-vision.md` - canonical product definition, pipeline, and long-term local/hosted direction.
 - `project/last-worked-on.md` - latest work session summary and next actions.
 - `project/roadmap.md` - planned delivery slices.
 - `project/features.md` - feature inventory and status.
@@ -13,13 +14,13 @@ This directory is the human and agent knowledge base for Emulator Overlay Engine
 - `project/community-extensions.md` - public extension contribution and review policy.
 - `project/commercial-model.md` - MIT repository model and possible future paid services/template marketplace.
 - `maps/code-map.md` - repository file map and module ownership.
-- `knowledge/architecture.md` - system model and responsibilities.
+- `knowledge/architecture.md` - current and future system layers and responsibilities.
 - `knowledge/domain-model.md` - normalized Pokemon overlay concepts.
 - `knowledge/adapter-contracts.md` - how emulator/game/data adapters map into shared contracts.
 - `knowledge/extension-types.md` - extension taxonomy and composition model.
 - `knowledge/custom-data-and-fusions.md` - how custom tables and fusion data should be modeled.
 - `knowledge/ui-extension-model.md` - panel slots and UI extension data flow.
-- `knowledge/extension-workbench.md` - planned GUI for data exploration, mapping, calculated fields, previews, and extension export.
+- `knowledge/extension-workbench.md` - planned visual authoring for mappings and future event/rule/action contracts.
 - `knowledge/domain-extensibility.md` - domain-neutral platform and domain package boundary.
 - `knowledge/shareable-templates.md` - user-facing template bundles for sharing complete overlay setups.
 - `../templates/README.md` - reviewed template package location.
