@@ -14,6 +14,20 @@ EOE is source-agnostic. Emulator memory is one possible gameplay source, not a s
 
 See `docs/knowledge/product-vision.md` for the canonical product direction.
 
+## Repository Boundary
+
+This repository (`thehappycamper/emulator-overlay-engine`) is the **public, open-source core**. Core/public contracts live here. A separate **private** sibling repository, [`thehappycamper/gameplay-interaction-hosted-services`](https://github.com/thehappycamper/gameplay-interaction-hosted-services), owns hosted/commercial service implementation (identity, matchmaking, hosted sessions, ratings, communities, entitlements/billing, and similar). Its name is a temporary infrastructure identifier, not a final brand — see `docs/project/branding-and-renaming.md`.
+
+Rules for agents working here:
+
+- Do not introduce private-cloud implementation into this repository — no account/identity persistence, no billing, no hosted-session server, no database, no private service models.
+- If a task appears to require hosted identity, matchmaking, billing, persistent ratings, or private service orchestration, check whether it belongs in the hosted repository instead of here.
+- Cross-repository protocol changes must keep the public contract authoritative: if a hosted feature needs a new interoperability contract (an event envelope, a session message, a capability manifest), that contract is designed and versioned here, not invented privately.
+- Changes affecting both repositories should be represented by separate task branches/records in each repository, cross-referenced by task ID — never a shared mutable file. See `docs/tasks/README.md`.
+- Neither repository may silently modify the other's `main`.
+
+See `docs/project/repository-boundaries.md` for the full, canonical detail: dependency direction, responsibility matrix, the Account-vs-Participant identity distinction, the local-first principle, and contract ownership.
+
 ## Required Agent Behavior
 
 - Read this file before making changes.

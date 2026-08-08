@@ -67,6 +67,7 @@ Identifies the project to package managers, hosting, and tooling. Renaming has r
 | `package.json:2` | `"name": "emulator-overlay-engine"` (currently `"private": true`, so no published npm identity is at stake yet) |
 | GitHub repository | `thehappycamper/emulator-overlay-engine` (see ADR 0011) |
 | Local working-directory folder name | Not repository content; independent of this document |
+| Sibling private repository name, referenced in `AGENTS.md` and `docs/project/repository-boundaries.md` | `thehappycamper/gameplay-interaction-hosted-services` — itself a temporary infrastructure identifier, not a final brand (see `docs/project/repository-boundaries.md`). If either repository renames, the cross-references in both `AGENTS.md` files and this document must be updated together. |
 
 ### Category 3 — Public contract identifiers (compatibility-sensitive — do not rename casually)
 

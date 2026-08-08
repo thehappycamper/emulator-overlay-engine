@@ -81,6 +81,7 @@
 | `docs/tasks/TEMPLATE.md` | Template for new task records. |
 | `docs/tasks/P00/`, `docs/tasks/P01/`, `docs/tasks/P02/` | Per-task execution history, one file per task, grouped by phase. |
 | `docs/project/branding-and-renaming.md` | Brand-agnostic coding rule, rename inventory, and future-rename procedure. |
+| `docs/project/repository-boundaries.md` | Canonical public core / private hosted-services architecture boundary. |
 | `docs/project/features.md` | Feature inventory and status. |
 | `docs/project/emulators.md` | Emulator compatibility matrix. |
 | `docs/project/configuration.md` | Local `.env` configuration policy and variable index. |
