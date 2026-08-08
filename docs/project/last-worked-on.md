@@ -4,8 +4,8 @@ This is a short pointer, not the project history. For full history, see `docs/ta
 
 ## Current status
 
-- **Active phase:** `P01` — Platform Mapping Foundation (nearly complete — governance/vision work done, one blocking task remains). See [implementation plan](implementation-plan.md).
-- **Active task:** [`P01-T007` — Harden JSON Pointer array writes](../tasks/P01/P01-T007.md) — implemented and tested on branch `fix/mapping-array-hardening` (separate branch), pending merge to `main`. This is the only remaining blocker on `P01`'s phase gate.
+- **Active phase:** `P01` — Platform Mapping Foundation (nearly complete; one blocking task is in independent review). See [implementation plan](implementation-plan.md).
+- **Active task:** [`P01-T007` — Harden JSON Pointer array writes](../tasks/P01/P01-T007.md) — status `review`; rebased implementation commit `14a66f1` on `fix/mapping-array-hardening`; 47/47 tests pass; independent review and merge approval remain pending. This is the only remaining blocker on P01's phase gate.
 - **Last completed task:** [`P01-T009` — Record Session Referee and verified-environment product vision](../tasks/P01/P01-T009.md) (2026-08-08, merged at `a267950`); see also [`P01-T008`](../tasks/P01/P01-T008.md) (task governance/rename strategy, same merge).
 - **Next planned phase:** `P02` — Domain Boundary, entry-gated on `P01` closing. Note: a `feat/P02-T001-pokemon-domain-boundary` branch already exists with pending work, separate from and not yet merged into `main`.
 

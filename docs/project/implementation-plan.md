@@ -14,7 +14,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | Phase | Name | Status |
 | --- | --- | --- |
 | `P00` | Initial MVP | completed |
-| `P01` | Platform Mapping Foundation | active — fix implemented on a parallel branch, pending merge to `main` |
+| `P01` | Platform Mapping Foundation | active — `P01-T007` is in independent review |
 | `P02` | Domain Boundary | planned |
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
@@ -49,7 +49,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 
 ## P01 — Platform Mapping Foundation
 
-**Status:** active — `P01-T007`'s fix is implemented and tested on branch `fix/mapping-array-hardening` (commit `c40dd43`, not yet merged to `main`); this phase closes once that lands on `main`.
+**Status:** active — `P01-T007` is implemented and tested on branch `fix/mapping-array-hardening` (rebased implementation commit `14a66f1`) and is awaiting independent review. This phase closes only after review, explicit merge approval, integration, and post-merge validation.
 
 **Objective:** Build the extension/template/mapping contracts and the safe, non-executable calculated-field model that the future Extension Workbench will author against, while establishing the domain-neutral-core and source-agnostic architectural direction.
 
@@ -62,13 +62,13 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 - [`P01-T004`](../tasks/P01/P01-T004.md) — Implement safe declarative mapping contract. Completed, with one follow-up.
 - [`P01-T005`](../tasks/P01/P01-T005.md) — Document event-driven platform vision. Completed.
 - [`P01-T006`](../tasks/P01/P01-T006.md) — Clarify source-agnostic platform boundary. Completed.
-- [`P01-T007`](../tasks/P01/P01-T007.md) — Harden JSON Pointer array writes. **Active — blocking.**
+- [`P01-T007`](../tasks/P01/P01-T007.md) — Harden JSON Pointer array writes. **Review — blocking.**
 - [`P01-T008`](../tasks/P01/P01-T008.md) — Establish project task governance and rename strategy. Completed (merged to `main` at `a267950`).
 - [`P01-T009`](../tasks/P01/P01-T009.md) — Record Session Referee and verified-environment product vision (ADR 0014). Completed (merged to `main` at `a267950`).
 
 **Exit criteria (phase gate):**
 - All of `P01-T001`–`P01-T006` complete. ✅
-- `P01-T007` complete: the sparse-array target-write amplification finding from `P01-T004`'s security review is closed, with a regression test, on `main`. ⏳ Implemented and tested on `fix/mapping-array-hardening` (`c40dd43`); **blocker is now "merge to `main`," not "implement the fix."**
+- `P01-T007` complete: the sparse-array target-write amplification finding from `P01-T004`'s security review is closed, with regression coverage, on `main`. Pending: independent review, explicit merge approval, merge, and post-merge validation. The rebased implementation commit is `14a66f1`.
 - `npm test` green after `P01-T007` lands on `main`.
 
 **Dependencies:** `P00`.
