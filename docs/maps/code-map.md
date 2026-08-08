@@ -8,6 +8,7 @@
 | `CONTRIBUTING.md` | Public contribution flow and documentation expectations. |
 | `.env.example` | Public-safe template for local machine configuration. |
 | `README.md` | Public project overview and local usage. |
+| `LICENSE` | MIT license for public use and contribution. |
 | `SECURITY.md` | Public repository safety guidance. |
 | `package.json` | Node scripts and runtime metadata. |
 | `.github/workflows/ci.yml` | GitHub Actions test workflow. |

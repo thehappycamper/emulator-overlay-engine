@@ -26,6 +26,7 @@ Changes:
 - Superseded that direction with a domain-neutral platform decision where Pokemon becomes the first domain package.
 - Added shareable templates as the user-facing bundle format for public reuse.
 - Added calculator extension type and example for battle calculations, catch odds, stat projection, and learnset availability.
+- Merged the GitHub-created MIT `LICENSE` into local `main`.
 
 Why:
 
