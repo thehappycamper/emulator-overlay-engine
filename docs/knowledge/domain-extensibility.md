@@ -12,6 +12,8 @@ The first concrete domain package now lives at `src/domains/pokemon/`. It owns:
 
 `src/platform/domain-registry.js` is the minimal domain-neutral boundary. It accepts explicitly supplied domain packages and resolves them by stable domain ID. `src/domains/index.js` is the current application composition root and registers `pokemon`; shared platform code does not import the Pokemon implementation.
 
+The registry owns descriptor immutability as a platform guarantee, not a per-domain convention: registering a domain package freezes its descriptor tree (recursively, through any plain-object/array containers it contains) in place, so a caller-held reference can no longer alter what a resolved domain looks like or how it behaves. Functions and other non-container values are left untouched — only the JSON-shaped structure around them is frozen.
+
 Compatibility re-exports remain under `src/engine/` so existing imports do not break during incremental migration. The current overlay resolves the Pokemon package through the application boundary.
 
 Pokemon-specific code still outside the package:
