@@ -17,7 +17,9 @@ Shared platform:
 - Extension manifests.
 - Extension registry.
 - Transport model.
-- Workbench data import, exploration, field mapping, calculated fields, validation, preview, and export.
+- Named and versioned source/target mapping contracts.
+- Safe declarative field, value, and calculated-field mapping.
+- Workbench data import, exploration, validation, preview, and export.
 - UI panel slot model.
 - Documentation and review workflow.
 
@@ -39,8 +41,8 @@ domains/
     overlay-panels/
 ```
 
-The workbench could then create extensions against a selected domain.
+The workbench could then create extensions against a selected domain. Platform mapping projects identify their source and target contracts without constraining whether a target represents snapshot state, a domain record, or a future event contract.
 
 ## Rule
 
-Do not make Pokemon logic vague just to support unknown future games. Keep Pokemon support strong inside the Pokemon domain, and keep shared platform contracts domain-neutral.
+Do not make Pokemon logic vague just to support unknown future games. Keep Pokemon support strong inside the Pokemon domain, and keep shared platform contracts domain-neutral. Platform mapping schemas and expression evaluators must not contain Pokemon field names or payload assumptions.

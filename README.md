@@ -13,6 +13,7 @@ The first shippable slice is intentionally small and Pokemon-focused:
 - Normalized JSON state contract for party, opponent, bag, location, encounter data, seed, and scoring.
 - Dependency-free browser overlay that renders a useful challenge dashboard from that state.
 - Core damage and catch calculators with Node tests.
+- Domain-neutral mapping contract with safe calculated expressions and schema-validated examples.
 - Gen 3 mGBA adapter notes describing how live Lua export should map into the API.
 - GitHub Actions CI for tests.
 
@@ -45,7 +46,10 @@ Emulator Adapter
   Reads memory from mGBA, VBA-RR, BizHawk, or another source.
 
 Game Adapter
-  Maps generation and ROM-specific memory/data into the normalized API.
+  Exposes generation and ROM-specific source data.
+
+Mapping Runtime
+  Applies declarative field/value mappings and safe calculated expressions into a named target contract.
 
 Data Adapter
   Supplies species, moves, items, type chart, learnsets, trainers, encounters, and hack-specific changes.
@@ -59,13 +63,7 @@ Overlay
 
 ## Roadmap
 
-1. Live Gen 3 party/opponent export from mGBA Lua.
-2. Projected opponent damage into each party member.
-3. Bag-aware capture odds and TM compatibility.
-4. Route encounter visualization.
-5. Battle Factory set identification.
-6. Custom challenge scoring rules.
-7. Shareable templates and ROM hack/game modules.
+The canonical phased plan and current status live in the [project roadmap](docs/project/roadmap.md).
 
 ## Maintainer Docs
 

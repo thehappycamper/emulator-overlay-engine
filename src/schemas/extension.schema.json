@@ -11,19 +11,7 @@
       "pattern": "^[a-z0-9][a-z0-9.-]*[a-z0-9]$"
     },
     "name": { "type": "string" },
-    "type": {
-      "enum": [
-        "emulator",
-        "game",
-        "data",
-        "mechanics",
-        "calculator",
-        "ruleset",
-        "analysis",
-        "overlay-panel",
-        "transport"
-      ]
-    },
+    "type": { "$ref": "#/$defs/extensionType" },
     "version": { "type": "string" },
     "description": { "type": "string" },
     "entrypoints": {
@@ -122,6 +110,22 @@
         "containsSaves": { "type": "boolean" },
         "containsSecrets": { "type": "boolean" }
       }
+    }
+  },
+  "$defs": {
+    "extensionType": {
+      "type": "string",
+      "enum": [
+        "emulator",
+        "game",
+        "data",
+        "mechanics",
+        "calculator",
+        "ruleset",
+        "analysis",
+        "overlay-panel",
+        "transport"
+      ]
     }
   },
   "additionalProperties": true

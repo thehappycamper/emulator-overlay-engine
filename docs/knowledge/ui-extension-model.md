@@ -67,3 +67,6 @@ A future panel runtime should provide:
 
 Panel extensions should declare required state fields and degrade gracefully when data is missing.
 
+## Trust Boundary
+
+Executable panel entrypoints are currently trusted only through repository review. The safe mapping-expression AST does not sandbox panel JavaScript. Loading executable panels dynamically from a future installer, runtime, or marketplace requires a separate sandboxing and permissions decision before unreviewed code is accepted.

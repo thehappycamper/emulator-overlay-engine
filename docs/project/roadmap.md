@@ -9,6 +9,18 @@ Status: complete.
 - Basic damage and capture calculators.
 - Tests and CI.
 
+## Phase 0.5 - Safe Mapping Foundation
+
+Status: complete.
+
+- Domain-neutral mapping-project schema with named/versioned source and target contracts.
+- Direct field mappings and ID/value mappings.
+- Safe JSON expression AST and deterministic evaluator.
+- Executable mapping pipeline with required-path checks and target validation hook.
+- Automated schema validation for public examples and fixtures.
+
+This foundation does not include the Workbench GUI, live emulator export, event processing, sessions, multiplayer, or a runtime extension installer.
+
 ## Phase 1 - Live Gen 3 Export
 
 Goal:
@@ -95,7 +107,7 @@ Deliverables:
 - Data import and exploration UI.
 - Field and ID mapping UI.
 - Calculated field editor.
-- Normalized state preview.
+- Normalized target preview against the selected contract.
 - Overlay panel slot preview.
 - Extension and template export to reviewable files.
 

@@ -6,7 +6,47 @@ The goal is to let users build support for new games, ROM hacks, fusion games, r
 
 ## Core Idea
 
-The GUI helps users explore source data, define mappings, add calculated fields, preview normalized state, and export reviewable extension files.
+The GUI helps users explore source data, define mappings, add calculated fields, preview normalized outputs, and export reviewable extension files.
+
+## Executable Foundation
+
+The first platform-level mapping contract is implemented in:
+
+```text
+src/schemas/mapping.schema.json
+src/expressions/evaluate.js
+src/mapping/apply.js
+```
+
+A mapping project identifies named and versioned source and target contracts. The target descriptor is deliberately open-ended: it can identify a snapshot-state contract today and a different contract category, such as a domain event, in the future.
+
+The executable flow is:
+
+```text
+source JSON
+  -> direct field mappings
+  -> ID/value mappings
+  -> safe calculated fields
+  -> normalized target
+  -> required-path and target-contract validation
+```
+
+Paths use RFC 6901 JSON Pointer. Calculated fields use a JSON expression AST rather than JavaScript strings. For example:
+
+```json
+{
+  "op": "compact",
+  "value": {
+    "op": "array",
+    "items": [
+      { "op": "field", "path": "/primary_type" },
+      { "op": "field", "path": "/secondary_type" }
+    ]
+  }
+}
+```
+
+The evaluator only supports documented operations and supplied `source`, `target`, and `context` data. It cannot invoke methods, execute code, import modules, or access host globals. See ADR 0012.
 
 The workbench should generate reviewable module/extension files and user-facing templates that contributors can commit:
 
@@ -42,7 +82,7 @@ For users, the main export should usually be a template. Under the hood, that te
 2. Identify source columns, IDs, and tables.
 3. Map source fields to normalized fields.
 4. Add calculated fields when source data is composed or derived.
-5. Validate against schemas.
+5. Validate required paths and the selected target contract schema.
 6. Preview generated overlay state.
 7. Export a template or module/extension package.
 8. Review and commit the generated files.
@@ -60,7 +100,7 @@ For a fusion game, a user might map:
 | calculated stat formula | `stats` or data extension `baseStats` |
 | custom encounter table | `location.encounters` |
 
-The output remains a normal data/game/mechanics extension.
+The output remains a normal data/game/mechanics extension. Pokemon field names belong in the selected domain mapping, not in the platform mapping schema or evaluator.
 
 ## Review Rule
 

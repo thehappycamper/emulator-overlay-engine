@@ -15,10 +15,19 @@ extensions/
   data/
   mechanics/
   overlay-panels/
+mappings/
 fixtures/
 ```
 
 Template manifests should follow `src/schemas/template.schema.json`.
+
+## Current Manifest Boundary
+
+The current template schema validates template identity, compatibility, selected module types, UI panel preferences, and public-safety declarations. Module types reuse the extension manifest's canonical extension-type definition.
+
+Full embedding or file references for mapping projects, calculated fields, and fixtures are intentionally deferred. Templates can be organized with those files at the package level, but the manifest does not yet describe or validate them. That broader manifest design should follow real Workbench export requirements instead of being guessed in this mapping-foundation slice.
+
+Mapping projects have their own executable contract in `src/schemas/mapping.schema.json`. A future template-schema revision can reference versioned mapping projects without copying their expression model.
 
 ## What Templates Enable
 
@@ -73,4 +82,4 @@ Templates should document supported game versions and data sources.
 
 ## Relationship To Modules
 
-Modules/extensions expose or calculate data. Templates select which modules are used, how mapped data appears in the UI, and what fixture/layout preferences make the setup reusable.
+Modules/extensions expose or calculate data. Mapping projects declaratively transform data between named contracts. Templates select the modules and UI preferences that make the complete setup reusable.

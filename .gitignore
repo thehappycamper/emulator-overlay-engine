@@ -6,3 +6,45 @@ coverage/
 dist/
 .env
 live-state.json
+
+# Game images and disc dumps (repository policy remains the primary control)
+*.gb
+*.gbc
+*.gba
+*.nds
+*.3ds
+*.cia
+*.nes
+*.sfc
+*.smc
+*.n64
+*.z64
+*.v64
+*.iso
+*.chd
+*.cue
+*.rom
+
+# Common BIOS and firmware filenames without ignoring all binary source files
+gba_bios.bin
+gb_bios.bin
+gbc_bios.bin
+nds_bios*.bin
+scph*.bin
+firmware.bin
+
+# Save data
+*.sav
+*.srm
+*.dsv
+*.duc
+*.gci
+
+# Emulator savestates
+*.state
+*.state[0-9]
+*.ss[0-9]
+*.sgm
+*.sgm[0-9]
+*.mss
+*.vst

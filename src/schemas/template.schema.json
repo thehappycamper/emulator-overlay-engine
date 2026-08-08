@@ -48,7 +48,9 @@
         "required": ["id", "type"],
         "properties": {
           "id": { "type": "string" },
-          "type": { "type": "string" },
+          "type": {
+            "$ref": "https://emulator-overlay-engine.local/schemas/extension.schema.json#/$defs/extensionType"
+          },
           "version": { "type": "string" },
           "required": { "type": "boolean" }
         }
@@ -83,4 +85,3 @@
   },
   "additionalProperties": true
 }
-

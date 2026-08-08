@@ -11,6 +11,7 @@
 | `LICENSE` | MIT license for public use and contribution. |
 | `SECURITY.md` | Public repository safety guidance. |
 | `package.json` | Node scripts and runtime metadata. |
+| `package-lock.json` | Reproducible development dependency versions. |
 | `.github/workflows/ci.yml` | GitHub Actions test workflow. |
 | `.github/CODEOWNERS` | Default public contribution review ownership. |
 | `.github/ISSUE_TEMPLATE/` | GitHub issue templates for features, adapters, extensions, and templates. |
@@ -23,10 +24,13 @@
 | `src/engine/type-chart.js` | Type effectiveness lookup and multiplier calculation. |
 | `src/engine/damage.js` | Damage range and projected switch-in damage calculations. |
 | `src/engine/capture.js` | Capture chance and bag ball chance calculations. |
+| `src/expressions/evaluate.js` | Pure evaluator for the whitelisted JSON expression AST. |
+| `src/mapping/apply.js` | Executes direct, value, and calculated mappings into a new target value. |
 | `src/overlay/app.js` | Browser overlay rendering from normalized state and domain module outputs. |
 | `src/schemas/overlay-state.schema.json` | Public normalized state contract. |
 | `src/schemas/extension.schema.json` | Public extension manifest contract. |
 | `src/schemas/template.schema.json` | Public template manifest contract. |
+| `src/schemas/mapping.schema.json` | Domain-neutral mapping-project and expression AST contract. |
 
 ## Public Overlay Assets
 
@@ -44,7 +48,7 @@
 | `extensions/README.md` | Extension model and rules. |
 | `examples/extensions/` | Example extension manifests and README templates. |
 | `examples/templates/` | Example shareable template manifests and README files. |
-| `examples/mapping-project/` | Sketch of future GUI-authored mapping project output. |
+| `examples/mapping-project/` | Executable, schema-validated fusion mapping example. |
 | `templates/README.md` | Location and rules for reviewed shareable templates. |
 | `data/README.md` | Placeholder and policy for future data extensions. |
 | `rulesets/README.md` | Placeholder and policy for future challenge scoring rulesets. |
@@ -54,6 +58,9 @@
 | Path | Purpose |
 | --- | --- |
 | `test/engine.test.js` | Node tests for type, damage, projection, and capture calculators. |
+| `test/expressions.test.js` | Safe expression behavior and negative security tests. |
+| `test/mapping.test.js` | Mapping pipeline and fusion example execution tests. |
+| `test/schema-validation.test.js` | Automated validation of public manifests, mappings, and state fixtures. |
 | `tools/dev-server.mjs` | Dependency-free local static server for overlay development. |
 
 ## Documentation

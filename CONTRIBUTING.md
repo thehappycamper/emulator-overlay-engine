@@ -18,6 +18,8 @@ Run:
 npm test
 ```
 
+This runs unit tests and validates all checked-in extension examples, template examples, mapping examples, and applicable normalized-state fixtures against their public schemas.
+
 ## Documentation Requirements
 
 Update these when relevant:

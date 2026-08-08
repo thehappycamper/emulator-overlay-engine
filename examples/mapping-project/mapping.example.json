@@ -1,37 +1,70 @@
 {
   "schemaVersion": "0.1.0",
+  "id": "example.fusion-species-mapping",
   "name": "Example Fusion Mapping",
+  "version": "0.1.0",
+  "description": "Maps one synthetic fusion-species table row into a normalized domain record.",
   "source": {
-    "type": "table",
+    "id": "example.fusion-species-table-row",
+    "type": "table-row",
+    "version": "1.0.0",
     "description": "Synthetic example data for mapping a fused species table."
   },
-  "mappings": [
+  "target": {
+    "id": "example.pokemon.fusion-species-record",
+    "type": "domain-record",
+    "version": "0.1.0",
+    "description": "Example normalized fusion-species record consumed by a domain extension."
+  },
+  "fieldMappings": [
     {
-      "source": "fusion_id",
-      "target": "speciesId"
+      "sourcePath": "/fusion_id",
+      "targetPath": "/speciesId",
+      "required": true
     },
     {
-      "source": "fusion_name",
-      "target": "display.name"
+      "sourcePath": "/fusion_name",
+      "targetPath": "/display/name",
+      "required": true
     },
     {
-      "source": "head_id",
-      "target": "components[0].speciesId"
+      "sourcePath": "/head_id",
+      "targetPath": "/components/0/speciesId",
+      "required": true
     },
     {
-      "source": "body_id",
-      "target": "components[1].speciesId"
+      "sourcePath": "/body_id",
+      "targetPath": "/components/1/speciesId",
+      "required": true
     }
   ],
   "calculatedFields": [
     {
-      "target": "name",
-      "expression": "display.name"
+      "targetPath": "/name",
+      "expression": {
+        "op": "field",
+        "root": "target",
+        "path": "/display/name"
+      },
+      "required": true
     },
     {
-      "target": "types",
-      "expression": "[primary_type, secondary_type].filter(Boolean)"
+      "targetPath": "/types",
+      "expression": {
+        "op": "compact",
+        "value": {
+          "op": "array",
+          "items": [
+            { "op": "field", "path": "/primary_type" },
+            { "op": "field", "path": "/secondary_type" }
+          ]
+        }
+      },
+      "required": true
     }
-  ]
+  ],
+  "validation": {
+    "requiredSourcePaths": ["/fusion_id", "/fusion_name", "/head_id", "/body_id"],
+    "requiredTargetPaths": ["/speciesId", "/name", "/types", "/components/0/speciesId", "/components/1/speciesId"]
+  }
 }
-

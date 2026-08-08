@@ -2,11 +2,15 @@ flowchart LR
   Emulator["Emulator\nmGBA / VBA-RR / BizHawk"] --> EmulatorAdapter["Emulator Adapter\nLua / API / Exporter"]
   EmulatorAdapter --> GameAdapter["Game Adapter\nGeneration + ROM mapping"]
   StaticData["Domain Data\nSpecies / Moves / Items / Encounters / Trainers"] --> DataAdapter["Data Extension"]
-  GameAdapter --> NormalizedState["Normalized Overlay State\nJSON schema"]
+  GameAdapter --> SourceData["Source Data\nNamed contract"]
+  MappingProject["Mapping Project\nFields / Values / Safe AST"] --> MappingRuntime["Mapping Runtime\nPure transform + validation"]
+  SourceData --> MappingRuntime
+  MappingRuntime --> NormalizedState["Normalized Target\nNamed contract + JSON schema"]
   DataAdapter --> DomainModules["Domain Modules\nCalculators / Rulesets / Analysis"]
   NormalizedState --> DomainModules
   DomainModules --> Overlay["Browser Overlay\nTemplate panels and visualizations"]
   NormalizedState --> Overlay
   Decisions["Docs + ADRs\nProject memory"] -. guides .-> EmulatorAdapter
+  Decisions -. guides .-> MappingRuntime
   Decisions -. guides .-> DomainModules
   Decisions -. guides .-> Overlay

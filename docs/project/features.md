@@ -23,6 +23,10 @@ Status labels:
 | Calculator extension type | mvp | Template for custom calculations like damage, catch odds, stat projection, and learnset availability |
 | Fusion/custom species metadata | mvp | Schema supports optional `display`, `components`, and `sourceIds` |
 | Namespaced extension runtime state | mvp | Top-level `extensions` object in normalized state |
+| Mapping project schema | mvp | Domain-neutral named/versioned source and target contracts in `src/schemas/mapping.schema.json` |
+| Safe calculated expressions | mvp | Whitelisted JSON AST with no arbitrary JavaScript execution |
+| Executable mapping pipeline | mvp | Direct fields, ID/value maps, calculated fields, and validation hooks |
+| Repository schema validation | mvp | `npm test` validates extension, template, mapping, and normalized-state examples |
 
 ## Planned Core Features
 
@@ -43,9 +47,9 @@ Status labels:
 | Fusion game data packs | planned | Example template exists; loader not implemented |
 | Extension loader | planned | Needs decision on runtime loading and trust model |
 | UI panel extension host | planned | Slot model documented; runtime not implemented |
-| Extension Workbench | planned | GUI for data exploration, field mapping, calculated fields, UI mapping, preview, and extension export |
+| Extension Workbench | planned | GUI authoring layer; executable mapping contract now exists, but no GUI is implemented |
 | Domain packages | planned | Future path for multiple games without weakening domain-specific logic |
 | Domain-neutral platform core | planned | Shared extension/workbench/transport/UI host layer, with Pokemon as first domain |
-| Shareable templates | planned | User-facing bundles of extensions, mappings, calculated fields, fixtures, and UI layout preferences |
+| Shareable templates | planned | Base manifest exists; full mappings/calculated-fields/fixtures embedding remains deferred |
 | Template manifest schema | mvp | `src/schemas/template.schema.json` and example template under `examples/templates/` |
 | Premium template marketplace | planned | Future commercial layer; not implemented and needs policy ADR before build |
