@@ -116,7 +116,28 @@ Semantic events sit above emulator memory and domain interpretation. A consumer 
 
 ## Automation Direction
 
-Future EOE actions may drive overlay animations, audio, OBS or other streaming software, HTTP/webhooks, MQTT, local IPC, hardware bridges, lighting/LED systems, smart-home integrations, and community action providers.
+The platform should own gameplay semantics, semantic-event detection, rules, permissions, provider capabilities, session logic, and native action execution. General-purpose workflow systems should extend that engine through integration surfaces rather than replace it.
+
+```text
+Gameplay
+   |
+Normalized State
+   |
+Semantic Events
+   |
+Internal Rules / Event Routing
+   |
+Action Router
+   +-- Native/local actions
+   +-- Gameplay-source actions
+   +-- External integration actions
+```
+
+Future EOE actions may drive overlay animations, audio, OBS or other streaming software, HTTP/webhooks, WebSocket connections, MQTT, local IPC, hardware bridges, lighting/LED systems, smart-home integrations, and community action providers. An authenticated inbound Action API may eventually allow external systems to request actions. Any inbound request must pass authentication and authorization, applicable session policy, and provider-capability checks before execution.
+
+Systems such as n8n, Node-RED, Home Assistant, and custom services should be able to consume EOE events or request authorized actions through generic integration surfaces. None should be a required runtime dependency.
+
+> **EOE owns game semantics and safe execution; external automation platforms connect EOE to the broader software and device ecosystem.**
 
 EOE should not natively implement every hardware ecosystem. The preferred direction is an extensible action-provider model:
 
@@ -130,7 +151,7 @@ pokemon.badge_earned
 Home Assistant / Node-RED / ESP32 / lighting
 ```
 
-This describes a future integration boundary only. No action-provider contract or automation runtime exists today.
+This describes a future integration boundary only. No event router, action-provider contract, inbound Action API, or automation runtime exists today.
 
 ## Workbench Direction
 
@@ -181,7 +202,88 @@ EOE Client
 Player B Game
 ```
 
-Future session concepts may include participants, teams, objectives, scoring, penalties, win conditions, cooperative modes, competitive races, asynchronous challenges, tournaments, spectator views, and session history/replay. No session model or schema is defined yet.
+Future session concepts may include participants, teams, objectives, scoring, penalties, win conditions, cooperative modes, competitive races, asynchronous challenges, tournaments, spectator views, and session history/replay. No session model or schema is defined yet. Rulesets may be domain-specific or cross-domain; identical games, versions, or source types are requirements only when the selected ruleset says they are.
+
+## Progress As A Ruleset Output
+
+Progress should eventually be a first-class ruleset or session output. A future contract may expose a normalized value conceptually equivalent to:
+
+```text
+participant.progress = 0.0 .. 1.0
+```
+
+`0` means not started and `1` means the configured objective is complete. This is a comparison surface, not a universal game formula. The selected progress provider or ruleset determines what completion means for that game and challenge.
+
+Users should generally select **what progress means** rather than calculate a denominator themselves. A progress implementation may derive its result from static game metadata, live domain state, semantic events, objectives or milestones, progression graphs, or seed/randomizer manifests. Manual objectives and denominators remain a fallback for unsupported or highly customized challenges.
+
+Pokemon progress providers might use badges, unique Pokemon caught, eligible or mandatory trainers defeated, major story objectives, or Pokedex completion. Other domains might use worlds, levels, bosses, collectibles, checkpoints, dungeons, race laps, or arbitrary ruleset milestones. These are examples, not built-in providers or a public progress schema.
+
+### Progression Graphs
+
+A future game or domain extension may describe locations, objectives, prerequisites, branches, mandatory paths, alternative paths, and completion targets. A progress implementation could then determine reachable objectives, route-aware completion, mandatory trainers or bosses remaining, and the relevant remaining path from current state.
+
+Alternate paths mean progress must not assume one fixed denominator. Progression graphs describe dependencies and reachability; the selected ruleset still decides which objectives count. ETA or time-remaining estimates based on progression graphs and historical run data are a possible research direction, not an implemented or committed feature.
+
+## Spatial And Map Capabilities
+
+Maps and location are future first-class domain and view capabilities. Map data and live player location state are separate inputs:
+
+```text
+Gameplay Source
+      |
+Normalized Domain Location
+      +
+Game / Domain Map Data
+      |
+Map View
+```
+
+Domains may represent spatial context through a hierarchy such as world, region, area or zone, dungeon, floor, room, and local coordinates. The platform must not assume every game uses tiles, supports exact coordinates, or has one global coordinate system. Map data may come from the game, extraction tools, community datasets, or creator-authored sources.
+
+Future map views may show player position, landmarks, objectives, encounters, trainers, completed or remaining objectives, progression routes, multiplayer participant markers, or spectator views. A Pokemon source might report a Hoenn area such as `route_119` with local `x` and `y` coordinates, but that example does not define a universal location schema.
+
+Normalized location may later support semantic events such as location entered or exited, region entered, or checkpoint reached. Domains may provide richer events, such as a route or gym being entered. Event identifiers and contracts remain undecided.
+
+A spatial map describes **where things are**. A progression graph describes **what is required or reachable and in what dependency order**. A game can provide one, both, or neither, and progress must not depend on graphical map availability.
+
+## Session Results And Cross-Domain Competition
+
+The platform should eventually expose a common session score/result interface while allowing each domain and ruleset to own its scoring implementation:
+
+```text
+Domain Events / State
+       |
+Ruleset-specific scoring implementation
+       |
+Common Session Result
+```
+
+The common result may eventually describe score, score components, penalties, progress, completion, success or failure, rank, and winner or team outcome. A session may use no numeric points at all: a race may reward first completion, score attack may use the highest score, bingo may count objectives, survival may end with the last participant, and co-op may measure team completion. The platform must not define one universal conversion such as assigning every Pokemon badge a fixed global point value. No result schema is defined here.
+
+Rulesets may be domain-specific or cross-domain. Possible configurations include Pokemon Gen I versus Pokemon Gen III, Pokemon Emerald versus Pokemon Ruby, Pokemon versus Mario, or another game-versus-game challenge whose ruleset supplies compatible objectives.
+
+Rich domain meaning should be preserved while a session translates only what it needs into small generic participant concepts:
+
+```text
+pokemon.badge_earned       -> participant.objective_completed
+mario.level_completed     -> participant.objective_completed
+                              participant.completed
+                              participant.failed
+                              participant.score_changed
+```
+
+These identifiers are conceptual examples only and do not define or freeze event contracts.
+
+A cross-domain ruleset may map different domain events into one shared objective. For example, "Defeat a major boss" might map a Pokemon gym-leader defeat, a Mario castle-boss defeat, and a Zelda dungeon-boss defeat into equivalent session progress. This translation belongs to the ruleset/session layer, not platform core or source providers.
+
+Normalized progress can support spectator overlays, races, session summaries, progress comparisons, and team dashboards even when participants play different games:
+
+```text
+Player A - Pokemon Emerald - 67%
+Player B - Super Mario World - 64%
+```
+
+Each domain/ruleset calculates progress differently; the session consumes the normalized output. Session score and player rating remain distinct: session score determines performance inside one configured challenge, while a future player rating would estimate matchmaking skill across many sessions. Raw session points must not become a global skill metric.
 
 ## Session Referee And Verified Environments
 

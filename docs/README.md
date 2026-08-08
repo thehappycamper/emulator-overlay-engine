@@ -5,7 +5,7 @@ This directory is the human and agent knowledge base for Emulator Overlay Engine
 ## Start Here
 
 - `../AGENTS.md` - required operating rules for coding agents.
-- `knowledge/product-vision.md` - canonical product definition, pipeline, and long-term local/hosted direction.
+- `knowledge/product-vision.md` - canonical product definition, pipeline, and long-term automation, progress, spatial, session, and local/hosted direction.
 - `project/last-worked-on.md` - short pointer to current phase/task; not the project history.
 - `project/implementation-plan.md` - engineering execution sequence: phases with entry/exit criteria.
 - `tasks/README.md` - task-record system: per-task execution history, one file per task.

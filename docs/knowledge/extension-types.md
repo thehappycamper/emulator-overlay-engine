@@ -26,7 +26,7 @@ Templates can bundle multiple extensions into a user-facing shareable overlay se
 | `data` | Species, moves, items, learnsets, encounters, trainers, facility sets | Memory reads, UI layout |
 | `mechanics` | Formula/rules differences for a generation or hack | Raw ROM assets, emulator setup |
 | `calculator` | Custom calculations such as battle damage, catch odds, stat projection, learnset availability | Raw data ownership, emulator reads, UI layout |
-| `ruleset` | Challenge scoring rules and event interpretation | Emulator reads, core battle math |
+| `ruleset` | Challenge objectives, progress, scoring/outcomes, and event interpretation | Emulator reads, core battle math |
 | `analysis` | Higher-level decision modules such as set matching or move prediction | Data ownership, UI layout |
 | `overlay-panel` | Optional visual panels using normalized state and engine outputs | Emulator reads, data extraction |
 | `transport` | File polling, WebSocket, HTTP, or bridge protocols for state movement | Domain calculations, game mappings |

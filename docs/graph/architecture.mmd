@@ -14,6 +14,14 @@ flowchart LR
   EventConsumers -.-> Actions["Actions / Providers\nFuture"]
   Actions -.-> Experiences["Overlays / Automations /\nSessions\nFuture"]
 
+  DomainBoundary -. future domain data .-> SpatialData["Location + Map Data\nFuture"]
+  SpatialData -.-> MapViews["Map / Spectator Views\nFuture"]
+  DomainBoundary -. future domain data .-> ProgressionData["Progression Graph\nFuture"]
+  ProgressionData -.-> ProgressResults
+  EventConsumers -. ruleset output .-> ProgressResults["Progress + Session Results\nFuture"]
+  ProgressResults -.-> Experiences
+  Actions -. authorized integration .-> Workflows["External Workflows\nOptional Future Consumer"]
+
   NormalizedEvents -. optional derived telemetry .-> Cloud["EOE Cloud\nOptional Future Consumer"]
   Cloud -.-> Experiences
 
@@ -22,4 +30,4 @@ flowchart LR
   classDef external fill:#f5f5f5,stroke:#555,color:#111
   class Sources external
   class SourceContract,MappingProject,MappingRuntime,NormalizedState,DomainBoundary,PokemonDomain,CurrentConsumers current
-  class Adapters,EventDetection,NormalizedEvents,EventConsumers,Actions,Experiences,Cloud future
+  class Adapters,EventDetection,NormalizedEvents,EventConsumers,Actions,Experiences,SpatialData,MapViews,ProgressionData,ProgressResults,Workflows,Cloud future
