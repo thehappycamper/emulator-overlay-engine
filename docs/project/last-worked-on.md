@@ -25,6 +25,6 @@ Why:
 
 Next Actions:
 
-- Configure a GitHub remote once the repository exists online.
+- Create or confirm the GitHub repository. The local `origin` currently points to `git@github.com:thehappycamper/pokemon-overlay-engine.git`, but GitHub returned `Repository not found` on push.
 - Implement live Gen 3 mGBA JSON export.
 - Decide whether the overlay should poll `public/live-state.json`, use WebSocket state, or support both.
