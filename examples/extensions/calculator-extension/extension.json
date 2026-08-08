@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "example.calculator",
+  "name": "Example Calculator Extension",
+  "type": "calculator",
+  "version": "0.1.0",
+  "description": "Template for custom calculation modules such as battle damage, catch odds, or stat projections.",
+  "requires": {
+    "stateFields": ["battle.opponent", "player.party"],
+    "data": ["species", "moves", "items"]
+  },
+  "provides": {
+    "damageRanges": false,
+    "catchOdds": false,
+    "statProjection": false,
+    "learnsetAvailability": false
+  },
+  "publicSafety": {
+    "containsRoms": false,
+    "containsBios": false,
+    "containsSaves": false,
+    "containsSecrets": false
+  }
+}
+

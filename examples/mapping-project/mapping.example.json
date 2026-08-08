@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "0.1.0",
+  "name": "Example Fusion Mapping",
+  "source": {
+    "type": "table",
+    "description": "Synthetic example data for mapping a fused species table."
+  },
+  "mappings": [
+    {
+      "source": "fusion_id",
+      "target": "speciesId"
+    },
+    {
+      "source": "fusion_name",
+      "target": "display.name"
+    },
+    {
+      "source": "head_id",
+      "target": "components[0].speciesId"
+    },
+    {
+      "source": "body_id",
+      "target": "components[1].speciesId"
+    }
+  ],
+  "calculatedFields": [
+    {
+      "target": "name",
+      "expression": "display.name"
+    },
+    {
+      "target": "types",
+      "expression": "[primary_type, secondary_type].filter(Boolean)"
+    }
+  ]
+}
+

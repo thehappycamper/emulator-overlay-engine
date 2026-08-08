@@ -1,12 +1,14 @@
 # Pokemon Overlay Engine
 
-Generation-agnostic overlay engine for Pokemon emulator tooling.
+A domain-extensible game overlay engine for exposing live game data, mapping it through a GUI, and sharing reusable overlay templates. Pokemon is the first supported domain.
 
-The project keeps ROM and emulator details at the edges. Adapters read live data from an emulator or save source, normalize it into the shared state API, and the core engine powers overlay panels such as team summaries, route encounters, capture odds, damage ranges, scoring, and move prediction.
+The project keeps emulator, game, and domain details at the edges. Adapters read live data from an emulator or save source, users map and enrich that data through shared contracts, and domain engines power overlay panels such as team summaries, route encounters, capture odds, damage ranges, scoring, and move prediction.
+
+Long term, users should be able to create, save, review, and share templates for games and ROM hacks so the public can reuse working overlays without rebuilding mappings from scratch.
 
 ## MVP
 
-The first shippable slice is intentionally small:
+The first shippable slice is intentionally small and Pokemon-focused:
 
 - Normalized JSON state contract for party, opponent, bag, location, encounter data, seed, and scoring.
 - Dependency-free browser overlay that renders a useful challenge dashboard from that state.
@@ -49,7 +51,7 @@ Data Adapter
   Supplies species, moves, items, type chart, learnsets, trainers, encounters, and hack-specific changes.
 
 Core Engine
-  Calculates damage, capture odds, scoring, legality, projections, and predictions.
+  Calculates domain-specific outputs such as damage, capture odds, scoring, legality, projections, and predictions.
 
 Overlay
   Displays current state and engine outputs.
@@ -71,3 +73,4 @@ Overlay
 - `CONTRIBUTING.md` - public contribution flow.
 - `docs/README.md` - documentation index, project memory, architecture notes, and roadmap.
 - `docs/project/community-extensions.md` - policy for reviewed community adapters, ROM-hack mappings, data packs, rulesets, and overlay panels.
+- `docs/knowledge/shareable-templates.md` - template model for saving and sharing complete overlay setups.

@@ -21,6 +21,11 @@ Changes:
 - Added extension manifest schema and examples for emulator, game, data, mechanics, ruleset, analysis, overlay panel, and transport extension types.
 - Added custom data/fusion guidance, a fusion data extension example, and optional normalized Pokemon fields for display/component/source ID metadata.
 - Added flexible UI extension model with panel slots and namespaced extension runtime state.
+- Added Extension Workbench architecture notes, ADR, roadmap phase, and example mapping project output.
+- Recorded Pokemon-first, domain-extensible direction for future non-Pokemon support.
+- Superseded that direction with a domain-neutral platform decision where Pokemon becomes the first domain package.
+- Added shareable templates as the user-facing bundle format for public reuse.
+- Added calculator extension type and example for battle calculations, catch odds, stat projection, and learnset availability.
 
 Why:
 

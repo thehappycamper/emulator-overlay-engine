@@ -20,6 +20,7 @@ Status labels:
 | CI test workflow | mvp | `.github/workflows/ci.yml` |
 | Extension manifest schema | mvp | `src/schemas/extension.schema.json` |
 | Extension templates | mvp | `examples/extensions/` |
+| Calculator extension type | mvp | Template for custom calculations like damage, catch odds, stat projection, and learnset availability |
 | Fusion/custom species metadata | mvp | Schema supports optional `display`, `components`, and `sourceIds` |
 | Namespaced extension runtime state | mvp | Top-level `extensions` object in normalized state |
 
@@ -42,3 +43,7 @@ Status labels:
 | Fusion game data packs | planned | Example template exists; loader not implemented |
 | Extension loader | planned | Needs decision on runtime loading and trust model |
 | UI panel extension host | planned | Slot model documented; runtime not implemented |
+| Extension Workbench | planned | GUI for data exploration, field mapping, calculated fields, UI mapping, preview, and extension export |
+| Domain packages | planned | Future path for non-Pokemon games without weakening Pokemon-specific core |
+| Domain-neutral platform core | planned | Shared extension/workbench/transport/UI host layer, with Pokemon as first domain |
+| Shareable templates | planned | User-facing bundles of extensions, mappings, calculated fields, fixtures, and UI layout preferences |

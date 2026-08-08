@@ -4,9 +4,9 @@ This repository is intended to be maintained by both humans and coding agents. K
 
 ## Product Direction
 
-Pokemon Overlay Engine is a generation-agnostic engine and overlay for Pokemon emulator challenge tooling.
+Pokemon Overlay Engine currently ships Pokemon as the first supported domain, but the long-term architecture is a domain-neutral game overlay platform for exposing live game data, mapping it through a GUI, and sharing reusable templates.
 
-Adapters normalize emulator and ROM-specific data into the shared state API. The core engine should stay independent from any specific emulator, generation, or ROM hack.
+Adapters normalize emulator, game, and domain-specific data into shared contracts. The workbench should help users create mappings, calculated fields, UI panel mappings, and shareable templates. Pokemon-specific schemas and calculators should move toward a Pokemon domain boundary instead of becoming permanent shared-platform assumptions.
 
 ## Required Agent Behavior
 
@@ -41,12 +41,13 @@ Adapters normalize emulator and ROM-specific data into the shared state API. The
 
 ## Architecture Rules
 
-- Core engine code must not read emulator memory directly.
+- Shared platform code must not read emulator memory directly.
 - Emulator adapters own emulator APIs, memory addresses, and live export mechanics.
 - Game/data adapters own generation, ROM, and ROM-hack mappings.
 - Overlay code consumes normalized state and engine outputs.
-- Public normalized state shape belongs in `src/schemas/`.
+- Public schemas belong in `src/schemas/` until domain package boundaries are introduced.
 - Do not hardcode ROM hack behavior into generic engine modules.
+- Do not add new Pokemon-specific assumptions to shared platform code when the concept belongs in a Pokemon domain package.
 
 ## Documentation Checklist
 
@@ -65,4 +66,3 @@ Before finishing a task, check whether these need updates:
 ## Current MVP
 
 The first MVP is a static normalized-state browser overlay with core damage and capture calculators. Live emulator export is not implemented yet.
-

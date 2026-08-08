@@ -18,6 +18,9 @@ This directory is the human and agent knowledge base for Pokemon Overlay Engine.
 - `knowledge/extension-types.md` - extension taxonomy and composition model.
 - `knowledge/custom-data-and-fusions.md` - how custom tables and fusion data should be modeled.
 - `knowledge/ui-extension-model.md` - panel slots and UI extension data flow.
+- `knowledge/extension-workbench.md` - planned GUI for data exploration, mapping, calculated fields, previews, and extension export.
+- `knowledge/domain-extensibility.md` - Pokemon-first but domain-extensible architecture boundary.
+- `knowledge/shareable-templates.md` - user-facing template bundles for sharing complete overlay setups.
 - `graph/architecture.mmd` - Mermaid architecture graph.
 - `decisions/` - architecture decision records.
 

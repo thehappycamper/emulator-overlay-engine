@@ -2,6 +2,8 @@
 
 Community contributions are welcome, especially for emulator adapters, generation adapters, ROM-hack mappings, encounter data, trainer sets, scoring rulesets, and overlay panels.
 
+Users should eventually be able to share complete templates that bundle these pieces into a reusable overlay setup.
+
 ## Extension Types
 
 | Extension | Examples | Review Focus |
@@ -12,6 +14,7 @@ Community contributions are welcome, especially for emulator adapters, generatio
 | Data pack | Learnsets, encounters, trainers, Battle Factory sets | Source clarity, schema compatibility |
 | Fusion data pack | Fusion species, components, custom learnsets | Versioned custom data, normalized final stats |
 | Mechanics extension | Gen or hack-specific formula/rule changes | Deterministic fixtures, scoped overrides |
+| Calculator extension | Damage, catch odds, stat projection, learnset availability | Formula docs, deterministic fixtures |
 | Ruleset | Nuzlocke scoring, low-score challenges | Determinism, clear scoring events |
 | Analysis extension | Move prediction, set matching, score projection | Clear assumptions, confidence scoring |
 | Overlay panel | Route view, capture odds, damage panel | Uses normalized state, accessible layout |

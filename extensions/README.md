@@ -10,6 +10,7 @@ Extensions add support around the core engine without hardcoding source-specific
 | `game` | Maps a generation/game/ROM memory layout into normalized state. |
 | `data` | Supplies static or extracted data such as encounters, moves, learnsets, trainers, or facility sets. |
 | `mechanics` | Supplies generation or ROM-hack formula/rule differences. |
+| `calculator` | Adds custom calculations such as damage, catch odds, stat projection, or learnset availability. |
 | `ruleset` | Defines challenge scoring rules and event interpretation. |
 | `analysis` | Adds decision-support logic such as set matching or move prediction. |
 | `overlay-panel` | Adds an optional UI panel that consumes normalized state and engine outputs. |

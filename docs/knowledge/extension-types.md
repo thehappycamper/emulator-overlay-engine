@@ -1,6 +1,6 @@
 # Extension Types
 
-Extensions are the scalability boundary for emulator support, ROM support, data packs, scoring rules, analysis modules, overlay panels, and transports.
+Extensions are the scalability boundary for emulator support, game support, domain data packs, scoring rules, analysis modules, overlay panels, and transports.
 
 Every extension should include:
 
@@ -15,6 +15,8 @@ The extension manifest schema lives at:
 src/schemas/extension.schema.json
 ```
 
+Templates can bundle multiple extensions into a user-facing shareable overlay setup. See `docs/knowledge/shareable-templates.md`.
+
 ## Type Taxonomy
 
 | Type | Owns | Should Not Own |
@@ -23,6 +25,7 @@ src/schemas/extension.schema.json
 | `game` | Generation/game/ROM/hack memory maps and ID mapping | Emulator connection, generic calculators |
 | `data` | Species, moves, items, learnsets, encounters, trainers, facility sets | Memory reads, UI layout |
 | `mechanics` | Formula/rules differences for a generation or hack | Raw ROM assets, emulator setup |
+| `calculator` | Custom calculations such as battle damage, catch odds, stat projection, learnset availability | Raw data ownership, emulator reads, UI layout |
 | `ruleset` | Challenge scoring rules and event interpretation | Emulator reads, core battle math |
 | `analysis` | Higher-level decision modules such as set matching or move prediction | Data ownership, UI layout |
 | `overlay-panel` | Optional visual panels using normalized state and engine outputs | Emulator reads, data extraction |
@@ -39,6 +42,7 @@ emulator: mgba
 game: pokemon-emerald-us
 data: gen3-vanilla
 mechanics: gen3
+calculator: pokemon-battle-calculators
 transport: file-state
 overlay-panel: battle-dashboard
 ```
@@ -50,6 +54,7 @@ emulator: mgba
 game: run-and-bun-1.07
 data: run-and-bun-1.07
 mechanics: run-and-bun-1.07
+calculator: run-and-bun-calculators
 ruleset: low-score-nuzlocke
 analysis: trainer-set-matcher
 overlay-panel: route-and-capture
@@ -57,4 +62,4 @@ overlay-panel: route-and-capture
 
 ## Core Rule
 
-If a feature exists because of a specific emulator, game, ROM hack, ruleset, or UI panel, prefer an extension. If a feature is generic Pokemon math or normalized-state processing, it belongs in core.
+If a feature exists because of a specific emulator, game, ROM hack, ruleset, or UI panel, prefer an extension. If a feature is domain-specific, it belongs in a domain package. If it is generic extension, transport, workbench, or overlay-host infrastructure, it belongs in shared platform code.

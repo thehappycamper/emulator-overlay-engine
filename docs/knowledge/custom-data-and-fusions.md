@@ -11,6 +11,7 @@ emulator extension: reads live state from the emulator
 game extension: maps custom memory, IDs, and save/battle structures
 data extension: supplies custom species, moves, items, encounters, trainers, and fusion tables
 mechanics extension: supplies formula/rule changes if fusion mechanics alter stats, typing, abilities, or damage
+calculator extension: supplies custom calculations such as fusion stat projection or battle damage if needed
 overlay-panel extension: optional custom fusion display
 ```
 
@@ -66,4 +67,3 @@ The exact fusion formula belongs in a data or mechanics extension. The normalize
 Fusion data must not include ROMs, BIOS files, copyrighted game assets, personal saves, or secrets.
 
 Prefer IDs, names, formulas, and derived tables. If data was extracted, document the extraction source and the target game version.
-

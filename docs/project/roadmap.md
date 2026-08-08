@@ -84,3 +84,29 @@ Deliverables:
 - Data extraction/import docs.
 - At least one ROM hack mapping proof of concept.
 
+## Phase 7 - Extension Workbench
+
+Goal:
+
+- Give users a GUI for creating and maintaining game, data, mechanics, ruleset, and overlay panel extensions.
+
+Deliverables:
+
+- Data import and exploration UI.
+- Field and ID mapping UI.
+- Calculated field editor.
+- Normalized state preview.
+- Overlay panel slot preview.
+- Extension and template export to reviewable files.
+
+## Future - Domain-Neutral Platform And Domain Packages
+
+Goal:
+
+- Move shared extension/workbench infrastructure toward a domain-neutral platform and keep Pokemon as the first domain package.
+
+Deliverables:
+
+- Domain package contract.
+- Pokemon domain package extraction if needed.
+- Separate schemas and calculators per supported domain.

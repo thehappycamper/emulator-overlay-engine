@@ -41,6 +41,7 @@
 | `adapters/gen3-mgba/README.md` | Notes and intended contract for first live mGBA adapter. |
 | `extensions/README.md` | Extension model and rules. |
 | `examples/extensions/` | Example extension manifests and README templates. |
+| `examples/mapping-project/` | Sketch of future GUI-authored mapping project output. |
 | `data/README.md` | Placeholder and policy for future data extensions. |
 | `rulesets/README.md` | Placeholder and policy for future challenge scoring rulesets. |
 
@@ -68,5 +69,8 @@
 | `docs/knowledge/extension-types.md` | Extension taxonomy and composition model. |
 | `docs/knowledge/custom-data-and-fusions.md` | Guidance for custom tables, fan games, and fusion data. |
 | `docs/knowledge/ui-extension-model.md` | UI panel extension slots and data flow. |
+| `docs/knowledge/extension-workbench.md` | Planned GUI authoring layer for mappings and extensions. |
+| `docs/knowledge/domain-extensibility.md` | Pokemon-first, domain-extensible architecture guidance. |
+| `docs/knowledge/shareable-templates.md` | User-facing template bundles for sharing complete overlay setups. |
 | `docs/graph/architecture.mmd` | Mermaid architecture graph. |
 | `docs/decisions/` | Architecture decision records. |

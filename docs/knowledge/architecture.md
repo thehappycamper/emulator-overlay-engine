@@ -1,6 +1,6 @@
 # Architecture Knowledge
 
-Pokemon Overlay Engine separates live data collection from game logic and UI rendering.
+Pokemon Overlay Engine separates live data collection from domain logic and UI rendering.
 
 ## Layers
 
@@ -16,9 +16,9 @@ Maps generation and ROM-specific addresses, structs, tables, and IDs into normal
 
 Provides static or extracted data: species, moves, items, abilities, type chart, learnsets, TM compatibility, encounters, trainers, Battle Factory sets, and mechanics differences.
 
-4. Core Engine
+4. Domain Engine
 
-Calculates damage, capture odds, legality, route summaries, score changes, set matching, and move predictions from normalized state and data.
+Calculates domain-specific outputs. For Pokemon, this includes damage, capture odds, legality, route summaries, score changes, set matching, and move predictions from normalized state and data.
 
 5. Overlay
 
@@ -26,9 +26,8 @@ Renders the current state and engine outputs. It should not know emulator memory
 
 ## Design Constraints
 
-- The normalized state API is the integration boundary.
-- Engine functions should be deterministic and testable.
+- Normalized state APIs are integration boundaries.
+- Domain engine functions should be deterministic and testable.
 - ROM hacks should be handled by adapter/data mappings, not generic engine forks.
 - Overlay rendering should degrade gracefully when optional data is unavailable.
 - Any long-term API change should have an ADR.
-
