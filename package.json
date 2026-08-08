@@ -1,7 +1,7 @@
 {
-  "name": "pokemon-overlay-engine",
+  "name": "emulator-overlay-engine",
   "version": "0.1.0",
-  "description": "Generation-agnostic Pokemon overlay engine for emulator adapters and challenge tooling.",
+  "description": "Domain-neutral game overlay engine for live data mapping, extensions, and shareable templates.",
   "type": "module",
   "private": true,
   "scripts": {

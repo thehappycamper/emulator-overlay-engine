@@ -6,7 +6,7 @@ Status: accepted
 
 ## Context
 
-The project needs to support multiple Pokemon generations, multiple emulators, and ROM hacks. Emulator memory layouts and ROM data can differ, but the overlay and core engines should remain reusable.
+The project needs to support multiple Pokemon generations, multiple emulators, and ROM hacks. Emulator memory layouts and ROM data can differ, but the overlay and domain modules should remain reusable.
 
 ## Decision
 
@@ -26,4 +26,3 @@ Adapters map emulator, generation, ROM, and ROM-hack specifics into that schema.
 - ROM hacks can be supported through mappings and data adapters.
 - Live export can start with file polling and later move to WebSockets without changing core payload semantics.
 - Schema changes must be deliberate and documented.
-

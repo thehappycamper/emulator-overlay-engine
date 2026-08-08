@@ -1,6 +1,6 @@
 # Extensions
 
-Extensions add support around the core engine without hardcoding source-specific behavior into core modules.
+Extensions add backend capabilities without hardcoding source-specific behavior into the shared platform.
 
 ## Extension Types
 

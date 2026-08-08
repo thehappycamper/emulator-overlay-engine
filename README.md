@@ -1,6 +1,6 @@
-# Pokemon Overlay Engine
+# Emulator Overlay Engine
 
-A domain-extensible game overlay engine for exposing live game data, mapping it through a GUI, and sharing reusable overlay templates. Pokemon is the first supported domain.
+A domain-neutral game overlay engine for exposing live game data, mapping it through a GUI, and sharing reusable overlay templates. Pokemon is the first supported domain.
 
 The project keeps emulator, game, and domain details at the edges. Adapters read live data from an emulator or save source, users map and enrich that data through shared contracts, and domain engines power overlay panels such as team summaries, route encounters, capture odds, damage ranges, scoring, and move prediction.
 
@@ -50,11 +50,11 @@ Game Adapter
 Data Adapter
   Supplies species, moves, items, type chart, learnsets, trainers, encounters, and hack-specific changes.
 
-Core Engine
-  Calculates domain-specific outputs such as damage, capture odds, scoring, legality, projections, and predictions.
+Domain Modules
+  Calculate domain-specific outputs such as damage, capture odds, scoring, legality, projections, and predictions.
 
 Overlay
-  Displays current state and engine outputs.
+  Displays mapped state, module outputs, and template-selected panels.
 ```
 
 ## Roadmap
@@ -65,7 +65,7 @@ Overlay
 4. Route encounter visualization.
 5. Battle Factory set identification.
 6. Custom challenge scoring rules.
-7. ROM hack data adapters.
+7. Shareable templates and ROM hack/game modules.
 
 ## Maintainer Docs
 

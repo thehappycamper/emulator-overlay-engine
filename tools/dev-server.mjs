@@ -36,5 +36,5 @@ const server = http.createServer(async (request, response) => {
 });
 
 server.listen(port, "127.0.0.1", () => {
-  console.log(`Pokemon Overlay Engine running at http://127.0.0.1:${port}`);
+  console.log(`Emulator Overlay Engine running at http://127.0.0.1:${port}`);
 });

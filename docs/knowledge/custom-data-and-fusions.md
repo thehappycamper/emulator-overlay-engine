@@ -15,7 +15,7 @@ calculator extension: supplies custom calculations such as fusion stat projectio
 overlay-panel extension: optional custom fusion display
 ```
 
-The overlay should not need to know the original game internals. It should receive normalized Pokemon objects with enough metadata to render fused species.
+The overlay should not need to know the original game internals. Pokemon templates should receive normalized Pokemon objects with enough metadata to render fused species.
 
 ## Fusion Data Model
 

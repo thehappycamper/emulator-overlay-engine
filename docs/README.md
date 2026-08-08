@@ -1,6 +1,6 @@
 # Project Documentation
 
-This directory is the human and agent knowledge base for Pokemon Overlay Engine.
+This directory is the human and agent knowledge base for Emulator Overlay Engine.
 
 ## Start Here
 
@@ -15,13 +15,14 @@ This directory is the human and agent knowledge base for Pokemon Overlay Engine.
 - `maps/code-map.md` - repository file map and module ownership.
 - `knowledge/architecture.md` - system model and responsibilities.
 - `knowledge/domain-model.md` - normalized Pokemon overlay concepts.
-- `knowledge/adapter-contracts.md` - how emulator/game/data adapters map into the engine.
+- `knowledge/adapter-contracts.md` - how emulator/game/data adapters map into shared contracts.
 - `knowledge/extension-types.md` - extension taxonomy and composition model.
 - `knowledge/custom-data-and-fusions.md` - how custom tables and fusion data should be modeled.
 - `knowledge/ui-extension-model.md` - panel slots and UI extension data flow.
 - `knowledge/extension-workbench.md` - planned GUI for data exploration, mapping, calculated fields, previews, and extension export.
-- `knowledge/domain-extensibility.md` - Pokemon-first but domain-extensible architecture boundary.
+- `knowledge/domain-extensibility.md` - domain-neutral platform and domain package boundary.
 - `knowledge/shareable-templates.md` - user-facing template bundles for sharing complete overlay setups.
+- `../templates/README.md` - reviewed template package location.
 - `graph/architecture.mmd` - Mermaid architecture graph.
 - `decisions/` - architecture decision records.
 

@@ -1,12 +1,12 @@
 # Community Extensions
 
-Community contributions are welcome, especially for emulator adapters, generation adapters, ROM-hack mappings, encounter data, trainer sets, scoring rulesets, and overlay panels.
+Community contributions are welcome, especially for emulator adapters, game/domain modules, ROM-hack mappings, encounter data, trainer sets, calculators, scoring rulesets, overlay panels, and shareable templates.
 
 Users should eventually be able to share complete templates that bundle these pieces into a reusable overlay setup.
 
 ## Extension Types
 
-| Extension | Examples | Review Focus |
+| Contribution | Examples | Review Focus |
 | --- | --- | --- |
 | Emulator adapter | mGBA, VBA-RR, BizHawk | Reliability, setup docs, no unsafe local assumptions |
 | Game adapter | Gen 3 Emerald, FireRed, Gen 4 | Correct memory/data mapping |
@@ -19,6 +19,7 @@ Users should eventually be able to share complete templates that bundle these pi
 | Analysis extension | Move prediction, set matching, score projection | Clear assumptions, confidence scoring |
 | Overlay panel | Route view, capture odds, damage panel | Uses normalized state, accessible layout |
 | Transport extension | File polling, WebSocket, HTTP bridge | Keeps transport separate from domain logic |
+| Shareable template | Complete setup for a game, hack, or challenge | Safe bundle, documented versions, reusable UI mapping |
 
 ## Contribution Rules
 
@@ -32,7 +33,7 @@ Users should eventually be able to share complete templates that bundle these pi
 
 ## Review Policy
 
-Community extensions should be reviewed before merge.
+Community extensions and templates should be reviewed before merge.
 
 Review should check:
 

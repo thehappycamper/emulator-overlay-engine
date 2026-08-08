@@ -1,6 +1,6 @@
 # Adapter Contracts
 
-Adapters are extensions that convert source-specific data into the normalized state API.
+Adapters are extensions that convert source-specific data into normalized state APIs.
 
 ## Emulator Adapter Contract
 
@@ -54,7 +54,7 @@ Live exporters should write JSON matching:
 src/schemas/overlay-state.schema.json
 ```
 
-The first live implementation may write `public/live-state.json` for polling. A later implementation may use WebSockets or another transport, but the payload shape should remain the same.
+The first live implementation may write `public/live-state.json` for polling. A later implementation may use WebSockets or another transport, but the payload shape should remain tied to the selected domain contract.
 
 ## Extension Manifest
 

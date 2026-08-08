@@ -14,7 +14,7 @@ This adapter will export live mGBA Lua memory reads into the normalized overlay 
 
 The Lua side should write JSON shaped like `src/schemas/overlay-state.schema.json`.
 
-The core engine should not know mGBA memory addresses. The adapter owns addresses, Gen 3 encrypted Pokemon struct decoding, game code detection, and ROM-specific data lookups.
+Shared platform and domain modules should not know mGBA memory addresses. The adapter owns addresses, Gen 3 encrypted Pokemon struct decoding, game code detection, and ROM-specific data lookups.
 
 ## Notes
 

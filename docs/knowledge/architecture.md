@@ -1,6 +1,6 @@
 # Architecture Knowledge
 
-Pokemon Overlay Engine separates live data collection from domain logic and UI rendering.
+Emulator Overlay Engine separates live data collection from domain logic and UI rendering.
 
 ## Layers
 

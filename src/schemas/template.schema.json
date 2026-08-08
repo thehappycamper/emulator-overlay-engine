@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emulator-overlay-engine.local/schemas/template.schema.json",
+  "title": "Emulator Overlay Engine Template Manifest",
+  "type": "object",
+  "required": ["schemaVersion", "id", "name", "version", "description", "domain"],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9.-]*[a-z0-9]$"
+    },
+    "name": { "type": "string" },
+    "version": { "type": "string" },
+    "description": { "type": "string" },
+    "domain": { "type": "string" },
+    "compatibility": {
+      "type": "object",
+      "properties": {
+        "games": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "versions": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "romIds": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        },
+        "emulators": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "version": { "type": "string" },
+          "required": { "type": "boolean" }
+        }
+      }
+    },
+    "ui": {
+      "type": "object",
+      "properties": {
+        "panels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "slot"],
+            "properties": {
+              "id": { "type": "string" },
+              "slot": { "type": "string" },
+              "module": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "publicSafety": {
+      "type": "object",
+      "properties": {
+        "containsRoms": { "type": "boolean" },
+        "containsBios": { "type": "boolean" },
+        "containsSaves": { "type": "boolean" },
+        "containsSecrets": { "type": "boolean" }
+      }
+    }
+  },
+  "additionalProperties": true
+}
+

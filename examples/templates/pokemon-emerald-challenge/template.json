@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "example.pokemon-emerald-challenge",
+  "name": "Example Pokemon Emerald Challenge",
+  "version": "0.1.0",
+  "description": "Example template for a Pokemon Emerald challenge overlay.",
+  "domain": "pokemon",
+  "compatibility": {
+    "games": [
+      {
+        "name": "Pokemon Emerald",
+        "versions": ["US"],
+        "romIds": ["AGB-BPEE"]
+      }
+    ],
+    "emulators": ["mGBA"]
+  },
+  "modules": [
+    { "id": "example.emulator", "type": "emulator", "required": true },
+    { "id": "example.game", "type": "game", "required": true },
+    { "id": "example.data", "type": "data", "required": true },
+    { "id": "example.calculator", "type": "calculator", "required": true },
+    { "id": "example.overlay-panel", "type": "overlay-panel", "required": false }
+  ],
+  "ui": {
+    "panels": [
+      { "id": "party", "slot": "party", "module": "example.overlay-panel" },
+      { "id": "battle", "slot": "battle", "module": "example.overlay-panel" },
+      { "id": "route", "slot": "location", "module": "example.overlay-panel" }
+    ]
+  },
+  "publicSafety": {
+    "containsRoms": false,
+    "containsBios": false,
+    "containsSaves": false,
+    "containsSecrets": false
+  }
+}
+

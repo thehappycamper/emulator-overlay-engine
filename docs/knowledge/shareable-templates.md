@@ -2,7 +2,7 @@
 
 Templates are the user-facing package format for sharing overlay support.
 
-An extension is a technical unit. A template is a shareable bundle that can include multiple extensions, mappings, calculated fields, fixtures, and UI layout preferences.
+A module/extension is a technical unit. A template is a shareable bundle that can include multiple modules/extensions, mappings, calculated fields, fixtures, and UI layout preferences.
 
 ## Example Template Contents
 
@@ -17,6 +17,8 @@ extensions/
   overlay-panels/
 fixtures/
 ```
+
+Template manifests should follow `src/schemas/template.schema.json`.
 
 ## What Templates Enable
 
@@ -69,3 +71,6 @@ Templates must follow public repository safety:
 
 Templates should document supported game versions and data sources.
 
+## Relationship To Modules
+
+Modules/extensions expose or calculate data. Templates select which modules are used, how mapped data appears in the UI, and what fixture/layout preferences make the setup reusable.

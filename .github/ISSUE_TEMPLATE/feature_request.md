@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Propose a Pokemon Overlay Engine feature
+about: Propose an Emulator Overlay Engine feature
 title: "[Feature]: "
 labels: enhancement
 assignees: ""
@@ -23,4 +23,3 @@ What live state, ROM data, or static data is required?
 ## Acceptance Criteria
 
 - 
-

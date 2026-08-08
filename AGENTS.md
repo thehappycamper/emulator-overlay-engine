@@ -4,7 +4,7 @@ This repository is intended to be maintained by both humans and coding agents. K
 
 ## Product Direction
 
-Pokemon Overlay Engine currently ships Pokemon as the first supported domain, but the long-term architecture is a domain-neutral game overlay platform for exposing live game data, mapping it through a GUI, and sharing reusable templates.
+Emulator Overlay Engine currently ships Pokemon as the first supported domain, but the long-term architecture is a domain-neutral emulator overlay platform for exposing live game data, mapping it through a GUI, and sharing reusable templates.
 
 Adapters normalize emulator, game, and domain-specific data into shared contracts. The workbench should help users create mappings, calculated fields, UI panel mappings, and shareable templates. Pokemon-specific schemas and calculators should move toward a Pokemon domain boundary instead of becoming permanent shared-platform assumptions.
 

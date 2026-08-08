@@ -15,14 +15,15 @@ Then fill in only the values needed for your machine.
 | Variable | Purpose |
 | --- | --- |
 | `PORT` | Local overlay dev server port. |
-| `POE_LIVE_STATE_PATH` | Future live adapter output path. |
-| `POE_MGBA_EXE` | Optional local path to mGBA executable. |
-| `POE_MGBA_SCRIPTS_DIR` | Optional local path to mGBA Lua scripts. |
-| `POE_VBA_RR_EXE` | Optional local path to VBA-RR executable. |
-| `POE_SAVE_DIR` | Optional local path to emulator save directory. |
-| `POE_DEFAULT_GENERATION` | Optional default generation for adapter tooling. |
-| `POE_DEFAULT_GAME` | Optional default game label. |
-| `POE_DEFAULT_ROM_ID` | Optional default ROM/game code. |
+| `EOE_LIVE_STATE_PATH` | Future live adapter output path. |
+| `EOE_MGBA_EXE` | Optional local path to mGBA executable. |
+| `EOE_MGBA_SCRIPTS_DIR` | Optional local path to mGBA Lua scripts. |
+| `EOE_VBA_RR_EXE` | Optional local path to VBA-RR executable. |
+| `EOE_SAVE_DIR` | Optional local path to emulator save directory. |
+| `EOE_DEFAULT_DOMAIN` | Optional default domain, such as `pokemon`. |
+| `EOE_DEFAULT_GENERATION` | Optional default generation for domain adapter tooling. |
+| `EOE_DEFAULT_GAME` | Optional default game label. |
+| `EOE_DEFAULT_ROM_ID` | Optional default ROM/game code. |
 
 ## Rules
 

@@ -8,6 +8,7 @@ Do not commit:
 - Personal save files.
 - Access tokens, API keys, SSH keys, cookies, or emulator account data.
 - Local absolute paths that expose private machine details.
+- Templates or fixtures generated from private play sessions unless they have been scrubbed.
 
 ## Reporting
 

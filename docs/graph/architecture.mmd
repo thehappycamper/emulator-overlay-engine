@@ -1,13 +1,12 @@
 flowchart LR
   Emulator["Emulator\nmGBA / VBA-RR / BizHawk"] --> EmulatorAdapter["Emulator Adapter\nLua / API / Exporter"]
   EmulatorAdapter --> GameAdapter["Game Adapter\nGeneration + ROM mapping"]
-  StaticData["Static Data\nSpecies / Moves / Items / Encounters / Trainers"] --> DataAdapter["Data Adapter"]
+  StaticData["Domain Data\nSpecies / Moves / Items / Encounters / Trainers"] --> DataAdapter["Data Extension"]
   GameAdapter --> NormalizedState["Normalized Overlay State\nJSON schema"]
-  DataAdapter --> CoreEngine["Core Engine\nDamage / Capture / Score / Prediction"]
-  NormalizedState --> CoreEngine
-  CoreEngine --> Overlay["Browser Overlay\nPanels and visualizations"]
+  DataAdapter --> DomainModules["Domain Modules\nCalculators / Rulesets / Analysis"]
+  NormalizedState --> DomainModules
+  DomainModules --> Overlay["Browser Overlay\nTemplate panels and visualizations"]
   NormalizedState --> Overlay
   Decisions["Docs + ADRs\nProject memory"] -. guides .-> EmulatorAdapter
-  Decisions -. guides .-> CoreEngine
+  Decisions -. guides .-> DomainModules
   Decisions -. guides .-> Overlay
-

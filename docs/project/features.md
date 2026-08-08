@@ -28,10 +28,10 @@ Status labels:
 
 | Feature | Status | Notes |
 | --- | --- | --- |
-| Live party panel | planned | Needs emulator adapter export |
+| Live party panel | planned | Needs emulator extension export |
 | IV/EV display | planned | Existing local Gen 3 Lua script can supply this |
 | Current moves and PP | planned | Existing local Gen 3 Lua script can supply this |
-| Learnset upcoming moves | planned | Needs data adapter tables |
+| Learnset upcoming moves | planned | Needs data extension tables |
 | Bag TMs and compatibility | planned | Needs bag export and learnset/TM data |
 | Route encounter viewer | mvp | Static sample only; needs live map ID and encounter data |
 | Battle catch odds from bag | mvp | Static sample only; needs live bag/opponent export |
@@ -44,7 +44,8 @@ Status labels:
 | Extension loader | planned | Needs decision on runtime loading and trust model |
 | UI panel extension host | planned | Slot model documented; runtime not implemented |
 | Extension Workbench | planned | GUI for data exploration, field mapping, calculated fields, UI mapping, preview, and extension export |
-| Domain packages | planned | Future path for non-Pokemon games without weakening Pokemon-specific core |
+| Domain packages | planned | Future path for multiple games without weakening domain-specific logic |
 | Domain-neutral platform core | planned | Shared extension/workbench/transport/UI host layer, with Pokemon as first domain |
 | Shareable templates | planned | User-facing bundles of extensions, mappings, calculated fields, fixtures, and UI layout preferences |
+| Template manifest schema | mvp | `src/schemas/template.schema.json` and example template under `examples/templates/` |
 | Premium template marketplace | planned | Future commercial layer; not implemented and needs policy ADR before build |

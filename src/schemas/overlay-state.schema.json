@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://pokemon-overlay-engine.local/schemas/overlay-state.schema.json",
+  "$id": "https://emulator-overlay-engine.local/schemas/overlay-state.schema.json",
   "title": "Pokemon Overlay State",
   "type": "object",
   "required": ["schemaVersion", "game", "player", "battle", "location", "bag"],

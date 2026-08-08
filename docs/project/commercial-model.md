@@ -7,7 +7,7 @@ Users can use, modify, share, and commercially use the open source project under
 ## Intended Free/Open Parts
 
 - Core platform code.
-- Pokemon domain MVP.
+- Pokemon first-domain MVP.
 - Public schemas.
 - Public examples.
 - Community extensions and templates accepted into the repository.
@@ -34,4 +34,3 @@ Before adding marketplace behavior, define:
 - Safety and copyright policy.
 - Versioning and compatibility guarantees.
 - Whether paid templates can depend on open community extensions.
-

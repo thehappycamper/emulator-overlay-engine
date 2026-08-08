@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping maintain Pokemon Overlay Engine.
+Thanks for helping maintain Emulator Overlay Engine.
 
 ## Development Flow
 
@@ -43,9 +43,9 @@ Do not commit ROMs, BIOS files, copyrighted game assets, save files, or secrets.
 
 ## Community Extensions
 
-Public contributions are welcome for adapters, ROM-hack mappings, data packs, rulesets, and overlay panels.
+Public contributions are welcome for adapters, ROM-hack mappings, data packs, calculators, rulesets, overlay panels, and shareable templates.
 
-Extensions must be reviewed before merge. Good extension PRs include:
+Extensions and templates must be reviewed before merge. Good PRs include:
 
 - Supported emulator/game/hack version.
 - Data source notes.

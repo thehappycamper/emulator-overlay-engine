@@ -8,7 +8,7 @@ The goal is to let users build support for new games, ROM hacks, fusion games, r
 
 The GUI helps users explore source data, define mappings, add calculated fields, preview normalized state, and export reviewable extension files.
 
-The workbench should generate reviewable extension files and user-facing templates that contributors can commit:
+The workbench should generate reviewable module/extension files and user-facing templates that contributors can commit:
 
 ```text
 extension.json
@@ -44,7 +44,7 @@ For users, the main export should usually be a template. Under the hood, that te
 4. Add calculated fields when source data is composed or derived.
 5. Validate against schemas.
 6. Preview generated overlay state.
-7. Export a template or extension package.
+7. Export a template or module/extension package.
 8. Review and commit the generated files.
 
 ## Fusion Example

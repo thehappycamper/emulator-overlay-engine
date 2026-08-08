@@ -13,7 +13,7 @@
 | `package.json` | Node scripts and runtime metadata. |
 | `.github/workflows/ci.yml` | GitHub Actions test workflow. |
 | `.github/CODEOWNERS` | Default public contribution review ownership. |
-| `.github/ISSUE_TEMPLATE/` | GitHub issue templates for features, adapters, and extensions. |
+| `.github/ISSUE_TEMPLATE/` | GitHub issue templates for features, adapters, extensions, and templates. |
 | `.github/pull_request_template.md` | PR checklist for validation, docs, and extension safety. |
 
 ## Source
@@ -23,9 +23,10 @@
 | `src/engine/type-chart.js` | Type effectiveness lookup and multiplier calculation. |
 | `src/engine/damage.js` | Damage range and projected switch-in damage calculations. |
 | `src/engine/capture.js` | Capture chance and bag ball chance calculations. |
-| `src/overlay/app.js` | Browser overlay rendering from normalized state and engine outputs. |
+| `src/overlay/app.js` | Browser overlay rendering from normalized state and domain module outputs. |
 | `src/schemas/overlay-state.schema.json` | Public normalized state contract. |
 | `src/schemas/extension.schema.json` | Public extension manifest contract. |
+| `src/schemas/template.schema.json` | Public template manifest contract. |
 
 ## Public Overlay Assets
 
@@ -42,7 +43,9 @@
 | `adapters/gen3-mgba/README.md` | Notes and intended contract for first live mGBA adapter. |
 | `extensions/README.md` | Extension model and rules. |
 | `examples/extensions/` | Example extension manifests and README templates. |
+| `examples/templates/` | Example shareable template manifests and README files. |
 | `examples/mapping-project/` | Sketch of future GUI-authored mapping project output. |
+| `templates/README.md` | Location and rules for reviewed shareable templates. |
 | `data/README.md` | Placeholder and policy for future data extensions. |
 | `rulesets/README.md` | Placeholder and policy for future challenge scoring rulesets. |
 
@@ -72,7 +75,7 @@
 | `docs/knowledge/custom-data-and-fusions.md` | Guidance for custom tables, fan games, and fusion data. |
 | `docs/knowledge/ui-extension-model.md` | UI panel extension slots and data flow. |
 | `docs/knowledge/extension-workbench.md` | Planned GUI authoring layer for mappings and extensions. |
-| `docs/knowledge/domain-extensibility.md` | Pokemon-first, domain-extensible architecture guidance. |
+| `docs/knowledge/domain-extensibility.md` | Domain-neutral platform and domain package guidance. |
 | `docs/knowledge/shareable-templates.md` | User-facing template bundles for sharing complete overlay setups. |
 | `docs/graph/architecture.mmd` | Mermaid architecture graph. |
 | `docs/decisions/` | Architecture decision records. |
