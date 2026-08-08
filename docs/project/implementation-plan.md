@@ -18,7 +18,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | `P02` | Domain Boundary | completed |
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
-| `P05` | Live Gameplay Source | planned |
+| `P05` | Live Gameplay Source | active — `P05-T001` (overlay live-refresh) implemented, pending review; mGBA acquisition/source-contract/mapping remain outstanding |
 | `P06` | Second Source / Domain Proof | planned |
 | — | Later Product Tracks | coarse / not phased yet |
 
@@ -143,15 +143,18 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P05 — Live Gameplay Source
 
-**Status:** planned
+**Status:** active. `P05-T001` (overlay-side live-refresh polling) is implemented and pending independent review; it does not by itself satisfy the phase exit criteria, which still require an actual mGBA source and mapping project.
 
 **Objective:** Implement the first live source integration — the Gen 3 mGBA adapter sketched in `adapters/gen3-mgba/README.md` and `docs/project/roadmap.md`'s "First Real Live Integration" — against the source-agnostic platform boundary clarified in `P01-T006`.
 
 **Entry conditions:** `P01` complete (source contract + mapping pipeline must exist to map live source data into normalized state). Does not strictly require `P02`/`P03`/`P04`, but should route through the mapping pipeline (`P01-T004`) rather than hand-writing normalized state, per `docs/knowledge/adapter-contracts.md`.
 
-**Major tasks:** Not yet broken into task records. Roadmap deliverables: `adapters/gen3-mgba` Lua exporter, overlay option for `live-state.json`, emulator setup documentation, tests for exported sample fixtures.
+**Major tasks:**
+- [`P05-T001`](../tasks/P05/P05-T001.md) — Overlay live-state consumption: turn the one-shot overlay load into a polling refresh loop tolerant of a missing/invalid/partially-written state file. Implemented; independent of and does not implement mGBA acquisition itself. Awaiting independent review.
 
-**Exit criteria:** Live party/opponent/seed/frame/bag/map data flows from mGBA through a source contract and mapping project into normalized state, rendered by the existing overlay.
+Roadmap deliverables not yet task-scoped: `adapters/gen3-mgba` Lua exporter, a named/versioned Emerald source contract and mapping project, emulator setup documentation, tests for exported sample fixtures.
+
+**Exit criteria:** Live party/opponent/seed/frame/bag/map data flows from mGBA through a source contract and mapping project into normalized state, rendered by the existing overlay. `P05-T001` provides the consumption/refresh half of "rendered by the existing overlay" but does not satisfy this criterion alone — the acquisition, source-contract, and mapping-project pieces remain outstanding.
 
 **Dependencies:** `P01`.
 

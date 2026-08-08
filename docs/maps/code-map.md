@@ -34,7 +34,8 @@
 | `src/expressions/evaluate.js` | Pure evaluator for the whitelisted JSON expression AST. |
 | `src/mapping/apply.js` | Executes direct, value, and calculated mappings into a new target value. |
 | `src/overlay/host.js` | Domain-neutral validation and dispatch for a selected domain overlay presentation. |
-| `src/overlay/app.js` | Domain-neutral browser bootstrap: state loading, domain lookup, stylesheets, errors, and presentation dispatch. |
+| `src/overlay/app.js` | Domain-neutral browser bootstrap: state URL/domain resolution, stylesheets, live-status display, and presentation dispatch. |
+| `src/overlay/live-state.js` | Domain-neutral, dependency-injectable polling controller: no-overlap fetch scheduling, change-only rendering, live/stale/error status. |
 | `src/schemas/overlay-state.schema.json` | Compatibility `$ref` from the former platform path to the Pokemon-owned state contract. |
 | `src/schemas/extension.schema.json` | Public extension manifest contract. |
 | `src/schemas/template.schema.json` | Public template manifest contract. |
@@ -72,6 +73,7 @@
 | `test/expressions.test.js` | Safe expression behavior and negative security tests. |
 | `test/mapping.test.js` | Mapping pipeline and fusion example execution tests. |
 | `test/schema-validation.test.js` | Automated validation of public manifests, mappings, canonical Pokemon state fixtures, and the legacy state-schema alias. |
+| `test/live-state.test.js` | Live-state polling controller: render-on-change, no-overlap fetches, transient-failure/recovery, and status transitions. |
 | `tools/dev-server.mjs` | Dependency-free local static server for overlay development. |
 
 ## Documentation
@@ -83,7 +85,7 @@
 | `docs/project/implementation-plan.md` | Engineering execution sequence: phases (`P00`, `P01`, ...) with entry/exit criteria. |
 | `docs/tasks/README.md` | Task-record system: ID scheme, lifecycle, directory layout. |
 | `docs/tasks/TEMPLATE.md` | Template for new task records. |
-| `docs/tasks/P00/`, `docs/tasks/P01/`, `docs/tasks/P02/` | Per-task execution history, one file per task, grouped by phase. |
+| `docs/tasks/P00/`, `docs/tasks/P01/`, `docs/tasks/P02/`, `docs/tasks/P05/` | Per-task execution history, one file per task, grouped by phase. |
 | `docs/project/branding-and-renaming.md` | Brand-agnostic coding rule, rename inventory, and future-rename procedure. |
 | `docs/project/repository-boundaries.md` | Canonical public core / private hosted-services architecture boundary. |
 | `docs/project/features.md` | Feature inventory and status. |

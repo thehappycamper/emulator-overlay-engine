@@ -13,7 +13,7 @@ The larger product direction, including future automation, sessions, and optiona
 The implemented foundation is intentionally small and Pokemon-focused:
 
 - Pokemon-owned normalized JSON state contract for party, opponent, bag, location, encounter data, seed, and scoring.
-- Dependency-free, domain-neutral browser host that renders a useful challenge dashboard through the selected domain presentation.
+- Dependency-free, domain-neutral browser host that polls a state source and renders a useful challenge dashboard through the selected domain presentation.
 - Pokemon domain package with its normalized-state contract, overlay presentation, and damage, catch, and type-effectiveness calculators plus Node tests.
 - Domain-neutral mapping contract with safe calculated expressions and schema-validated examples.
 - Gen 3 mGBA adapter notes describing how live Lua export should reach normalized state, via the mapping runtime or as a documented direct-export exception.
@@ -33,7 +33,7 @@ Then open:
 http://127.0.0.1:5173
 ```
 
-The overlay currently reads `public/sample-state.json`. A live emulator adapter can later reach `public/live-state.json` with normalized state (via the mapping runtime, or a documented direct-export exception — see `docs/knowledge/adapter-contracts.md`), and the UI can select it with `?state=/public/live-state.json`. The current overlay loads once; polling or transport for continuous updates remains future live-integration work.
+The overlay currently polls `public/sample-state.json` (once per second by default) and re-renders only when the fetched state actually changes. A live emulator adapter can later reach `public/live-state.json` with normalized state (via the mapping runtime, or a documented direct-export exception — see `docs/knowledge/adapter-contracts.md`), and the UI can select it with `?state=/public/live-state.json`. A missing, invalid, or partially-written state file is tolerated without losing the last successfully rendered content; a small status indicator reports `live`/`stale`/`error`. The polling interval can be overridden per page via `data-poll-interval-ms` on `#app`. Producing that live file (an actual mGBA source) remains future live-integration work — see `docs/tasks/P05/P05-T001.md`.
 
 ## Local Configuration
 

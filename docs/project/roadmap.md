@@ -55,7 +55,7 @@ Goal:
 Deliverables:
 
 - `adapters/gen3-mgba` Lua exporter.
-- Overlay option for `live-state.json`.
+- Overlay option for `live-state.json` with continuous refresh (`P05-T001`, implemented and pending independent review: the overlay polls its state source, re-renders on change, and tolerates a missing/invalid/partial file — see [`docs/tasks/P05/P05-T001.md`](../tasks/P05/P05-T001.md)).
 - Documentation for emulator setup.
 - Tests for exported sample fixtures.
 

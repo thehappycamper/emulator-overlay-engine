@@ -12,7 +12,8 @@ Status labels:
 | Feature | Status | Notes |
 | --- | --- | --- |
 | Pokemon normalized state schema | mvp | Canonical domain contract at `src/domains/pokemon/schemas/overlay-state.schema.json`; former platform path is a compatibility `$ref` |
-| Static browser overlay | mvp | Domain-neutral host reads sample JSON and invokes the Pokemon-owned presentation for party, opponent, route, catch, score, seed/frame |
+| Static browser overlay | mvp | Domain-neutral host polls a state source and invokes the Pokemon-owned presentation for party, opponent, route, catch, score, seed/frame |
+| Overlay live-refresh polling | active | `src/overlay/live-state.js`; no-overlap polling, change-only rendering, live/stale/error status; tolerates a missing/invalid/partial state file; `P05-T001`, pending independent review |
 | Type effectiveness | mvp | Gen 2/3 style type chart in `src/domains/pokemon/type-chart.js` |
 | Damage range calculator | mvp | Pokemon domain package; basic level/stat/power/STAB/type/roll support |
 | Projected switch-in damage | mvp | Calculates incoming opponent damage against each party member |

@@ -36,3 +36,22 @@ dl {
   margin: 20px;
   color: var(--red);
 }
+
+.live-status {
+  padding: 4px 12px;
+  font-size: 11px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+
+.live-status[data-state="live"] {
+  color: var(--green);
+}
+
+.live-status[data-state="stale"] {
+  color: var(--yellow);
+}
+
+.live-status[data-state="error"] {
+  color: var(--red);
+}
