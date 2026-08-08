@@ -11,6 +11,7 @@ This directory is the human and agent knowledge base for Pokemon Overlay Engine.
 - `project/emulators.md` - emulator compatibility and adapter notes.
 - `project/configuration.md` - local `.env` configuration policy.
 - `project/community-extensions.md` - public extension contribution and review policy.
+- `project/commercial-model.md` - MIT repository model and possible future paid services/template marketplace.
 - `maps/code-map.md` - repository file map and module ownership.
 - `knowledge/architecture.md` - system model and responsibilities.
 - `knowledge/domain-model.md` - normalized Pokemon overlay concepts.

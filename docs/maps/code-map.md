@@ -63,6 +63,7 @@
 | `docs/project/emulators.md` | Emulator compatibility matrix. |
 | `docs/project/configuration.md` | Local `.env` configuration policy and variable index. |
 | `docs/project/community-extensions.md` | Extension contribution and review policy. |
+| `docs/project/commercial-model.md` | MIT license and future commercial services/template marketplace notes. |
 | `docs/project/roadmap.md` | Phased delivery plan. |
 | `docs/knowledge/architecture.md` | System architecture notes. |
 | `docs/knowledge/domain-model.md` | Shared domain concepts. |

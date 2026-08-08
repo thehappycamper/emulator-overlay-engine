@@ -74,3 +74,9 @@ Overlay
 - `docs/README.md` - documentation index, project memory, architecture notes, and roadmap.
 - `docs/project/community-extensions.md` - policy for reviewed community adapters, ROM-hack mappings, data packs, rulesets, and overlay panels.
 - `docs/knowledge/shareable-templates.md` - template model for saving and sharing complete overlay setups.
+
+## License And Commercial Use
+
+This repository uses the MIT License. Commercial use is allowed.
+
+Future paid offerings may include hosted services, support, and premium template packs or marketplace features, but normal repository use remains MIT-licensed.

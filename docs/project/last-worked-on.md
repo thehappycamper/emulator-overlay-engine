@@ -27,6 +27,7 @@ Changes:
 - Added shareable templates as the user-facing bundle format for public reuse.
 - Added calculator extension type and example for battle calculations, catch odds, stat projection, and learnset availability.
 - Merged the GitHub-created MIT `LICENSE` into local `main`.
+- Accepted MIT repository licensing with future paid hosted services, support, and premium template packs or marketplace as separate offerings.
 
 Why:
 

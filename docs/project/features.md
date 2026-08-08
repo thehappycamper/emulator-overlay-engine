@@ -47,3 +47,4 @@ Status labels:
 | Domain packages | planned | Future path for non-Pokemon games without weakening Pokemon-specific core |
 | Domain-neutral platform core | planned | Shared extension/workbench/transport/UI host layer, with Pokemon as first domain |
 | Shareable templates | planned | User-facing bundles of extensions, mappings, calculated fields, fixtures, and UI layout preferences |
+| Premium template marketplace | planned | Future commercial layer; not implemented and needs policy ADR before build |

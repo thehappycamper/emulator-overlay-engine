@@ -110,3 +110,16 @@ Deliverables:
 - Domain package contract.
 - Pokemon domain package extraction if needed.
 - Separate schemas and calculators per supported domain.
+
+## Future - Hosted Services And Marketplace
+
+Goal:
+
+- Add optional paid services without restricting the MIT-licensed repository.
+
+Deliverables:
+
+- Hosted template sharing concept.
+- Premium template pack policy.
+- Marketplace review and safety policy.
+- Licensing and revenue split decision.
