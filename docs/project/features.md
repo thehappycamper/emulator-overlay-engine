@@ -13,10 +13,11 @@ Status labels:
 | --- | --- | --- |
 | Normalized overlay state schema | mvp | `src/schemas/overlay-state.schema.json` |
 | Static browser overlay | mvp | Reads sample JSON and renders party, opponent, route, catch, score, seed/frame |
-| Type effectiveness | mvp | Gen 2/3 style type chart in `src/engine/type-chart.js` |
-| Damage range calculator | mvp | Basic level/stat/power/STAB/type/roll support |
+| Type effectiveness | mvp | Gen 2/3 style type chart in `src/domains/pokemon/type-chart.js` |
+| Damage range calculator | mvp | Pokemon domain package; basic level/stat/power/STAB/type/roll support |
 | Projected switch-in damage | mvp | Calculates incoming opponent damage against each party member |
-| Capture chance calculator | mvp | Basic Gen 3 style ball/status/HP odds |
+| Capture chance calculator | mvp | Pokemon domain package; basic Gen 3 style ball/status/HP odds |
+| Pokemon domain package boundary | mvp | Domain-neutral registry plus Pokemon-owned type, damage, and capture calculators; schema/UI migration remains deferred |
 | CI test workflow | mvp | `.github/workflows/ci.yml` |
 | Extension manifest schema | mvp | `src/schemas/extension.schema.json` |
 | Extension templates | mvp | `examples/extensions/` |
@@ -48,7 +49,6 @@ Status labels:
 | Extension loader | planned | Needs decision on runtime loading and trust model |
 | UI panel extension host | planned | Slot model documented; runtime not implemented |
 | Extension Workbench | planned | GUI authoring layer; executable mapping contract now exists, but no GUI is implemented |
-| Pokemon domain package boundary | planned | First domain-boundary proof without weakening Pokemon-specific models |
 | Second-domain proof | planned | Validate shared contracts against a non-Pokemon game after the domain boundary exists |
 | Domain-neutral platform core | planned | Remaining shared registry, transport, Workbench, and UI-host infrastructure |
 | Normalized event contract | planned | Future domain-neutral event envelope; schema not designed yet |

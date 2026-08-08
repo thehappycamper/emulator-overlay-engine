@@ -1,5 +1,6 @@
-import { calculateBagBallChances } from "../engine/capture.js";
-import { projectIncomingDamage } from "../engine/damage.js";
+import { resolveDomain } from "../domains/index.js";
+
+const { calculateBagBallChances, projectIncomingDamage } = resolveDomain("pokemon").calculators;
 
 const stateUrl = new URLSearchParams(window.location.search).get("state") || "/public/sample-state.json";
 const root = document.querySelector("#app");

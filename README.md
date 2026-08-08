@@ -14,7 +14,7 @@ The implemented foundation is intentionally small and Pokemon-focused:
 
 - Normalized JSON state contract for party, opponent, bag, location, encounter data, seed, and scoring.
 - Dependency-free browser overlay that renders a useful challenge dashboard from that state.
-- Core damage and catch calculators with Node tests.
+- Pokemon domain package with damage, catch, and type-effectiveness calculators plus Node tests.
 - Domain-neutral mapping contract with safe calculated expressions and schema-validated examples.
 - Gen 3 mGBA adapter notes describing how live Lua export should reach normalized state, via the mapping runtime or as a documented direct-export exception.
 - GitHub Actions CI for tests.

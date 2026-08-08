@@ -21,9 +21,13 @@
 
 | Path | Purpose |
 | --- | --- |
-| `src/engine/type-chart.js` | Type effectiveness lookup and multiplier calculation. |
-| `src/engine/damage.js` | Damage range and projected switch-in damage calculations. |
-| `src/engine/capture.js` | Capture chance and bag ball chance calculations. |
+| `src/platform/domain-registry.js` | Domain-neutral immutable registry for explicitly composed domain packages. |
+| `src/domains/index.js` | Application composition root that registers the currently supported domains. |
+| `src/domains/pokemon/index.js` | Pokemon domain descriptor and public calculator surface. |
+| `src/domains/pokemon/type-chart.js` | Pokemon type effectiveness lookup and multiplier calculation. |
+| `src/domains/pokemon/damage.js` | Pokemon damage range and projected switch-in damage calculations. |
+| `src/domains/pokemon/capture.js` | Pokemon capture chance and bag ball chance calculations. |
+| `src/engine/*.js` | Compatibility re-exports for calculator imports that predate the domain package. |
 | `src/expressions/evaluate.js` | Pure evaluator for the whitelisted JSON expression AST. |
 | `src/mapping/apply.js` | Executes direct, value, and calculated mappings into a new target value. |
 | `src/overlay/app.js` | Browser overlay rendering from normalized state and domain module outputs. |
@@ -58,6 +62,8 @@
 | Path | Purpose |
 | --- | --- |
 | `test/engine.test.js` | Node tests for type, damage, projection, and capture calculators. |
+| `test/domain-boundary.test.js` | Pokemon package resolution, behavior, unknown-domain, and compatibility tests. |
+| `test/platform-domain-registry.test.js` | Platform-only proof that no domain implementation is registered implicitly. |
 | `test/expressions.test.js` | Safe expression behavior and negative security tests. |
 | `test/mapping.test.js` | Mapping pipeline and fusion example execution tests. |
 | `test/schema-validation.test.js` | Automated validation of public manifests, mappings, and state fixtures. |

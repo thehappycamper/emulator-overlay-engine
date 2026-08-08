@@ -4,9 +4,11 @@ flowchart LR
   MappingProject["Declarative Mapping\nSafe JSON AST"] --> MappingRuntime["Mapping Runtime"]
   SourceContract --> MappingRuntime
   MappingRuntime --> NormalizedState["Normalized State"]
-  NormalizedState --> CurrentConsumers["Current MVP\nCalculations + Overlay"]
+  NormalizedState --> DomainBoundary["Domain Boundary\nExplicit package composition"]
+  DomainBoundary --> PokemonDomain["Pokemon Domain Package\nCurrent calculators"]
+  PokemonDomain --> CurrentConsumers["Current MVP\nCalculations + Overlay"]
 
-  NormalizedState -. future .-> EventDetection["Domain Event Detection\nFuture"]
+  PokemonDomain -. future .-> EventDetection["Domain Event Detection\nFuture"]
   EventDetection -.-> NormalizedEvents["Normalized Events\nFuture"]
   NormalizedEvents -.-> EventConsumers["Rules / Analysis /\nSubscriptions\nFuture"]
   EventConsumers -.-> Actions["Actions / Providers\nFuture"]
@@ -19,5 +21,5 @@ flowchart LR
   classDef future fill:#fafafa,stroke:#777,stroke-dasharray:5 5,color:#333
   classDef external fill:#f5f5f5,stroke:#555,color:#111
   class Sources external
-  class SourceContract,MappingProject,MappingRuntime,NormalizedState,CurrentConsumers current
+  class SourceContract,MappingProject,MappingRuntime,NormalizedState,DomainBoundary,PokemonDomain,CurrentConsumers current
   class Adapters,EventDetection,NormalizedEvents,EventConsumers,Actions,Experiences,Cloud future

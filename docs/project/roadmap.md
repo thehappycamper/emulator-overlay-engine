@@ -25,14 +25,22 @@ Status: complete.
 
 This foundation does not include the Workbench GUI, live emulator export, event processing, sessions, multiplayer, or a runtime extension installer.
 
+### Pokemon Domain Boundary Proof
+
+Status: complete.
+
+- Domain-neutral registry with explicit application composition.
+- Pokemon-owned type, damage, and capture calculators under `src/domains/pokemon/`.
+- Existing calculator imports preserved through compatibility re-exports.
+- Pokemon state-schema and overlay-panel migration intentionally deferred.
+
 ## Near-Term Platform Foundation
 
 These are the intended next architecture slices. Each requires separate approval, design, tests, and documentation; none is implemented by this roadmap update.
 
-1. Pokemon domain boundary and domain-package proof.
-2. State/source pipeline stabilization.
-3. Normalized event contract and semantic event-detection proof.
-4. Event bus and action-contract proof.
+1. State/source pipeline stabilization.
+2. Normalized event contract and semantic event-detection proof.
+3. Event bus and action-contract proof.
 
 ## First Real Live Integration
 

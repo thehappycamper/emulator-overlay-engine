@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { calculateBagBallChances, calculateCaptureChance } from "../src/engine/capture.js";
-import { calculateDamageRange, projectIncomingDamage } from "../src/engine/damage.js";
-import { typeEffectiveness } from "../src/engine/type-chart.js";
+import {
+  calculateBagBallChances,
+  calculateCaptureChance,
+  calculateDamageRange,
+  projectIncomingDamage,
+  typeEffectiveness
+} from "../src/domains/pokemon/index.js";
 
 const swampert = {
   name: "Swampert",
