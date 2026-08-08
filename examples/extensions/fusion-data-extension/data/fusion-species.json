@@ -1,0 +1,15 @@
+[
+  {
+    "speciesId": 1000123,
+    "name": "Venustoise",
+    "components": [
+      { "role": "head", "speciesId": 3, "name": "Venusaur" },
+      { "role": "body", "speciesId": 9, "name": "Blastoise" }
+    ],
+    "types": ["grass", "water"],
+    "baseStats": { "hp": 79, "atk": 82, "def": 100, "spa": 100, "spd": 100, "spe": 78 },
+    "abilities": ["Overgrow", "Torrent"],
+    "catchRate": 45
+  }
+]
+

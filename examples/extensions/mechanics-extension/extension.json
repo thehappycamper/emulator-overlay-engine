@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "example.mechanics",
+  "name": "Example Mechanics Extension",
+  "type": "mechanics",
+  "version": "0.1.0",
+  "description": "Template for generation or ROM-hack mechanics overrides.",
+  "compatibility": {
+    "generations": [3]
+  },
+  "provides": {
+    "damageFormula": false,
+    "captureFormula": false,
+    "typeChart": false,
+    "physicalSpecialSplit": "gen3"
+  },
+  "publicSafety": {
+    "containsRoms": false,
+    "containsBios": false,
+    "containsSaves": false,
+    "containsSecrets": false
+  }
+}
+

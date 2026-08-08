@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "example.emulator",
+  "name": "Example Emulator Extension",
+  "type": "emulator",
+  "version": "0.1.0",
+  "description": "Template for emulator live-state export extensions.",
+  "entrypoints": {
+    "docs": "README.md"
+  },
+  "compatibility": {
+    "emulators": [
+      {
+        "name": "Example Emulator",
+        "versions": ["0.0.0"]
+      }
+    ],
+    "generations": []
+  },
+  "exports": {
+    "stateSchema": "src/schemas/overlay-state.schema.json",
+    "transport": ["file"]
+  },
+  "publicSafety": {
+    "containsRoms": false,
+    "containsBios": false,
+    "containsSaves": false,
+    "containsSecrets": false
+  }
+}
+

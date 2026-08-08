@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pokemon-overlay-engine.local/schemas/extension.schema.json",
+  "title": "Pokemon Overlay Engine Extension Manifest",
+  "type": "object",
+  "required": ["schemaVersion", "id", "name", "type", "version", "description"],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9.-]*[a-z0-9]$"
+    },
+    "name": { "type": "string" },
+    "type": {
+      "enum": [
+        "emulator",
+        "game",
+        "data",
+        "mechanics",
+        "ruleset",
+        "analysis",
+        "overlay-panel",
+        "transport"
+      ]
+    },
+    "version": { "type": "string" },
+    "description": { "type": "string" },
+    "entrypoints": {
+      "type": "object",
+      "properties": {
+        "docs": { "type": "string" },
+        "main": { "type": "string" },
+        "schema": { "type": "string" },
+        "fixtures": { "type": "string" }
+      },
+      "additionalProperties": { "type": "string" }
+    },
+    "compatibility": {
+      "type": "object",
+      "properties": {
+        "generations": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1 }
+        },
+        "emulators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "versions": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        },
+        "games": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "romIds": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "versions": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "provides": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["boolean", "string", "array", "object", "number"]
+      }
+    },
+    "requires": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["string", "array", "object"]
+      }
+    },
+    "exports": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["string", "array", "object"]
+      }
+    },
+    "ui": {
+      "type": "object",
+      "properties": {
+        "slots": {
+          "type": "array",
+          "items": {
+            "enum": ["party", "battle", "location", "score", "inspector", "sidebar", "custom"]
+          }
+        },
+        "requiresStateFields": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "optionalStateFields": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "publicSafety": {
+      "type": "object",
+      "properties": {
+        "containsRoms": { "type": "boolean" },
+        "containsBios": { "type": "boolean" },
+        "containsSaves": { "type": "boolean" },
+        "containsSecrets": { "type": "boolean" }
+      }
+    }
+  },
+  "additionalProperties": true
+}

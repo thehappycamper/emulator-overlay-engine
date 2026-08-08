@@ -18,6 +18,10 @@ Status labels:
 | Projected switch-in damage | mvp | Calculates incoming opponent damage against each party member |
 | Capture chance calculator | mvp | Basic Gen 3 style ball/status/HP odds |
 | CI test workflow | mvp | `.github/workflows/ci.yml` |
+| Extension manifest schema | mvp | `src/schemas/extension.schema.json` |
+| Extension templates | mvp | `examples/extensions/` |
+| Fusion/custom species metadata | mvp | Schema supports optional `display`, `components`, and `sourceIds` |
+| Namespaced extension runtime state | mvp | Top-level `extensions` object in normalized state |
 
 ## Planned Core Features
 
@@ -35,4 +39,6 @@ Status labels:
 | Opponent move prediction | planned | Needs AI scoring model and battle state |
 | Challenge scoring engine | planned | Needs event tracker and ruleset config |
 | ROM hack adapters | planned | Needs per-hack data extraction/mapping |
-
+| Fusion game data packs | planned | Example template exists; loader not implemented |
+| Extension loader | planned | Needs decision on runtime loading and trust model |
+| UI panel extension host | planned | Slot model documented; runtime not implemented |

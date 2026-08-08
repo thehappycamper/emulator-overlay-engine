@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "example.overlay-panel",
+  "name": "Example Overlay Panel Extension",
+  "type": "overlay-panel",
+  "version": "0.1.0",
+  "description": "Template for optional overlay UI panels.",
+  "entrypoints": {
+    "docs": "README.md",
+    "main": "panel.js"
+  },
+  "ui": {
+    "slots": ["battle", "sidebar"],
+    "requiresStateFields": ["player.party", "battle.opponent"],
+    "optionalStateFields": ["extensions.example.overlay-panel"]
+  },
+  "requires": {
+    "stateFields": ["player.party", "battle.opponent"]
+  },
+  "provides": {
+    "panel": true
+  },
+  "publicSafety": {
+    "containsRoms": false,
+    "containsBios": false,
+    "containsSaves": false,
+    "containsSecrets": false
+  }
+}

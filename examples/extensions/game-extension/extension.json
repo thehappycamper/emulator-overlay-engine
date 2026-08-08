@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "example.game",
+  "name": "Example Game Extension",
+  "type": "game",
+  "version": "0.1.0",
+  "description": "Template for game, generation, or ROM-hack mapping extensions.",
+  "compatibility": {
+    "generations": [3],
+    "games": [
+      {
+        "name": "Example Game",
+        "romIds": ["EXAMPLE"],
+        "versions": ["1.0.0"]
+      }
+    ]
+  },
+  "provides": {
+    "memoryMap": true,
+    "idMap": true,
+    "mechanicsOverrides": false,
+    "encounters": false,
+    "trainerSets": false
+  },
+  "publicSafety": {
+    "containsRoms": false,
+    "containsBios": false,
+    "containsSaves": false,
+    "containsSecrets": false
+  }
+}
+

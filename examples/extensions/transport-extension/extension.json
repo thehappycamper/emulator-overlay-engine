@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "example.transport",
+  "name": "Example Transport Extension",
+  "type": "transport",
+  "version": "0.1.0",
+  "description": "Template for normalized-state transports.",
+  "provides": {
+    "transports": ["file"]
+  },
+  "requires": {
+    "stateSchema": "0.1.0"
+  },
+  "publicSafety": {
+    "containsRoms": false,
+    "containsBios": false,
+    "containsSaves": false,
+    "containsSecrets": false
+  }
+}
+

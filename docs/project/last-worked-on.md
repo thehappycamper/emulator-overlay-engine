@@ -16,6 +16,11 @@ Changes:
 - Added initial ADRs for the normalized API and documentation governance.
 - Added community extension policy, CODEOWNERS, extension templates, and placeholder `data/` and `rulesets/` directories.
 - Scrubbed local absolute paths from public-facing adapter docs before GitHub push.
+- Added `.env.example` and configuration docs so local paths stay out of the public repository.
+- Clarified that emulator integrations are extensions and added example extension manifests/templates.
+- Added extension manifest schema and examples for emulator, game, data, mechanics, ruleset, analysis, overlay panel, and transport extension types.
+- Added custom data/fusion guidance, a fusion data extension example, and optional normalized Pokemon fields for display/component/source ID metadata.
+- Added flexible UI extension model with panel slots and namespaced extension runtime state.
 
 Why:
 
@@ -25,6 +30,6 @@ Why:
 
 Next Actions:
 
-- Create or confirm the GitHub repository. The local `origin` currently points to `git@github.com:thehappycamper/pokemon-overlay-engine.git`, but GitHub returned `Repository not found` on push.
+- Push `main` to GitHub now that the public repository exists.
 - Implement live Gen 3 mGBA JSON export.
 - Decide whether the overlay should poll `public/live-state.json`, use WebSocket state, or support both.

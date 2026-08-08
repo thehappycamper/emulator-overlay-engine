@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "example.fusion-data",
+  "name": "Example Fusion Data Extension",
+  "type": "data",
+  "version": "0.1.0",
+  "description": "Template for custom fusion species, component, learnset, encounter, and trainer data.",
+  "compatibility": {
+    "generations": [3],
+    "games": [
+      {
+        "name": "Example Fusion Game",
+        "versions": ["1.0.0"]
+      }
+    ]
+  },
+  "provides": {
+    "species": true,
+    "fusionSpecies": true,
+    "fusionComponents": true,
+    "moves": false,
+    "learnsets": true,
+    "tmCompatibility": true,
+    "encounters": true,
+    "trainerSets": true
+  },
+  "exports": {
+    "fusionSpecies": "data/fusion-species.json",
+    "fixture": "fixtures/normalized-fusion-state.json"
+  },
+  "publicSafety": {
+    "containsRoms": false,
+    "containsBios": false,
+    "containsSaves": false,
+    "containsSecrets": false
+  }
+}
+

@@ -1,6 +1,6 @@
 # Emulator Compatibility
 
-The engine is emulator-agnostic. Compatibility is provided by adapters that export normalized state.
+The engine is emulator-agnostic. Compatibility is provided by emulator extensions that export normalized state.
 
 ## Known Local Targets
 
@@ -20,6 +20,7 @@ An emulator adapter should:
 - Avoid embedding UI behavior.
 - Avoid embedding generic damage/capture/scoring logic.
 - Document supported emulator version, ROM/game target, and known limitations.
+- Include an `extension.json` manifest.
 
 ## First Adapter Target
 
@@ -30,4 +31,3 @@ Reason:
 - Existing local script already handles Gen 3 Pokemon struct decoding.
 - mGBA is actively maintained and has script support.
 - The static MVP API can be exercised by writing normalized JSON.
-

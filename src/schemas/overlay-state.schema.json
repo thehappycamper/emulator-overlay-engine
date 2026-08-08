@@ -71,6 +71,13 @@
         "ruleset": { "type": "string" },
         "current": { "type": "number" }
       }
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Namespaced extension runtime data keyed by extension ID.",
+      "additionalProperties": {
+        "type": ["object", "array", "string", "number", "boolean", "null"]
+      }
     }
   },
   "$defs": {
@@ -87,6 +94,32 @@
         "item": { "type": "string" },
         "status": { "type": "string" },
         "pid": { "type": "string" },
+        "display": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "form": { "type": "string" },
+            "sprite": { "type": "string" }
+          }
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["role", "speciesId", "name"],
+            "properties": {
+              "role": { "type": "string" },
+              "speciesId": { "type": "integer" },
+              "name": { "type": "string" }
+            }
+          }
+        },
+        "sourceIds": {
+          "type": "object",
+          "additionalProperties": {
+            "type": ["string", "integer", "number"]
+          }
+        },
         "currentHp": { "type": "integer", "minimum": 0 },
         "maxHp": { "type": "integer", "minimum": 1 },
         "stats": { "$ref": "#/$defs/stats" },

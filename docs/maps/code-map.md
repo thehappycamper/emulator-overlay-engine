@@ -6,6 +6,7 @@
 | --- | --- |
 | `AGENTS.md` | Required operating guide for coding agents. |
 | `CONTRIBUTING.md` | Public contribution flow and documentation expectations. |
+| `.env.example` | Public-safe template for local machine configuration. |
 | `README.md` | Public project overview and local usage. |
 | `SECURITY.md` | Public repository safety guidance. |
 | `package.json` | Node scripts and runtime metadata. |
@@ -23,6 +24,7 @@
 | `src/engine/capture.js` | Capture chance and bag ball chance calculations. |
 | `src/overlay/app.js` | Browser overlay rendering from normalized state and engine outputs. |
 | `src/schemas/overlay-state.schema.json` | Public normalized state contract. |
+| `src/schemas/extension.schema.json` | Public extension manifest contract. |
 
 ## Public Overlay Assets
 
@@ -37,6 +39,8 @@
 | Path | Purpose |
 | --- | --- |
 | `adapters/gen3-mgba/README.md` | Notes and intended contract for first live mGBA adapter. |
+| `extensions/README.md` | Extension model and rules. |
+| `examples/extensions/` | Example extension manifests and README templates. |
 | `data/README.md` | Placeholder and policy for future data extensions. |
 | `rulesets/README.md` | Placeholder and policy for future challenge scoring rulesets. |
 
@@ -55,10 +59,14 @@
 | `docs/project/last-worked-on.md` | Running summary of latest work and next actions. |
 | `docs/project/features.md` | Feature inventory and status. |
 | `docs/project/emulators.md` | Emulator compatibility matrix. |
+| `docs/project/configuration.md` | Local `.env` configuration policy and variable index. |
 | `docs/project/community-extensions.md` | Extension contribution and review policy. |
 | `docs/project/roadmap.md` | Phased delivery plan. |
 | `docs/knowledge/architecture.md` | System architecture notes. |
 | `docs/knowledge/domain-model.md` | Shared domain concepts. |
 | `docs/knowledge/adapter-contracts.md` | Adapter responsibilities and contracts. |
+| `docs/knowledge/extension-types.md` | Extension taxonomy and composition model. |
+| `docs/knowledge/custom-data-and-fusions.md` | Guidance for custom tables, fan games, and fusion data. |
+| `docs/knowledge/ui-extension-model.md` | UI panel extension slots and data flow. |
 | `docs/graph/architecture.mmd` | Mermaid architecture graph. |
 | `docs/decisions/` | Architecture decision records. |

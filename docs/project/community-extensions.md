@@ -10,8 +10,12 @@ Community contributions are welcome, especially for emulator adapters, generatio
 | Game adapter | Gen 3 Emerald, FireRed, Gen 4 | Correct memory/data mapping |
 | ROM-hack adapter | Run & Bun, Radical Red | Versioned data, documented mechanics changes |
 | Data pack | Learnsets, encounters, trainers, Battle Factory sets | Source clarity, schema compatibility |
+| Fusion data pack | Fusion species, components, custom learnsets | Versioned custom data, normalized final stats |
+| Mechanics extension | Gen or hack-specific formula/rule changes | Deterministic fixtures, scoped overrides |
 | Ruleset | Nuzlocke scoring, low-score challenges | Determinism, clear scoring events |
+| Analysis extension | Move prediction, set matching, score projection | Clear assumptions, confidence scoring |
 | Overlay panel | Route view, capture odds, damage panel | Uses normalized state, accessible layout |
+| Transport extension | File polling, WebSocket, HTTP bridge | Keeps transport separate from domain logic |
 
 ## Contribution Rules
 
@@ -39,9 +43,10 @@ Review should check:
 ## Suggested Extension Layout
 
 ```text
-adapters/
-  emulator-name/
+extensions/
+  extension-name/
     README.md
+    extension.json
     ...
 
 data/
@@ -57,3 +62,8 @@ rulesets/
 
 The exact layout can evolve, but each extension should have a README that explains setup, supported versions, exported fields, and limitations.
 
+Example extension manifests and README templates live in:
+
+```text
+examples/extensions/
+```

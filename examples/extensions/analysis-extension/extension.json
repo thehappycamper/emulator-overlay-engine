@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "example.analysis",
+  "name": "Example Analysis Extension",
+  "type": "analysis",
+  "version": "0.1.0",
+  "description": "Template for set matching, prediction, and decision-support modules.",
+  "requires": {
+    "stateSchema": "0.1.0",
+    "data": ["species", "moves"]
+  },
+  "provides": {
+    "opponentMovePrediction": false,
+    "setMatching": false,
+    "scoreProjection": false
+  },
+  "publicSafety": {
+    "containsRoms": false,
+    "containsBios": false,
+    "containsSaves": false,
+    "containsSecrets": false
+  }
+}
+

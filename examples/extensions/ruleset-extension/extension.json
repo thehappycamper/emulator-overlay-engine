@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "example.ruleset",
+  "name": "Example Ruleset Extension",
+  "type": "ruleset",
+  "version": "0.1.0",
+  "description": "Template for challenge scoring rulesets.",
+  "events": [
+    "pokemon_fainted",
+    "battle_item_used",
+    "level_cap_exceeded"
+  ],
+  "publicSafety": {
+    "containsRoms": false,
+    "containsBios": false,
+    "containsSaves": false,
+    "containsSecrets": false
+  }
+}
+

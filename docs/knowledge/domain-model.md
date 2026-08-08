@@ -16,6 +16,8 @@ A normalized Pokemon should include:
 - Moves.
 - Status.
 - PID or personality value when available.
+- Optional display metadata for forms or custom names.
+- Optional components/source IDs for fused or composed Pokemon.
 
 The source generation may represent these differently. Adapters are responsible for mapping them into this shape.
 
@@ -66,3 +68,20 @@ The engine should support:
 - Per-Pokemon score breakdown.
 - Projected score impact for current decisions.
 
+## Extension State
+
+The normalized state can include a top-level `extensions` object for extension-specific runtime data.
+
+Extension keys should use stable extension IDs:
+
+```json
+{
+  "extensions": {
+    "example.extension-id": {
+      "customValue": true
+    }
+  }
+}
+```
+
+This keeps custom data available to UI panels without forcing every extension-specific field into the core schema.

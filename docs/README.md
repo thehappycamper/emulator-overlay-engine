@@ -9,11 +9,15 @@ This directory is the human and agent knowledge base for Pokemon Overlay Engine.
 - `project/roadmap.md` - planned delivery slices.
 - `project/features.md` - feature inventory and status.
 - `project/emulators.md` - emulator compatibility and adapter notes.
+- `project/configuration.md` - local `.env` configuration policy.
 - `project/community-extensions.md` - public extension contribution and review policy.
 - `maps/code-map.md` - repository file map and module ownership.
 - `knowledge/architecture.md` - system model and responsibilities.
 - `knowledge/domain-model.md` - normalized Pokemon overlay concepts.
 - `knowledge/adapter-contracts.md` - how emulator/game/data adapters map into the engine.
+- `knowledge/extension-types.md` - extension taxonomy and composition model.
+- `knowledge/custom-data-and-fusions.md` - how custom tables and fusion data should be modeled.
+- `knowledge/ui-extension-model.md` - panel slots and UI extension data flow.
 - `graph/architecture.mmd` - Mermaid architecture graph.
 - `decisions/` - architecture decision records.
 

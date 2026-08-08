@@ -30,6 +30,12 @@ http://127.0.0.1:5173
 
 The overlay currently reads `public/sample-state.json`. A live emulator adapter can later write normalized state to `public/live-state.json`, and the UI can be switched to that feed.
 
+## Local Configuration
+
+Copy `.env.example` to `.env` for machine-specific paths such as emulator executables, script directories, save folders, and future live state output paths.
+
+Do not commit `.env`.
+
 ## Architecture
 
 ```text

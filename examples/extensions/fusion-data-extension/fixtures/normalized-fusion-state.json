@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "0.1.0",
+  "game": {
+    "generation": 3,
+    "title": "Example Fusion Game",
+    "adapter": "example-fusion",
+    "romId": "FUSION-EXAMPLE"
+  },
+  "player": {
+    "party": [
+      {
+        "speciesId": 1000123,
+        "name": "Venustoise",
+        "nickname": "SHELLBLOOM",
+        "level": 50,
+        "types": ["grass", "water"],
+        "ability": "Overgrow",
+        "item": "Leftovers",
+        "currentHp": 155,
+        "maxHp": 155,
+        "stats": { "hp": 155, "atk": 104, "def": 120, "spa": 121, "spd": 120, "spe": 98 },
+        "ivs": { "hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31 },
+        "evs": { "hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0 },
+        "moves": [
+          { "id": 75, "name": "Razor Leaf", "type": "grass", "category": "special", "power": 55 },
+          { "id": 57, "name": "Surf", "type": "water", "category": "special", "power": 95 }
+        ],
+        "display": {
+          "name": "Venustoise",
+          "form": "Fusion"
+        },
+        "components": [
+          { "role": "head", "speciesId": 3, "name": "Venusaur" },
+          { "role": "body", "speciesId": 9, "name": "Blastoise" }
+        ],
+        "sourceIds": {
+          "gameSpeciesId": 1000123,
+          "headSpeciesId": 3,
+          "bodySpeciesId": 9
+        }
+      }
+    ]
+  },
+  "battle": {},
+  "location": {
+    "name": "Example Route"
+  },
+  "bag": {},
+  "extensions": {
+    "example.fusion-data": {
+      "selectedFusionId": 1000123,
+      "fusionConfidence": 1
+    }
+  }
+}
