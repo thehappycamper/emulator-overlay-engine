@@ -1,5 +1,7 @@
 # Roadmap
 
+This is the product-level roadmap: what the product will eventually do, roughly in what order. For the engineering execution sequence — phases with stable IDs, entry/exit criteria, and dependencies — see [`docs/project/implementation-plan.md`](implementation-plan.md). For task-by-task history, see [`docs/tasks/`](../tasks/README.md).
+
 ## Completed
 
 ### Static MVP

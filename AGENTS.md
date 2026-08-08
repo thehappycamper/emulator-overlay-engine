@@ -63,6 +63,25 @@ See `docs/knowledge/product-vision.md` for the canonical product direction.
 - Do not hardcode ROM hack behavior into generic engine modules.
 - Do not add new Pokemon-specific assumptions to shared platform code when the concept belongs in a Pokemon domain package.
 
+## Brand-Agnostic Rule
+
+The current product name (Emulator Overlay Engine / EOE) is temporary and intentionally undecided as a final brand. Product branding is presentation and distribution metadata, not a semantic platform concept.
+
+- Do not introduce new brand coupling into semantic contracts, identifiers, or architecture (schema `$id` conventions, namespace/event/action naming, environment variable prefixes, module boundaries) unless an explicit decision requires it.
+- Prefer neutral terms already in use (source, provider, adapter, contract, mapping, state, event, rule, action, session, domain, extension, template, view) over brand-derived names for new concepts.
+- Prefer unprefixed semantic identifiers, e.g. `pokemon.badge_earned` rather than `eoe.pokemon.badge_earned`, unless a namespace decision explicitly requires a vendor prefix.
+- Display text (titles, banners, doc prose) may keep using the current name; that is cheap to change later.
+- See `docs/project/branding-and-renaming.md` for the full rename inventory, compatibility-sensitive identifiers, and the expected rename procedure.
+
+## Task Governance
+
+Implementation work beyond trivial fixes should be tracked in `docs/tasks/`. See `docs/tasks/README.md` and `docs/project/implementation-plan.md` for the phase/task structure.
+
+- Non-trivial implementation work should have or reference a task ID (e.g. `P01-T004`).
+- Update the task record during completion: status, result, tests run, and the completing commit.
+- Update the owning phase's status in `docs/project/implementation-plan.md` when a phase gate changes (a phase completes, a new phase starts, or a blocking task is identified).
+- Update architecture/ADR docs when the task changes architecture, public APIs, or long-term direction — routine implementation work does not require a new ADR.
+
 ## Documentation Checklist
 
 Before finishing a task, check whether these need updates:
@@ -74,6 +93,8 @@ Before finishing a task, check whether these need updates:
 - `docs/project/features.md`
 - `docs/project/emulators.md`
 - `docs/project/roadmap.md`
+- `docs/project/implementation-plan.md`
+- `docs/tasks/**` (the task record for the work being done)
 - `docs/knowledge/*.md`
 - `docs/decisions/*.md`
 

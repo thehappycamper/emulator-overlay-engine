@@ -6,7 +6,10 @@ This directory is the human and agent knowledge base for Emulator Overlay Engine
 
 - `../AGENTS.md` - required operating rules for coding agents.
 - `knowledge/product-vision.md` - canonical product definition, pipeline, and long-term local/hosted direction.
-- `project/last-worked-on.md` - latest work session summary and next actions.
+- `project/last-worked-on.md` - short pointer to current phase/task; not the project history.
+- `project/implementation-plan.md` - engineering execution sequence: phases with entry/exit criteria.
+- `tasks/README.md` - task-record system: per-task execution history, one file per task.
+- `project/branding-and-renaming.md` - brand-agnostic coding rule and future-rename inventory.
 - `project/roadmap.md` - planned delivery slices.
 - `project/features.md` - feature inventory and status.
 - `project/emulators.md` - emulator compatibility and adapter notes.

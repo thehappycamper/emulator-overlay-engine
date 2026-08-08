@@ -25,11 +25,15 @@ This runs unit tests and validates all checked-in extension examples, template e
 Update these when relevant:
 
 - `docs/project/last-worked-on.md`
+- `docs/project/implementation-plan.md` (when a task's phase gate changes)
+- `docs/tasks/<PhaseID>/` (the task record for the work — see `docs/tasks/README.md`)
 - `docs/project/features.md`
 - `docs/project/emulators.md`
 - `docs/project/roadmap.md`
 - `docs/maps/code-map.md`
 - `docs/decisions/`
+
+Non-trivial changes should reference a task ID (e.g. `P01-T004`). Routine implementation work does not require a new ADR; ADRs remain for architectural/public-contract decisions.
 
 ## Adapter Contributions
 

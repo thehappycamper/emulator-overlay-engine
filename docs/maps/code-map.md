@@ -68,7 +68,12 @@
 | Path | Purpose |
 | --- | --- |
 | `docs/README.md` | Documentation index. |
-| `docs/project/last-worked-on.md` | Running summary of latest work and next actions. |
+| `docs/project/last-worked-on.md` | Short pointer to current phase/active task; not the project history. |
+| `docs/project/implementation-plan.md` | Engineering execution sequence: phases (`P00`, `P01`, ...) with entry/exit criteria. |
+| `docs/tasks/README.md` | Task-record system: ID scheme, lifecycle, directory layout. |
+| `docs/tasks/TEMPLATE.md` | Template for new task records. |
+| `docs/tasks/P00/`, `docs/tasks/P01/` | Per-task execution history, one file per task, grouped by phase. |
+| `docs/project/branding-and-renaming.md` | Brand-agnostic coding rule, rename inventory, and future-rename procedure. |
 | `docs/project/features.md` | Feature inventory and status. |
 | `docs/project/emulators.md` | Emulator compatibility matrix. |
 | `docs/project/configuration.md` | Local `.env` configuration policy and variable index. |
