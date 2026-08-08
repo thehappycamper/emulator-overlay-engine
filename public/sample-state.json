@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "0.1.0",
+  "game": {
+    "generation": 3,
+    "title": "Pokemon Emerald",
+    "adapter": "sample-gen3",
+    "romId": "AGB-BPEE",
+    "seed": "0x5A7C23D1",
+    "frame": 18422
+  },
+  "player": {
+    "trainerId": 12345,
+    "secretId": 54321,
+    "party": [
+      {
+        "speciesId": 260,
+        "name": "Swampert",
+        "nickname": "MUD",
+        "level": 42,
+        "types": ["water", "ground"],
+        "ability": "Torrent",
+        "item": "Mystic Water",
+        "pid": "0x3FA12092",
+        "currentHp": 138,
+        "maxHp": 146,
+        "stats": { "hp": 146, "atk": 118, "def": 101, "spa": 96, "spd": 99, "spe": 72 },
+        "ivs": { "hp": 27, "atk": 30, "def": 24, "spa": 12, "spd": 18, "spe": 21 },
+        "evs": { "hp": 60, "atk": 84, "def": 20, "spa": 0, "spd": 20, "spe": 30 },
+        "moves": [
+          { "id": 89, "name": "Earthquake", "type": "ground", "category": "physical", "power": 100, "accuracy": 100, "pp": 10 },
+          { "id": 57, "name": "Surf", "type": "water", "category": "special", "power": 95, "accuracy": 100, "pp": 15 },
+          { "id": 58, "name": "Ice Beam", "type": "ice", "category": "special", "power": 95, "accuracy": 100, "pp": 10 },
+          { "id": 182, "name": "Protect", "type": "normal", "category": "status", "power": 0, "accuracy": 100, "pp": 10 }
+        ]
+      },
+      {
+        "speciesId": 227,
+        "name": "Skarmory",
+        "nickname": "WALL",
+        "level": 40,
+        "types": ["steel", "flying"],
+        "ability": "Sturdy",
+        "item": "Leftovers",
+        "pid": "0x11CC8D22",
+        "currentHp": 108,
+        "maxHp": 118,
+        "stats": { "hp": 118, "atk": 80, "def": 154, "spa": 42, "spd": 72, "spe": 78 },
+        "ivs": { "hp": 21, "atk": 16, "def": 31, "spa": 4, "spd": 18, "spe": 20 },
+        "evs": { "hp": 88, "atk": 0, "def": 112, "spa": 0, "spd": 30, "spe": 0 },
+        "moves": [
+          { "id": 19, "name": "Fly", "type": "flying", "category": "physical", "power": 70, "accuracy": 95, "pp": 15 },
+          { "id": 191, "name": "Spikes", "type": "ground", "category": "status", "power": 0, "accuracy": 100, "pp": 20 },
+          { "id": 28, "name": "Sand Attack", "type": "ground", "category": "status", "power": 0, "accuracy": 100, "pp": 15 },
+          { "id": 211, "name": "Steel Wing", "type": "steel", "category": "physical", "power": 70, "accuracy": 90, "pp": 25 }
+        ]
+      }
+    ]
+  },
+  "battle": {
+    "activePlayerIndex": 0,
+    "turn": 4,
+    "weather": "none",
+    "opponent": {
+      "speciesId": 359,
+      "name": "Absol",
+      "nickname": "Absol",
+      "level": 40,
+      "types": ["dark"],
+      "ability": "Pressure",
+      "item": "Scope Lens",
+      "status": "sleep",
+      "catchRate": 30,
+      "pid": "0x9D11F2C0",
+      "currentHp": 44,
+      "maxHp": 121,
+      "stats": { "hp": 121, "atk": 130, "def": 66, "spa": 76, "spd": 69, "spe": 82 },
+      "ivs": { "hp": 20, "atk": 26, "def": 18, "spa": 16, "spd": 17, "spe": 22 },
+      "evs": { "hp": 0, "atk": 80, "def": 0, "spa": 0, "spd": 0, "spe": 40 },
+      "moves": [
+        { "id": 163, "name": "Slash", "type": "normal", "category": "physical", "power": 70, "accuracy": 100, "pp": 20 },
+        { "id": 44, "name": "Bite", "type": "dark", "category": "special", "power": 60, "accuracy": 100, "pp": 25 },
+        { "id": 98, "name": "Quick Attack", "type": "normal", "category": "physical", "power": 40, "accuracy": 100, "pp": 30 },
+        { "id": 104, "name": "Double Team", "type": "normal", "category": "status", "power": 0, "accuracy": 100, "pp": 15 }
+      ]
+    }
+  },
+  "location": {
+    "name": "Route 120",
+    "mapId": "24:14",
+    "encounters": [
+      { "speciesId": 263, "name": "Zigzagoon", "method": "grass", "minLevel": 25, "maxLevel": 27, "rate": 0.30 },
+      { "speciesId": 352, "name": "Kecleon", "method": "grass", "minLevel": 25, "maxLevel": 27, "rate": 0.20 },
+      { "speciesId": 359, "name": "Absol", "method": "grass", "minLevel": 25, "maxLevel": 27, "rate": 0.08 },
+      { "speciesId": 183, "name": "Marill", "method": "surf", "minLevel": 20, "maxLevel": 35, "rate": 0.60 }
+    ]
+  },
+  "bag": {
+    "balls": [
+      { "id": 4, "name": "Poke Ball", "quantity": 12, "modifier": 1 },
+      { "id": 3, "name": "Great Ball", "quantity": 6, "modifier": 1.5 },
+      { "id": 2, "name": "Ultra Ball", "quantity": 2, "modifier": 2 }
+    ],
+    "tms": [
+      { "id": 26, "name": "TM26 Earthquake", "quantity": 1 },
+      { "id": 13, "name": "TM13 Ice Beam", "quantity": 1 }
+    ]
+  },
+  "score": {
+    "ruleset": "mvp-low-score",
+    "current": 240
+  }
+}

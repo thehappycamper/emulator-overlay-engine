@@ -1,0 +1,14 @@
+{
+  "name": "pokemon-overlay-engine",
+  "version": "0.1.0",
+  "description": "Generation-agnostic Pokemon overlay engine for emulator adapters and challenge tooling.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node tools/dev-server.mjs",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

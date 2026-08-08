@@ -1,0 +1,34 @@
+# Architecture Knowledge
+
+Pokemon Overlay Engine separates live data collection from game logic and UI rendering.
+
+## Layers
+
+1. Emulator Adapter
+
+Reads data from a concrete emulator such as mGBA or VBA-RR. This layer may use Lua, emulator APIs, file export, sockets, or other emulator-supported mechanisms.
+
+2. Game Adapter
+
+Maps generation and ROM-specific addresses, structs, tables, and IDs into normalized concepts. This includes ROM hacks.
+
+3. Data Adapter
+
+Provides static or extracted data: species, moves, items, abilities, type chart, learnsets, TM compatibility, encounters, trainers, Battle Factory sets, and mechanics differences.
+
+4. Core Engine
+
+Calculates damage, capture odds, legality, route summaries, score changes, set matching, and move predictions from normalized state and data.
+
+5. Overlay
+
+Renders the current state and engine outputs. It should not know emulator memory addresses or ROM-specific formats.
+
+## Design Constraints
+
+- The normalized state API is the integration boundary.
+- Engine functions should be deterministic and testable.
+- ROM hacks should be handled by adapter/data mappings, not generic engine forks.
+- Overlay rendering should degrade gracefully when optional data is unavailable.
+- Any long-term API change should have an ADR.
+
