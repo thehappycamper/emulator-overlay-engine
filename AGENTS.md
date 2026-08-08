@@ -172,6 +172,10 @@ Implementation work beyond trivial fixes should be tracked in `docs/tasks/`. See
 
 Where a task requires independent review, the implementing agent's own self-assessment does not satisfy that requirement — a separate reviewing pass (a different agent, session, or human) is needed before the task can be marked `ready-to-merge`. This role is not permanently assigned to any specific agent or tool — whichever agent or human is doing the implementing, someone else does the reviewing for tasks that call for it. Not every task needs independent review; routine, low-risk, or documentation-only tasks can skip it, and the task record should say so rather than leaving the field blank.
 
+### Active task branch ownership
+
+Each active task branch has one implementation owner at a time. Other agents may inspect or review the branch from isolated checkouts, but must not commit, push, rebase, reset, or force-push that branch unless ownership is explicitly reassigned or they are explicitly assigned a fix pass. Reviewers do not modify the branch they review.
+
 ### Parallel task planning
 
 Choose parallel tasks only when their dependencies actually permit concurrent execution. Before starting a task alongside another in-progress one, check the Dependencies and Scope sections of both task records: if they touch the same files, the same schema/contract, or one's exit criteria depends on the other's output, they are not safely parallel — sequence them instead. `docs/project/implementation-plan.md`'s phase dependencies and each task record's Dependencies/Scope fields exist specifically so this check can be made without guessing.
