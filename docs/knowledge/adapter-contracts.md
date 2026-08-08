@@ -5,7 +5,7 @@ Source providers and adapters acquire source-specific gameplay information and e
 The intended boundary is:
 
 ```text
-Source Provider -> Source Contract -> Mapping -> Normalized State
+Source Provider / Adapter -> Source Contract -> Mapping Runtime -> Named Target
 ```
 
 The source-provider runtime contract is not implemented yet. The current mapping format already identifies named/versioned source contracts without assuming emulator memory.
@@ -78,7 +78,9 @@ Non-responsibilities:
 
 ## Source And Export Shape
 
-Source providers should emit a documented named/versioned source contract for declarative mapping. During early integrations, a reviewed adapter may also emit a selected normalized domain contract directly when that is the smallest viable path, but downstream consumers should still depend on the normalized contract rather than emulator details.
+Source providers should normally emit a documented named/versioned source contract for declarative mapping into a named target.
+
+An adapter MAY produce an already-normalized named target directly when the adapter can do so deterministically and the bypass is documented and validated against that target contract. This is a pragmatic alternative when a separate mapping adds no value; it does not permit source-specific details to leak into downstream consumers. Consumers depend on the named target contract either way.
 
 The current Pokemon-oriented live-export target is:
 
@@ -86,7 +88,7 @@ The current Pokemon-oriented live-export target is:
 src/schemas/overlay-state.schema.json
 ```
 
-The first live implementation may write `public/live-state.json` for polling. A later transport may differ, but payload semantics should remain tied to the selected source/domain contracts rather than acquisition mechanics.
+The first live implementation may write `public/live-state.json` for polling. A later transport may differ, but payload semantics should remain tied to the selected named target contract rather than acquisition mechanics.
 
 ## Fidelity, Provenance, And Confidence
 

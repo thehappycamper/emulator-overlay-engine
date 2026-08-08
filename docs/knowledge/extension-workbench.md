@@ -48,6 +48,8 @@ Paths use RFC 6901 JSON Pointer. Calculated fields use a JSON expression AST rat
 
 The evaluator only supports documented operations and supplied `source`, `target`, and `context` data. It cannot invoke methods, execute code, import modules, or access host globals. See ADR 0012.
 
+`compact` follows truthiness behavior equivalent to `filter(Boolean)`. It removes missing/null values as well as other falsy values such as `0`, `false`, and empty strings; use it only when those removals are intended.
+
 ## Future Authoring Direction
 
 Eventually the Workbench may visually author the broader product pipeline:
