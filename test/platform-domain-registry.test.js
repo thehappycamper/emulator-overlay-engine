@@ -193,6 +193,36 @@ test("custom-prototype domain descriptors are rejected", () => {
   );
 });
 
+test("Map domain descriptors are rejected", () => {
+  const widget = new Map();
+  widget.id = "widget";
+
+  assert.throws(
+    () => createDomainRegistry([widget]),
+    { name: "TypeError", message: "Domain packages must be plain objects" }
+  );
+});
+
+test("Set domain descriptors are rejected", () => {
+  const widget = new Set();
+  widget.id = "widget";
+
+  assert.throws(
+    () => createDomainRegistry([widget]),
+    { name: "TypeError", message: "Domain packages must be plain objects" }
+  );
+});
+
+test("array domain descriptors are rejected", () => {
+  const widget = [];
+  widget.id = "widget";
+
+  assert.throws(
+    () => createDomainRegistry([widget]),
+    { name: "TypeError", message: "Domain packages must be plain objects" }
+  );
+});
+
 test("null-prototype domain descriptors are accepted and frozen", () => {
   const widget = Object.create(null);
   widget.id = "widget";
