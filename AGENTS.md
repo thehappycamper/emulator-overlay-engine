@@ -176,6 +176,10 @@ Where a task requires independent review, the implementing agent's own self-asse
 
 Choose parallel tasks only when their dependencies actually permit concurrent execution. Before starting a task alongside another in-progress one, check the Dependencies and Scope sections of both task records: if they touch the same files, the same schema/contract, or one's exit criteria depends on the other's output, they are not safely parallel — sequence them instead. `docs/project/implementation-plan.md`'s phase dependencies and each task record's Dependencies/Scope fields exist specifically so this check can be made without guessing.
 
+### Task ID allocation
+
+Before allocating a new task ID during concurrent work, inspect current remote task branches and existing task records, not just `main` — task IDs are globally unique within a repository, including unmerged active branches. This is the same coordination problem as file/branch ownership, applied to task identity: two agents working concurrently can each correctly check `main` and still collide if neither has pushed yet, so a same-instant allocation race is possible even when this check is done properly. When a collision is discovered after the fact, the earlier-claimed ID remains authoritative and the later task is renumbered — see `docs/tasks/P02/P02-T005.md`'s Implementation Notes for a worked example.
+
 ## Documentation Checklist
 
 Before finishing a task, check whether these need updates:

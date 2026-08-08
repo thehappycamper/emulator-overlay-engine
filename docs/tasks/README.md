@@ -18,6 +18,8 @@ Three documents answer different questions. Don't duplicate content between them
 
 Tasks are identified as `<PhaseID>-T<NNN>`, e.g. `P01-T004`. `<NNN>` is a zero-padded three-digit sequence number, assigned in the order the task was started within its phase. IDs are never reused, even if a task is cancelled.
 
+Before allocating a new ID, check remote task branches and existing task records, not just `main` — see `AGENTS.md`'s Task ID Allocation rule. A same-instant allocation race between two unpushed branches is still possible even when this check is done correctly; if a collision surfaces later, the earlier-claimed ID wins and the other task is renumbered.
+
 ## Directory layout
 
 ```text
