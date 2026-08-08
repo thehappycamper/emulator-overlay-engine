@@ -17,7 +17,7 @@ Status labels:
 | Damage range calculator | mvp | Pokemon domain package; basic level/stat/power/STAB/type/roll support |
 | Projected switch-in damage | mvp | Calculates incoming opponent damage against each party member |
 | Capture chance calculator | mvp | Pokemon domain package; basic Gen 3 style ball/status/HP odds |
-| Pokemon domain package boundary | active | State, calculators, and presentation are domain-owned on `P02-T006`; awaiting independent review and integration before P02 closes |
+| Pokemon domain package boundary | mvp | State, calculators, and presentation are domain-owned; `P02` — Domain Boundary is completed |
 | CI test workflow | mvp | `.github/workflows/ci.yml` |
 | Extension manifest schema | mvp | `src/schemas/extension.schema.json` |
 | Extension templates | mvp | `examples/extensions/` |

@@ -15,7 +15,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | --- | --- | --- |
 | `P00` | Initial MVP | completed |
 | `P01` | Platform Mapping Foundation | completed |
-| `P02` | Domain Boundary | active — presentation/UI ownership is implemented in `P02-T006` and awaiting independent review/integration; no additional compatibility task is currently identified |
+| `P02` | Domain Boundary | completed |
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
 | `P05` | Live Gameplay Source | planned |
@@ -81,7 +81,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P02 — Domain Boundary
 
-**Status:** active. Calculator ownership (`P02-T001`), Pokemon state/schema ownership (`P02-T002`), and registry hardening (`P02-T003`) are complete on `main`. Product-direction task `P02-T004` and repository-boundary task `P02-T005` are non-gating. Presentation ownership and the remaining `party` slot leakage are addressed by `P02-T006`, which is implemented but awaiting independent review and integration. No additional compatibility task is currently identified; P02 can close after `P02-T006` merges and passes post-merge validation.
+**Status:** completed. Closed at `main@3170a9f` (fast-forward merge of `feat/P02-T006-pokemon-presentation-boundary`, independent review verdict APPROVE, project-owner merge approval granted, post-merge validation passed).
 
 **Objective:** Extract Pokemon-specific state, mechanics, and presentation assumptions behind a real Pokemon domain boundary, per ADR 0008 and `docs/knowledge/domain-extensibility.md`, while keeping shared platform code domain-neutral.
 
@@ -93,11 +93,11 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 - [`P02-T003`](../tasks/P02/P02-T003.md) — Domain registry descriptor immutability hardening (closes `P02-T001`'s non-blocking review finding). Completed (independent re-review APPROVE, merged to `main` at `7fa074b`).
 - [`P02-T004`](../tasks/P02/P02-T004.md) — Record progress, spatial, cross-domain, and workflow-interoperability product direction. Documentation-only and non-gating; no `P02` runtime behavior or exit criterion changes.
 - [`P02-T005`](../tasks/P02/P02-T005.md) — Public/private repository boundary governance. Completed; cross-cutting documentation work, not a `P02` exit criterion.
-- [`P02-T006`](../tasks/P02/P02-T006.md) — Pokemon presentation/UI ownership and domain-extensible slot compatibility. Implemented; awaiting independent review and integration.
+- [`P02-T006`](../tasks/P02/P02-T006.md) — Pokemon presentation/UI ownership and domain-extensible slot compatibility. Completed (independent review APPROVE, merged to `main` at `3170a9f`).
 
-`P02-T002` and `P02-T003` were intentionally parallelizable — they touched disjoint files (schema/fixture paths vs. `src/platform/domain-registry.js` only) and landed independently. `P02-T006` is the separately scoped presentation/UI migration. No prior completed task satisfies the full `P02` exit gate by itself; T006 integration is the remaining gate.
+`P02-T002` and `P02-T003` were intentionally parallelizable — they touched disjoint files (schema/fixture paths vs. `src/platform/domain-registry.js` only) and landed independently. `P02-T006` was the separately scoped presentation/UI migration and closed the phase.
 
-**Exit criteria:** Pokemon-specific schema/engine/rendering code lives under a domain boundary; shared platform code (`src/schemas/{extension,template,mapping}.schema.json`, `src/expressions/`, `src/mapping/`, `src/overlay/`) contains no Pokemon-specific assumptions; existing MVP behavior is preserved and covered by tests. Calculator boundary: ✅ (`P02-T001`). Schema boundary: ✅ (`P02-T002`). Registry hardening: ✅ (`P02-T003`). Presentation ownership and slot leakage: ✅ on the `P02-T006` branch, pending independent review/merge. Phase closure: ⏳ pending `P02-T006` integration and post-merge validation.
+**Exit criteria (all met):** Pokemon-specific schema/engine/rendering code lives under a domain boundary; shared platform code (`src/schemas/{extension,template,mapping}.schema.json`, `src/expressions/`, `src/mapping/`, `src/overlay/`) contains no Pokemon-specific assumptions; existing MVP behavior is preserved and covered by tests. Calculator boundary: ✅ (`P02-T001`). Schema boundary: ✅ (`P02-T002`). Registry hardening: ✅ (`P02-T003`). Presentation ownership and slot leakage: ✅ (`P02-T006`), independently re-verified post-merge (79/79 tests, zero Pokemon references outside the domain package and compatibility shims).
 
 **Dependencies:** `P01`.
 
