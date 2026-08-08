@@ -14,8 +14,8 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | Phase | Name | Status |
 | --- | --- | --- |
 | `P00` | Initial MVP | completed |
-| `P01` | Platform Mapping Foundation | active — `P01-T007` is in independent review |
-| `P02` | Domain Boundary | planned |
+| `P01` | Platform Mapping Foundation | completed |
+| `P02` | Domain Boundary | active — entry conditions met, no task independently reviewed/merged yet |
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
 | `P05` | Live Gameplay Source | planned |
@@ -49,7 +49,9 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 
 ## P01 — Platform Mapping Foundation
 
-**Status:** active — `P01-T007` is implemented and tested on branch `fix/mapping-array-hardening` (rebased implementation commit `14a66f1`) and is awaiting independent review. This phase closes only after review, explicit merge approval, integration, and post-merge validation.
+**Status:** completed. Closed at `main@f1cc577` (fast-forward merge of `fix/mapping-array-hardening`, independent review verdict APPROVE, project-owner merge approval granted, post-merge validation passed).
+
+Summary of what `P01` delivered: a domain-neutral, safe declarative mapping contract (`src/schemas/mapping.schema.json`) with a pure expression evaluator that remains non-executable (no `eval`/`Function`/dynamic import/host-global access — ADR 0012); automated schema validation for extension, template, mapping, and normalized-state examples (`npm test`); the sparse-array target-write amplification finding closed with regression coverage (`P01-T007`); and the governance/brand-agnostic/source-agnostic/product-vision foundation (`docs/project/branding-and-renaming.md`, `docs/tasks/`, `docs/knowledge/product-vision.md`, ADRs 0013–0014) that all later phases build on.
 
 **Objective:** Build the extension/template/mapping contracts and the safe, non-executable calculated-field model that the future Extension Workbench will author against, while establishing the domain-neutral-core and source-agnostic architectural direction.
 
@@ -62,14 +64,14 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 - [`P01-T004`](../tasks/P01/P01-T004.md) — Implement safe declarative mapping contract. Completed, with one follow-up.
 - [`P01-T005`](../tasks/P01/P01-T005.md) — Document event-driven platform vision. Completed.
 - [`P01-T006`](../tasks/P01/P01-T006.md) — Clarify source-agnostic platform boundary. Completed.
-- [`P01-T007`](../tasks/P01/P01-T007.md) — Harden JSON Pointer array writes. **Review — blocking.**
+- [`P01-T007`](../tasks/P01/P01-T007.md) — Harden JSON Pointer array writes. Completed (independent review APPROVE, merged to `main` at `f1cc577`).
 - [`P01-T008`](../tasks/P01/P01-T008.md) — Establish project task governance and rename strategy. Completed (merged to `main` at `a267950`).
 - [`P01-T009`](../tasks/P01/P01-T009.md) — Record Session Referee and verified-environment product vision (ADR 0014). Completed (merged to `main` at `a267950`).
 
-**Exit criteria (phase gate):**
+**Exit criteria (phase gate — all met):**
 - All of `P01-T001`–`P01-T006` complete. ✅
-- `P01-T007` complete: the sparse-array target-write amplification finding from `P01-T004`'s security review is closed, with regression coverage, on `main`. Pending: independent review, explicit merge approval, merge, and post-merge validation. The rebased implementation commit is `14a66f1`.
-- `npm test` green after `P01-T007` lands on `main`.
+- `P01-T007` complete: the sparse-array target-write amplification finding from `P01-T004`'s security review is closed, with regression coverage, on `main`. ✅ Independently reviewed (APPROVE), merge-approved, and merged at `f1cc577`.
+- `npm test` green after `P01-T007` lands on `main`. ✅ 47/47 passing, independently verified post-merge.
 
 **Dependencies:** `P00`.
 
@@ -79,13 +81,13 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 
 ## P02 — Domain Boundary
 
-**Status:** planned
+**Status:** active. Entry conditions are now met (`P01` completed at `f1cc577`). A `feat/P02-T001-pokemon-domain-boundary` branch with pending implementation already exists on `origin`, separate from and not yet merged into `main`. It has not been independently reviewed as part of this update and is not marked complete — its status should be recorded in its own `docs/tasks/P02/P02-T001.md` task record (create or update that record, following the same review/merge-approval workflow `P01-T007` went through, before any of that work is considered `ready-to-merge` or `completed`).
 
 **Objective:** Extract Pokemon-specific assumptions (currently `src/schemas/overlay-state.schema.json`'s Pokemon-shaped payload, `src/engine/{damage,capture,type-chart}.js`, and `src/overlay/app.js`'s Pokemon-specific rendering) behind a real Pokemon domain boundary, per the direction already recorded in ADR 0008 and `docs/knowledge/domain-extensibility.md`, while keeping shared platform code domain-neutral.
 
-**Entry conditions:** `P01` complete (a stable mapping/target contract should exist before deciding exactly how domain schemas plug into it).
+**Entry conditions:** `P01` complete. ✅ Met.
 
-**Major tasks:** Not yet broken into task records — to be created when this phase starts. Expected shape, per `docs/knowledge/domain-extensibility.md`'s sketch: introduce `domains/pokemon/{schemas,engine,overlay-panels}/`, decide whether `overlay-state.schema.json` becomes a thin domain-neutral envelope or moves wholesale into the domain package, and refactor `src/overlay/app.js` into a thin host over domain-registered panels.
+**Major tasks:** `P02-T001` (branch `feat/P02-T001-pokemon-domain-boundary`) is in progress but not yet reviewed by this update. Expected shape, per `docs/knowledge/domain-extensibility.md`'s sketch: introduce `domains/pokemon/{schemas,engine,overlay-panels}/`, decide whether `overlay-state.schema.json` becomes a thin domain-neutral envelope or moves wholesale into the domain package, and refactor `src/overlay/app.js` into a thin host over domain-registered panels.
 
 **Exit criteria:** Pokemon-specific schema/engine/rendering code lives under a domain boundary; shared platform code (`src/schemas/{extension,template,mapping}.schema.json`, `src/expressions/`, `src/mapping/`) contains no Pokemon-specific assumptions; existing MVP behavior (overlay renders, calculators produce the same results) is preserved and covered by tests.
 

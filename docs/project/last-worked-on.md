@@ -4,19 +4,20 @@ This is a short pointer, not the project history. For full history, see `docs/ta
 
 ## Current status
 
-- **Active phase:** `P01` — Platform Mapping Foundation (nearly complete; one blocking task is in independent review). See [implementation plan](implementation-plan.md).
-- **Active task:** [`P01-T007` — Harden JSON Pointer array writes](../tasks/P01/P01-T007.md) — status `review`; rebased implementation commit `14a66f1` on `fix/mapping-array-hardening`; 47/47 tests pass; independent review and merge approval remain pending. This is the only remaining blocker on P01's phase gate.
-- **Last completed task:** [`P01-T009` — Record Session Referee and verified-environment product vision](../tasks/P01/P01-T009.md) (2026-08-08, merged at `a267950`); see also [`P01-T008`](../tasks/P01/P01-T008.md) (task governance/rename strategy, same merge).
-- **Next planned phase:** `P02` — Domain Boundary, entry-gated on `P01` closing. Note: a `feat/P02-T001-pokemon-domain-boundary` branch already exists with pending work, separate from and not yet merged into `main`.
+- **Active phase:** `P02` — Domain Boundary (just activated; `P01` is fully closed). See [implementation plan](implementation-plan.md).
+- **Active/review task:** `P02-T001` (branch `feat/P02-T001-pokemon-domain-boundary`) — pending work exists on `origin`, not yet independently reviewed or merged. See its own `docs/tasks/P02/P02-T001.md` record (create or update it, following the same review/merge-approval workflow `P01-T007` went through) before treating it as `ready-to-merge` or `completed`.
+- **Last completed task:** [`P01-T007` — Harden JSON Pointer array writes](../tasks/P01/P01-T007.md) (2026-08-08, independent review APPROVE, merged at `f1cc577`) — this closed the `P01` phase gate. See also [`P01-T008`](../tasks/P01/P01-T008.md)/[`P01-T009`](../tasks/P01/P01-T009.md) (governance/vision, merged earlier the same day at `a267950`).
+- **Next planned phase:** `P03` — Semantic Event Foundation, entry-gated on `P02` closing.
 
 ## Most recent session (2026-08-08)
 
-Governance and product-vision work on branch `chore/project-governance-brand-agnostic`, merged into `main` via fast-forward at `a267950` with explicit project-owner approval:
+`P01-T007` (mapping array-write hardening) received independent review (verdict: APPROVE, no blocking findings) and project-owner merge approval, then was merged into `main` via fast-forward at `f1cc577` (branch `fix/mapping-array-hardening`, rebased implementation commit `14a66f1`, patch-identical to the original `c40dd43`). This closed the sparse-array target-write amplification finding from `P01-T004`'s original security review and satisfied `P01`'s last open exit criterion — **`P01` — Platform Mapping Foundation is now `completed`.**
 
-- [`P01-T008`](../tasks/P01/P01-T008.md) (completed) established `docs/project/branding-and-renaming.md`, the `docs/tasks/`/`docs/project/implementation-plan.md` task-governance system, backfilled `P00`–`P01` task records, and formalized the Protected Main / Task Branches / Concurrent Agents / merge-approval workflow in `AGENTS.md` after this task's own working directory was found switched to another branch by a concurrent agent mid-session (see `P01-T008`'s Implementation Notes).
-- [`P01-T009`](../tasks/P01/P01-T009.md) (completed) recorded a new Session Referee/verified-environment/reviewed-modification-registry product-vision direction (`docs/knowledge/product-vision.md`, ADR 0014), then ran a repository-wide consistency audit that found and fixed six files still describing adapters/extensions as bypassing the mapping runtime to write normalized state directly, without noting that's a documented exception rather than the general pattern.
+Post-merge validation: `npm test` on `main` — 47/47 passing; `git diff --check` — no whitespace errors; full documentation-link check — no broken links; the large-index attack (`/arr/4000000000/y`) independently re-reproduced against merged `main` — still rejected immediately (`RangeError`), target array length stays `0`. `feat/P02-T001-pokemon-domain-boundary` remains a separate, unmerged branch — this merge did not include it.
 
-Post-merge validation: `npm test` on `main` — 39/39 passing; full documentation-link check — no broken links. No product runtime/schema behavior changed by either task — confirmed via the full branch diff against pre-merge `main` (29 files, all `.md`). `fix/mapping-array-hardening` and `feat/P02-T001-pokemon-domain-boundary` remain separate, unmerged branches — this merge did not include either. For the prior session's actual product-facing work, see `docs/tasks/P01/P01-T006.md` (source-agnostic platform clarification).
+`P02` — Domain Boundary is now the active phase (entry conditions met). Its pending `P02-T001` work has not been reviewed as part of this update.
+
+For the prior session (governance/branding/task-system establishment and Session Referee product vision), see `docs/tasks/P01/P01-T008.md` and `docs/tasks/P01/P01-T009.md`.
 
 ## Updating this file
 
