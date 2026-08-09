@@ -9,7 +9,7 @@ The engine is source-agnostic; an emulator is one source-provider type, not a pl
 | mGBA 0.10.3 | active live integration | `adapters/gen3-mgba/emerald-acquisition.lua` emits strict-fingerprint `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0`; `npm run live:emerald` maps it into validated `pokemon.overlay-state@0.1.0` and atomically writes `public/live-state.json`. `npm run proof:emerald` validates local paths, prepares directories, and launches the configured ROM. Richer fields and real end-to-end smoke evidence remain outstanding. |
 | VBA-RR | planned extension | Has Lua support and can draw overlays directly. Good fallback for classic Lua overlays. |
 | VisualBoyAdvance-M | unknown | Standalone executable detected locally. Lua support depends on build and configuration. |
-| BizHawk | candidate | Good future option for multi-system tooling and Lua support, not currently scaffolded. |
+| BizHawk 2.11.1 | active Proof 2 bootstrap | `npm run proof:bizhawk` starts Emerald Rev 0 and auto-loads a generic Lua identity/frame connector. Strict version/system/hash diagnostics are implemented; a validated acquisition source contract and mapping handoff are not yet implemented. |
 
 ## Adapter Requirements
 
@@ -30,3 +30,9 @@ Reason:
 
 - mGBA is actively maintained and has script support.
 - The provider keeps emulator APIs and version-specific addresses at the adapter boundary while the declarative mapping feeds the domain-owned state contract.
+
+## Second Emulator Target
+
+BizHawk 2.11.1 is the Proof 2 target. `P06-T001` chooses its supported `--lua` bootstrap because it auto-loads repository-owned code with the ROM and optional state without adding a compiled plugin artifact. The first connector is intentionally emulator-generic and diagnostic-only. It does not copy Pokemon decoding/calculation logic or emit the mGBA-named source contract.
+
+BizHawk C#/.NET External Tools remain a documented longer-term option for richer typed integration. They are not used for the bootstrap because they require a compiled .NET Framework 4.8 assembly in BizHawk's `ExternalTools` directory, carry tighter assembly/trust coupling, and provide no benefit needed by this first proof.

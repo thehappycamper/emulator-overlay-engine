@@ -19,7 +19,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
 | `P05` | Live Gameplay Source | active - `P05-T001`-`T006` completed; real mGBA end-to-end acceptance still required |
-| `P06` | Second Source / Domain Proof | planned |
+| `P06` | Second Source / Domain Proof | active (preparatory BizHawk bootstrap; `P05` gate remains open) |
 | — | Later Product Tracks | coarse / not phased yet |
 
 ---
@@ -169,19 +169,21 @@ Remaining roadmap deliverables will be scoped separately: real mGBA end-to-end a
 
 ## P06 — Second Source / Domain Proof
 
-**Status:** planned
+**Status:** active for the narrowly scoped BizHawk bootstrap. `P05` remains active and its real acceptance gate is not waived.
 
 **Objective:** Prove the architecture is not accidentally Pokemon-specific or emulator-specific by exercising it against a second source and/or domain. The exact choice does not need to be made now.
 
-**Entry conditions:** `P02` and `P05` complete (need both a real domain boundary and a real first live source to prove a second one doesn't require platform changes).
+**Entry conditions:** `P02` complete. The original full-proof gate also requires `P05` complete. By explicit project-owner direction, `P06-T001` starts only the independent launcher/connector bootstrap in parallel while `P05` acceptance remains open; no P06 exit criterion can be claimed until the original gate and full contract reuse proof are met.
 
-**Major tasks:** Not yet broken into task records; not yet scoped beyond "prove it."
+**Major tasks:**
+- [`P06-T001`](../tasks/P06/P06-T001.md) - BizHawk 2.11.1 local launcher and auto-loaded domain-neutral identity/frame connector. Implemented for review; diagnostic only.
+- Follow-up work must establish a validated BizHawk/provider-neutral Emerald source snapshot and reuse the mapping/domain/overlay path without duplicating Pokemon logic.
 
 **Exit criteria:** A second source or domain works through the existing platform contracts (extension, mapping, and — if `P02`/`P05` order allows — domain boundary) without platform-layer changes beyond what the contracts already allow.
 
 **Dependencies:** `P02`, `P05`.
 
-**Out of scope:** Deciding the second domain/source now — per instruction, this is intentionally left open.
+**Out of scope:** A second game domain, semantic events/actions, and treating the bootstrap diagnostic as a source contract or phase completion proof.
 
 ---
 

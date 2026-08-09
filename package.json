@@ -8,6 +8,7 @@
     "start": "node tools/dev-server.mjs",
     "live:emerald": "node tools/emerald-live-state.mjs",
     "proof:emerald": "node tools/launch-emerald-proof.mjs",
+    "proof:bizhawk": "node tools/launch-bizhawk-proof.mjs",
     "test": "node --test"
   },
   "engines": {

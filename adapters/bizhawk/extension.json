@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "bizhawk.lua.proof-connector",
+  "name": "BizHawk Lua Proof Connector",
+  "type": "emulator",
+  "version": "0.1.0",
+  "description": "Generic read-only BizHawk bootstrap connector for strict local emulator/system/ROM identity and frame-heartbeat diagnostics.",
+  "entrypoints": {
+    "docs": "README.md",
+    "main": "proof-connector.lua"
+  },
+  "compatibility": {
+    "emulators": [
+      {
+        "name": "BizHawk",
+        "versions": ["2.11.1"]
+      }
+    ]
+  },
+  "provides": {
+    "diagnosticHeartbeat": true,
+    "sourceSnapshots": false,
+    "normalizedStateMapping": false,
+    "readOnly": true
+  },
+  "publicSafety": {
+    "containsRoms": false,
+    "containsBios": false,
+    "containsSaves": false,
+    "containsSecrets": false
+  }
+}

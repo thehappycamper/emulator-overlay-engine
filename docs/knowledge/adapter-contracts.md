@@ -94,6 +94,8 @@ The first live implementation may write `public/live-state.json` for polling. A 
 
 `P05-T003` turns the strict-fingerprint Emerald Rev 0 acquisition proof into a schema-validated source snapshot under `adapters/gen3-mgba/`. `P05-T004` adds the checked-in mapping into `pokemon.overlay-state@0.1.0`, canonical Ajv target validation, and an atomic `public/live-state.json` handoff. The source snapshot still must not be consumed directly by the overlay, and the narrow local watcher does not define a universal provider runtime or transport.
 
+`P06-T001` adds a second-emulator bootstrap under `adapters/bizhawk/`, but deliberately stops at a strict identity/frame diagnostic. The existing source contract includes `mgba` in its ID, so BizHawk must not emit it under false provenance. A later reviewed task must define the BizHawk/provider-neutral acquisition contract and shared Emerald decoding ownership before the existing mapping/domain/overlay pipeline is connected.
+
 ## Fidelity, Provenance, And Confidence
 
 Providers may eventually differ in fidelity. Emulator memory may expose exact values, while vision or audio providers may infer values with uncertainty. Future source, state, or event contracts may need provenance/confidence metadata, but this document does not define those fields. That work requires a separate architecture and schema decision.

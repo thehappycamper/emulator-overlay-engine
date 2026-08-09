@@ -1,6 +1,6 @@
 # Local Configuration
 
-Local machine paths and private settings belong in ignored local files. The Emerald Proof 1 launcher uses `.env.local` so one checked-in template can describe the complete operator setup without committing machine-specific values.
+Local machine paths and private settings belong in ignored local files. Emerald Proof 1 uses `.env.local`; BizHawk Proof 2 uses `.env.bizhawk.local`. Their checked-in templates describe operator setup without committing machine-specific values.
 
 From the repository root:
 
@@ -10,6 +10,13 @@ npm run proof:emerald -- --check
 ```
 
 Replace the fake mGBA and ROM paths before running the check. The parser accepts plain or single/double-quoted values, does not expand shell expressions, and resolves relative paths from the repository root. Existing process-environment values override matching file values.
+
+For BizHawk:
+
+```powershell
+Copy-Item .env.bizhawk.local.example .env.bizhawk.local
+npm run proof:bizhawk -- --check
+```
 
 ## Current Variables
 
@@ -21,6 +28,10 @@ Replace the fake mGBA and ROM paths before running the check. The parser accepts
 | `EOE_EMERALD_ROM` | Required local path to a legally obtained supported Emerald ROM. The launcher passes it to mGBA but does not inspect or copy it. |
 | `EOE_EMERALD_SAVESTATE` | Optional local savestate path. The launcher passes it to mGBA via the documented `--savestate` flag, so it loads automatically at startup. |
 | `EOE_MGBA_SCRIPTS_DIR` | Optional local path to mGBA Lua scripts. |
+| `EOE_BIZHAWK_EXE` | Required local path to BizHawk 2.11.1 `EmuHawk.exe` for `npm run proof:bizhawk`. |
+| `EOE_BIZHAWK_EMERALD_ROM` | Required local path to a legally obtained Emerald English retail Rev 0 image for Proof 2. |
+| `EOE_BIZHAWK_EMERALD_SAVESTATE` | Optional local BizHawk savestate; passed through `--load-state`. |
+| `BIZHAWK_CONNECTOR_DIAGNOSTIC_PATH` | Local output for the Proof 2 identity/frame heartbeat. This is not a source contract or normalized state. |
 | `EMERALD_SOURCE_SNAPSHOT_PATH` | Local path where the Emerald mGBA provider publishes its acquisition source snapshot. Relative values resolve from the repository root. It must be in mGBA's process environment before launch; mGBA does not load config files itself. |
 | `EMERALD_MAPPING_POLL_INTERVAL_MS` | Optional positive polling interval for `npm run live:emerald`; defaults to `250`. |
 | `EOE_VBA_RR_EXE` | Optional local path to VBA-RR executable. |
@@ -33,6 +44,7 @@ Replace the fake mGBA and ROM paths before running the check. The parser accepts
 ## Rules
 
 - Commit `.env.local.example`; never commit `.env.local`.
+- Commit `.env.bizhawk.local.example`; never commit `.env.bizhawk.local`.
 - Commit `.env.example`.
 - Never commit `.env`.
 - Do not put personal absolute paths in public docs, source, tests, or fixtures.
@@ -46,3 +58,9 @@ Replace the fake mGBA and ROM paths before running the check. The parser accepts
 Use `npm run proof:emerald -- --check` to validate and create directories without launching mGBA. A different local file can be selected with `--config <path>`.
 
 Close an already-running mGBA instance before using the launcher so the process that loads the Lua script inherits the configured environment. After launch, follow the printed commands for `npm run live:emerald` and `npm start`; those processes run in separate terminals and therefore need their displayed environment assignments.
+
+## BizHawk Proof Launcher
+
+`npm run proof:bizhawk` loads `.env.bizhawk.local`, validates the executable, ROM, optional savestate, checked-in connector, and diagnostic destination, then launches BizHawk with `--lua=<connector>`, optional `--load-state=<savestate>`, and the ROM as the final argument. BizHawk 2.11.1 loads the ROM/state before starting the Lua connector. The connector verifies BizHawk version `2.11.1`, system `GBA`, and the supported Emerald Rev 0 SHA-1 before writing a heartbeat.
+
+Use `npm run proof:bizhawk -- --check` to validate and create the diagnostic directory without launching BizHawk. The bootstrap does not emit an acquisition source contract, invoke mapping, or update the overlay yet.

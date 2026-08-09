@@ -4,7 +4,8 @@ This is a short pointer, not the project history. For full history, see `docs/ta
 
 ## Current status
 
-- **Active phase:** `P05` — Live Gameplay Source. `P03` and `P04` remain planned and unstarted; phase numbering and dependencies are unchanged. See [implementation plan](implementation-plan.md).
+- **Active phases:** `P05` — Live Gameplay Source remains open for real mGBA acceptance and richer acquisition. `P06` has a narrowly approved parallel BizHawk bootstrap task; this does not waive the `P05` gate or complete the second-source proof. `P03` and `P04` remain planned and unstarted. See [implementation plan](implementation-plan.md).
+- **Current review task:** [`P06-T001` — BizHawk Proof 2 launcher/bootstrap](../tasks/P06/P06-T001.md) adds local-only setup, automatic ROM/savestate/Lua launch, and strict identity/frame diagnostics. It does not yet emit a source contract or normalized state.
 - **Last completed task:** [`P05-T006` — Automate Emerald Proof 1 savestate loading via mGBA's CLI](../tasks/P05/P05-T006.md) (2026-08-08, independent review APPROVE, fast-forward merged at `aa5d97b`). [`P05-T001`](../tasks/P05/P05-T001.md) through [`P05-T005`](../tasks/P05/P05-T005.md) are also completed.
 - **Next P05 step:** run and record the first real mGBA end-to-end acceptance test using `npm run proof:emerald` (config validation, mGBA launch, and savestate loading are automated; Lua loading and the printed mapper/dev-server terminal commands remain manual). Broader phase-gate acquisition/mapping (whole party, moves/bag, seed/frame, species/map lookup data) remains after that smoke. `P05` remains active.
 

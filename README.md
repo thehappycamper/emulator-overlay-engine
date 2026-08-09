@@ -17,6 +17,7 @@ The implemented foundation is intentionally small and Pokemon-focused:
 - Pokemon domain package with its normalized-state contract, overlay presentation, and damage, catch, and type-effectiveness calculators plus Node tests.
 - Domain-neutral mapping contract with safe calculated expressions and schema-validated examples.
 - Read-only Pokemon Emerald Rev 0 source provider for mGBA 0.10.3, with strict ROM identification, a named/versioned acquisition contract, declarative mapping into validated Pokemon state, and safe local source/live-state handoffs.
+- BizHawk 2.11.1 Proof 2 bootstrap with local-only configuration, automatic Emerald/Lua connector launch, strict identity checks, and a changing diagnostic heartbeat. Source-contract adaptation remains a separate task.
 - GitHub Actions CI for tests.
 
 ## Local Use
@@ -41,7 +42,9 @@ The Emerald mGBA provider writes an acquisition source snapshot, not overlay sta
 
 For the Emerald Proof 1 workflow, copy `.env.local.example` to `.env.local`, fill in local mGBA/ROM paths, then run `npm run proof:emerald`. The launcher validates the setup, creates local snapshot directories, and starts mGBA with the configured ROM and (if set) savestate via mGBA's documented `--savestate` flag. It prints the remaining steps: the one genuinely manual step (loading the Lua script — mGBA has no supported way to do this from the command line) plus the mapper/server commands.
 
-`.env.local` and `.env` are ignored. Never commit either file, ROMs, saves, savestates, BIOS files, or machine-specific paths. See [local configuration](docs/project/configuration.md).
+For the BizHawk Proof 2 bootstrap, copy `.env.bizhawk.local.example` to `.env.bizhawk.local`, fill in local BizHawk/ROM paths, then run `npm run proof:bizhawk`. BizHawk can auto-load both the repository Lua connector and an optional savestate. This first slice publishes only an identity/frame diagnostic; see the [BizHawk adapter README](adapters/bizhawk/README.md).
+
+`.env.local`, `.env.bizhawk.local`, and `.env` are ignored. Never commit these files, ROMs, saves, savestates, BIOS files, emulator binaries, or machine-specific paths. See [local configuration](docs/project/configuration.md).
 
 ## Architecture Direction
 

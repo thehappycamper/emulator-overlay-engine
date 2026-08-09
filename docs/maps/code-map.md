@@ -8,6 +8,7 @@
 | `CONTRIBUTING.md` | Public contribution flow and documentation expectations. |
 | `.env.example` | Public-safe template for local machine configuration. |
 | `.env.local.example` | Fake-path template for the local Emerald Proof 1 launcher; real `.env.local` is ignored. |
+| `.env.bizhawk.local.example` | Fake-path template for the local BizHawk Proof 2 launcher; real `.env.bizhawk.local` is ignored. |
 | `README.md` | Public project overview and local usage. |
 | `LICENSE` | MIT license for public use and contribution. |
 | `SECURITY.md` | Public repository safety guidance. |
@@ -66,6 +67,9 @@
 | `adapters/gen3-mgba/mappings/emerald-us-rev0-to-pokemon-overlay-state.mapping.json` | Fixed-slot declarative mapping into `pokemon.overlay-state@0.1.0` with documented placeholders. |
 | `adapters/gen3-mgba/extension.json` | Public extension manifest for the Emerald source provider. |
 | `adapters/gen3-mgba/fixtures/` | Synthetic acquisition/source fixtures; no ROM/save/game binaries. |
+| `adapters/bizhawk/proof-connector.lua` | Generic BizHawk 2.11.1 identity/frame bootstrap; consumes launcher-supplied expectations and contains no Pokemon state decoding. |
+| `adapters/bizhawk/extension.json` | Public manifest for the read-only BizHawk diagnostic connector. |
+| `adapters/bizhawk/README.md` | Supported release, Lua-vs-External-Tool decision, setup, trust/version boundaries, and next source-contract slice. |
 | `extensions/README.md` | Extension model and rules. |
 | `examples/extensions/` | Example extension manifests and README templates. |
 | `examples/templates/` | Example shareable template manifests and README files. |
@@ -94,6 +98,10 @@
 | `tools/emerald-live-state.mjs` | Narrow local watcher from Emerald source snapshot through mapping/validation to `public/live-state.json`. |
 | `tools/emerald-proof-config.mjs` | Pure local config parser/resolver plus Proof 1 path validation and launch-environment construction. |
 | `tools/launch-emerald-proof.mjs` | Windows-friendly `npm run proof:emerald` launcher and manual workflow handoff. |
+| `tools/local-env.mjs` | Non-executable parser shared by new local launcher configuration; shell expressions are treated as literal data. |
+| `tools/bizhawk-proof-config.mjs` | BizHawk Proof 2 local path validation, supported identity expectations, and CLI/environment construction. |
+| `tools/launch-bizhawk-proof.mjs` | Windows-friendly `npm run proof:bizhawk` launcher; auto-loads ROM, optional savestate, and Lua connector. |
+| `test/bizhawk-proof-config.test.js` | BizHawk local config, fail-before-launch, CLI argument, identity environment, and adapter-boundary regression tests. |
 
 ## Documentation
 
@@ -104,7 +112,7 @@
 | `docs/project/implementation-plan.md` | Engineering execution sequence: phases (`P00`, `P01`, ...) with entry/exit criteria. |
 | `docs/tasks/README.md` | Task-record system: ID scheme, lifecycle, directory layout. |
 | `docs/tasks/TEMPLATE.md` | Template for new task records. |
-| `docs/tasks/P00/`, `docs/tasks/P01/`, `docs/tasks/P02/`, `docs/tasks/P05/` | Per-task execution history, one file per task, grouped by phase. |
+| `docs/tasks/P00/`, `docs/tasks/P01/`, `docs/tasks/P02/`, `docs/tasks/P05/`, `docs/tasks/P06/` | Per-task execution history, one file per task, grouped by phase. |
 | `docs/project/branding-and-renaming.md` | Brand-agnostic coding rule, rename inventory, and future-rename procedure. |
 | `docs/project/repository-boundaries.md` | Canonical public core / private hosted-services architecture boundary. |
 | `docs/project/features.md` | Feature inventory and status. |

@@ -36,6 +36,7 @@ Status labels:
 | --- | --- | --- |
 | Live party panel | planned | Needs emulator extension export |
 | Emerald Rev 0 mGBA live-state pipeline | active | Read-only Lua source plus checked-in safe mapping, canonical Pokemon target validation, atomic `public/live-state.json`, and a gitignored local config/launcher; fixed first-party/opponent slots and documented placeholders only; real end-to-end smoke and richer acquisition remain |
+| BizHawk Proof 2 bootstrap | active | BizHawk 2.11.1 local config/launcher auto-loads Emerald Rev 0, an optional state, and a generic identity/frame Lua connector; validated source/mapping/domain handoff remains planned |
 | IV/EV display | planned | Existing local Gen 3 Lua script can supply this |
 | Current moves and PP | planned | Existing local Gen 3 Lua script can supply this |
 | Learnset upcoming moves | planned | Needs data extension tables |

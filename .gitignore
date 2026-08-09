@@ -51,3 +51,6 @@ firmware.bin
 *.sgm[0-9]
 *.mss
 *.vst
+*.SaveRAM
+*.State
+*.State[0-9]

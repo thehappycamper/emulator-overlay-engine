@@ -48,7 +48,7 @@ These are the intended next architecture slices. Each requires separate approval
 
 ### Live Gen 3 mGBA Export
 
-Status: live integration active. `P05-T002` proved acquisition, `P05-T003` defines/emits the source contract, `P05-T004` completed fixed-slot mapping plus validated atomic normalized-state delivery, and `P05-T005` is adding the gitignored local setup/launcher workflow. Real mGBA end-to-end smoke and richer fields remain.
+Status: live integration active. `P05-T002` proved acquisition, `P05-T003` defines/emits the source contract, `P05-T004` completed fixed-slot mapping plus validated atomic normalized-state delivery, and `P05-T005`/`P05-T006` completed the gitignored local launcher plus supported savestate automation. Real mGBA end-to-end smoke and richer fields remain.
 
 Goal:
 
@@ -59,7 +59,7 @@ Deliverables:
 - `adapters/gen3-mgba` Lua exporter.
 - Named/versioned adapter-owned acquisition source contract and safe local snapshot handoff (`P05-T003`, completed).
 - Declarative fixed-slot mapping, canonical target validation, and atomic `public/live-state.json` handoff (`P05-T004`, completed).
-- Local `.env.local` setup and Windows-friendly mGBA launcher (`P05-T005`, in review).
+- Local `.env.local` setup and Windows-friendly mGBA launcher (`P05-T005`, completed), with supported savestate auto-loading (`P05-T006`, completed).
 - Overlay option for `live-state.json` with continuous refresh (`P05-T001`, completed: the overlay polls its state source, re-renders on change, and tolerates a missing/invalid/partial file — see [`docs/tasks/P05/P05-T001.md`](../tasks/P05/P05-T001.md)).
 - Documentation for emulator setup.
 - Tests for exported sample fixtures.
@@ -67,6 +67,8 @@ Deliverables:
 ## Subsequent Product Tracks
 
 These are future tracks, not committed implementation slices:
+
+- A second-emulator proof using BizHawk 2.11.1. Its local auto-launch/diagnostic bootstrap is active; source-contract and mapping reuse remain separate reviewed slices.
 
 - Richer Pokemon assistant functionality: battle projections, route/capture support, scoring, facility set identification, and move prediction.
 - Extension Workbench for mapping and later event/rule/action authoring through reviewable contracts.
