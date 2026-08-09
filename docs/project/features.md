@@ -38,7 +38,8 @@ Status labels:
 | Live party panel | planned | Needs emulator extension export |
 | Emerald Rev 0 provider-neutral live-state pipeline | active | Game-owned shared acquisition contract/decoding plus one safe mapping, canonical Pokemon target validation, and atomic `public/live-state.json`; mGBA and BizHawk preserve provider provenance; fixed first-party/opponent slots and documented placeholders only |
 | BizHawk Proof 2 acquisition | active | BizHawk 2.11.1 auto-loads Emerald Rev 0, optional state, and Lua provider; validates version/system/hash and checks System Bus against direct EWRAM/IWRAM before emitting the shared source contract; real-ROM acceptance remains pending |
-| Isolated Libretro provider IPC | active | Child-process native core prototype with versioned local JSON-lines lifecycle, identity, capabilities, memory discovery/read, frame, error, and shutdown operations; independent review pending |
+| Isolated Libretro provider IPC | active | Child-process native core prototype with versioned local JSON-lines lifecycle, identity, capabilities, memory discovery/read, frame, error, and shutdown operations; completed and merged |
+| Libretro Emerald thin adapter | active | Connects the isolated Libretro provider to the existing Emerald acquisition/mapping pipeline via bounded IPC snapshot reads; three-way mGBA/BizHawk/Libretro provider parity proven; independent review pending |
 | IV/EV display | planned | Existing local Gen 3 Lua script can supply this |
 | Current moves and PP | planned | Existing local Gen 3 Lua script can supply this |
 | Learnset upcoming moves | planned | Needs data extension tables |

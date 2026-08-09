@@ -10,7 +10,7 @@ The engine is source-agnostic; an emulator is one source-provider type, not a pl
 | VBA-RR | planned extension | Has Lua support and can draw overlays directly. Good fallback for classic Lua overlays. |
 | VisualBoyAdvance-M | unknown | Standalone executable detected locally. Lua support depends on build and configuration. |
 | BizHawk 2.11.1 | active Proof 2 acquisition | `npm run proof:bizhawk` starts Emerald Rev 0 and auto-loads the Lua provider. It checks version/system/SHA-1 plus System Bus/direct EWRAM-IWRAM parity, emits the shared Emerald contract, and reuses the existing mapper/domain/overlay. Real-ROM acceptance evidence remains outstanding. |
-| Libretro child provider prototype | active experiment | `experiments/libretro-provider/` runs arbitrary native cores outside the parent EOE process through local JSON-lines IPC. It is provider-neutral and currently exposes identity, capabilities, memory-region discovery, bounded reads, frame execution, errors, and shutdown; it is not production frontend or overlay integration. |
+| Libretro (official mGBA core), isolated provider | active experiment | `experiments/libretro-provider/` runs arbitrary native cores outside the parent EOE process through local JSON-lines IPC; provider-neutral, no Emerald/Pokemon knowledge. `adapters/libretro-emerald/` is a thin adapter connecting it to the shared `pokemon.emerald.us-rev0.acquisition@1.0.0` game adapter (`npm run proof:emerald:libretro`); real-core smoke reaches boot state only (no savestate-loading capability yet). Not a production frontend or overlay integration. |
 
 ## Adapter Requirements
 

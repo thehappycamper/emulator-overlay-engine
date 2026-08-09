@@ -26,6 +26,20 @@ export const BIZHAWK_SOURCE = Object.freeze({
   }),
 });
 
+// The official mGBA core, isolated in a child process behind the local
+// Libretro provider IPC boundary (P05-T013) - not Lua-scripted, and not
+// the same "mGBA" provider as MGBA_SOURCE above (that one is the native
+// mGBA Lua console). "libretro-ipc" names this specific integration path.
+export const LIBRETRO_SOURCE = Object.freeze({
+  provider: Object.freeze({ id: "libretro", name: "Libretro (mGBA core)" }),
+  integration: "libretro-ipc",
+  memory: Object.freeze({
+    addressSpace: "gba-system-bus",
+    primaryDomain: "Libretro SET_MEMORY_MAPS",
+    verifiedDomains: Object.freeze(["EWRAM", "IWRAM"]),
+  }),
+});
+
 function freezePokemon(value) {
   return value === null ? null : Object.freeze({ ...value });
 }

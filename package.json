@@ -10,6 +10,7 @@
     "proof:emerald": "node tools/launch-emerald-proof.mjs",
     "proof:bizhawk": "node tools/launch-bizhawk-proof.mjs",
     "proof:emerald:bizhawk": "node tools/proof-emerald-bizhawk.mjs",
+    "proof:emerald:libretro": "node tools/proof-libretro-emerald.mjs",
     "test": "node --test"
   },
   "engines": {

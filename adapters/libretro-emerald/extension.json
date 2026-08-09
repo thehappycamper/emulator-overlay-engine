@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "pokemon.emerald.libretro.source-provider",
+  "name": "Libretro (mGBA core) Emerald Source Provider",
+  "type": "emulator",
+  "version": "0.1.0",
+  "description": "Thin adapter connecting the isolated, generic Libretro provider (experiments/libretro-provider/) to the shared Pokemon Emerald Rev 0 acquisition contract. Owns no Emerald memory addresses or Gen III decoding of its own.",
+  "entrypoints": {
+    "docs": "README.md",
+    "main": "acquire.js"
+  },
+  "compatibility": {
+    "emulators": [
+      {
+        "name": "Libretro (official mGBA core)",
+        "versions": ["any Libretro-API-1-compatible mGBA core build"]
+      }
+    ],
+    "games": [
+      {
+        "name": "Pokemon Emerald (English retail Rev 0)",
+        "romIds": ["CRC32:1F1C08FB"],
+        "versions": ["0"]
+      }
+    ],
+    "generations": [3]
+  },
+  "provides": {
+    "diagnosticHeartbeat": false,
+    "sourceSnapshots": true,
+    "normalizedStateMapping": false,
+    "readOnly": true
+  },
+  "exports": {
+    "sourceContract": {
+      "id": "pokemon.emerald.us-rev0.acquisition",
+      "version": "1.0.0"
+    },
+    "gameAdapter": "pokemon.emerald.us-rev0-acquisition"
+  },
+  "publicSafety": {
+    "containsRoms": false,
+    "containsBios": false,
+    "containsSaves": false,
+    "containsSecrets": false
+  }
+}

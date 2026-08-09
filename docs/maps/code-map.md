@@ -79,6 +79,11 @@
 | `adapters/bizhawk/proof-connector.lua` | Thin BizHawk 2.11.1 provider with strict identity and System Bus/direct EWRAM-IWRAM read verification. |
 | `adapters/bizhawk/gba-memory-domains.js` | Pure/testable reference for BizHawk GBA System Bus-to-direct-WRAM translation and domain dimensions. |
 | `adapters/{gen3-mgba,bizhawk}/extension.json` | Provider manifests exporting the shared Emerald acquisition contract. |
+| `adapters/libretro-emerald/reader.js` | Thin translation between the isolated Libretro provider's discovered memory regions and the existing synchronous Emerald reader contract: region resolution, bounded snapshot fetch, synchronous read8/16/32. No Emerald memory addresses. |
+| `adapters/libretro-emerald/identity.js` | Emerald ROM identity via local file CRC32; delegates accept/reject to the existing, unmodified `assertSupportedEmeraldIdentity`. |
+| `adapters/libretro-emerald/acquire.js` | Orchestrates initialize -> core/identity checks -> region resolution -> snapshot fetch -> the existing `readValidatedEmeraldSourceSnapshot`; unconditional provider cleanup. |
+| `adapters/libretro-emerald/extension.json` | Provider manifest for the Libretro (mGBA core) Emerald source provider. |
+| `tools/proof-libretro-emerald.mjs` | Bounded, one-shot local proof (`npm run proof:emerald:libretro`, with `--check`): acquire one Libretro-backed Emerald snapshot, map it, optionally publish, exit. |
 | `extensions/README.md` | Extension model and rules. |
 | `examples/extensions/` | Example extension manifests and README templates. |
 | `examples/templates/` | Example shareable template manifests and README files. |
@@ -105,7 +110,10 @@
 | `test/mgba-emerald-acquisition.test.js` | Emerald fingerprint, Gen III encrypted-species/stat decoding, battle/location acquisition, pointer safety, and Lua-layout synchronization tests. |
 | `test/emerald-source-contract.test.js` | Emerald source validation, reader output, unsupported-ROM refusal, and atomic snapshot-handoff tests. |
 | `test/emerald-live-state-mapping.test.js` | Mapping contract, target validation, placeholder renderer safety, fixed-slot behavior, and atomic normalized-state handoff tests. |
-| `test/emerald-provider-parity.test.js` | Equivalent-provider source semantics, provider-independent downstream mapping, and mGBA compatibility import identity. |
+| `test/emerald-provider-parity.test.js` | Equivalent-provider source semantics (mGBA/BizHawk/Libretro), provider-independent downstream mapping, and mGBA compatibility import identity. |
+| `test/libretro-emerald-reader.test.js` | Region resolution/fail-closed, bounded snapshot fetch, u8/u16/u32 endianness, out-of-range reads, and exact fixture-reproduction of the canonical Emerald acquisition output. |
+| `test/libretro-emerald-identity.test.js` | Local ROM file CRC32 identity computation and accept/reject via the existing `assertSupportedEmeraldIdentity`. |
+| `test/libretro-emerald-acquire.test.js` | Full Libretro-to-Emerald orchestration: fail-closed identity/core/region gates, cleanup on every path, end-to-end schema-valid snapshot production. |
 | `test/emerald-proof-config.test.js` | Local env parsing, required path/numeric validation, output-directory setup, and mGBA child environment tests. |
 | `tools/dev-server.mjs` | Dependency-free local static server for overlay development. |
 | `tools/emerald-live-state.mjs` | Narrow local watcher from Emerald source snapshot through mapping/validation to `public/live-state.json`. |
