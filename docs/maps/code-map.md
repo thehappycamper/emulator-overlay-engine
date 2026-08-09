@@ -103,6 +103,10 @@
 | `tools/bizhawk-proof-config.mjs` | BizHawk Proof 2 local path validation, supported identity expectations, and CLI/environment construction. |
 | `tools/launch-bizhawk-proof.mjs` | Windows-friendly `npm run proof:bizhawk` launcher; auto-loads ROM, optional savestate, and Lua connector. |
 | `test/bizhawk-proof-config.test.js` | BizHawk local config, fail-before-launch, CLI argument, shared-module environment, and memory-domain boundary regression tests. |
+| `tools/proof-session.mjs` | Reusable, emulator-agnostic local proof-session orchestration: ordered spawn gated on per-child readiness, `[label]` log prefixing, port-availability checking, and coordinated PID-based termination. No Pokemon/Emerald/BizHawk knowledge. |
+| `tools/proof-emerald-bizhawk.mjs` | `npm run proof:emerald:bizhawk` - the one-command BizHawk proof session, composing `bizhawk-proof-config.mjs` and `tools/proof-session.mjs` unmodified. |
+| `test/proof-session.test.js` | Ordering, startup-failure, cascade-termination, cleanup, no-unrelated-process-kill, and real-process integration tests for the reusable orchestrator. |
+| `test/proof-emerald-bizhawk.test.js` | `--check`, child command/environment construction, port-conflict, and real-launch-ordering tests for the BizHawk proof session. |
 
 ## Documentation
 

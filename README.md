@@ -42,7 +42,7 @@ An Emerald provider writes an acquisition source snapshot, not overlay state. `n
 
 For the Emerald Proof 1 workflow, copy `.env.local.example` to `.env.local`, fill in local mGBA/ROM paths, then run `npm run proof:emerald`. The launcher validates the setup, creates local snapshot directories, and starts mGBA with the configured ROM and (if set) savestate via mGBA's documented `--savestate` flag. It prints the remaining steps: the one genuinely manual step (loading the Lua script — mGBA has no supported way to do this from the command line) plus the mapper/server commands.
 
-For BizHawk Proof 2, copy `.env.bizhawk.local.example` to `.env.bizhawk.local`, fill in local BizHawk/ROM paths, then run `npm run proof:bizhawk`. BizHawk auto-loads the repository Lua provider and optional savestate, then publishes the shared Emerald source snapshot for the same mapper/overlay path. See the [BizHawk adapter README](adapters/bizhawk/README.md); the real-ROM acceptance session is still required.
+For BizHawk Proof 2, copy `.env.bizhawk.local.example` to `.env.bizhawk.local`, fill in local BizHawk/ROM paths, then run `npm run proof:emerald:bizhawk` to launch BizHawk (with the connector/savestate), the mapper, and the overlay server together in one terminal, with an overlay URL printed once the session is up. See the [BizHawk adapter README](adapters/bizhawk/README.md); the real-ROM acceptance session is still required. `npm run proof:bizhawk`, `npm run live:emerald`, and `npm start` remain available individually for diagnostics.
 
 `.env.local`, `.env.bizhawk.local`, and `.env` are ignored. Never commit these files, ROMs, saves, savestates, BIOS files, emulator binaries, or machine-specific paths. See [local configuration](docs/project/configuration.md).
 

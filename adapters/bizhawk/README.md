@@ -36,26 +36,30 @@ Upstream references: [GBA memory-domain implementation](https://github.com/TASEm
 1. Download and extract the official Windows x64 BizHawk 2.11.1 release outside this repository.
 2. Copy `.env.bizhawk.local.example` to `.env.bizhawk.local`.
 3. Set `EOE_BIZHAWK_EXE` and your legally obtained Emerald Rev 0 path. Optionally set a BizHawk savestate.
-4. Validate without launching:
+4. Validate the entire session (BizHawk, mapper, and server configuration, including port availability) without launching anything:
 
 ```powershell
-npm run proof:bizhawk -- --check
+npm run proof:emerald:bizhawk -- --check
 ```
 
-5. Start the mapper in a second terminal using the exact environment commands printed by the launcher.
-6. Start the overlay server in a third terminal using the printed command.
-7. Launch BizHawk, the ROM, optional savestate, and Lua connector automatically:
+5. Launch the full session - BizHawk with the ROM/savestate/connector, the mapper, and the overlay server - with one command:
 
 ```powershell
-npm run proof:bizhawk
+npm run proof:emerald:bizhawk
 ```
 
-8. Inspect `EMERALD_SOURCE_SNAPSHOT_PATH`. It must identify provider `bizhawk`, primary domain `System Bus`, and verified domains `EWRAM` and `IWRAM`.
-9. Confirm `public/live-state.json` identifies `game.adapter` as `BizHawk`, then open the printed overlay URL.
-10. Record first-party HP, take damage or heal, and confirm source snapshot, normalized state, and overlay HP all change without restarting.
-11. Enter/leave battle or change maps and confirm at least one additional acquired value changes.
+Child process output is prefixed (`[bizhawk]`/`[mapper]`/`[server]`) in the one terminal. BizHawk itself has no meaningful stdout of its own (its Lua console writes to a GUI panel, not this terminal) - `[bizhawk]` lines are session status only, not BizHawk's own output. Ctrl+C stops the entire session, including BizHawk; if any child exits unexpectedly, the rest are stopped too rather than left running. See `docs/tasks/P05/P05-T012.md` for the full session-orchestration design.
+
+6. Inspect `EMERALD_SOURCE_SNAPSHOT_PATH`. It must identify provider `bizhawk`, primary domain `System Bus`, and verified domains `EWRAM` and `IWRAM`.
+7. Confirm `public/live-state.json` identifies `game.adapter` as `BizHawk`, then open the overlay URL the session printed.
+8. Record first-party HP, take damage or heal, and confirm source snapshot, normalized state, and overlay HP all change without restarting.
+9. Enter/leave battle or change maps and confirm at least one additional acquired value changes.
 
 That real-ROM session is the Proof 2 acceptance gate. Until its observations are recorded, this task establishes the implementation path but does not claim Proof 2 or P06 complete.
+
+### Diagnostics: the individual commands still work
+
+`npm run proof:bizhawk -- --check` / `npm run proof:bizhawk`, `npm run live:emerald`, and `npm start` remain available unchanged for isolating a single stage (e.g. iterating on the mapper without relaunching BizHawk each time). `npm run proof:emerald:bizhawk` composes exactly these same, already-reviewed building blocks - it does not replace or duplicate their logic.
 
 ## Why Lua Remains Sufficient
 
