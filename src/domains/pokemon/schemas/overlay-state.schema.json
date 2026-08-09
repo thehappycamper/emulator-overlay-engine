@@ -28,6 +28,12 @@
           "type": "array",
           "maxItems": 6,
           "items": { "$ref": "#/$defs/pokemon" }
+        },
+        "badges": {
+          "oneOf": [
+            { "type": "array", "minItems": 8, "maxItems": 8, "items": { "type": "boolean" } },
+            { "type": "null" }
+          ]
         }
       }
     },
@@ -86,13 +92,28 @@
       "required": ["speciesId", "name", "level", "currentHp", "maxHp", "stats", "moves"],
       "properties": {
         "speciesId": { "type": "integer" },
-        "name": { "type": "string" },
+        "name": { "type": ["string", "null"] },
         "nickname": { "type": "string" },
         "level": { "type": "integer", "minimum": 1, "maximum": 100 },
-        "types": { "type": "array", "items": { "type": "string" } },
+        "types": { "type": ["array", "null"], "items": { "type": "string" } },
         "ability": { "type": "string" },
-        "item": { "type": "string" },
+        "item": { "type": ["string", "null"] },
         "status": { "type": "string" },
+        "gender": { "enum": ["male", "female", "genderless", null] },
+        "exp": { "type": "integer", "minimum": 0 },
+        "expProgress": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "properties": {
+                "expIntoLevel": { "type": "integer", "minimum": 0 },
+                "expForNextLevel": { "type": "integer", "minimum": 0 },
+                "percent": { "type": "number", "minimum": 0, "maximum": 100 }
+              }
+            }
+          ]
+        },
         "pid": { "type": "string" },
         "display": {
           "type": "object",
@@ -145,15 +166,17 @@
     },
     "move": {
       "type": "object",
-      "required": ["id", "name", "type", "category", "power"],
+      "required": ["id", "name"],
       "properties": {
         "id": { "type": "integer" },
         "name": { "type": "string" },
-        "type": { "type": "string" },
-        "category": { "enum": ["physical", "special", "status"] },
-        "power": { "type": "integer", "minimum": 0 },
-        "accuracy": { "type": "integer" },
-        "pp": { "type": "integer" }
+        "type": { "type": ["string", "null"] },
+        "category": { "enum": ["physical", "special", "status", null] },
+        "power": { "type": ["integer", "null"], "minimum": 0 },
+        "accuracy": { "type": ["integer", "null"] },
+        "pp": { "type": "integer" },
+        "currentPp": { "type": "integer", "minimum": 0 },
+        "maxPp": { "type": ["integer", "null"], "minimum": 0 }
       }
     },
     "encounter": {

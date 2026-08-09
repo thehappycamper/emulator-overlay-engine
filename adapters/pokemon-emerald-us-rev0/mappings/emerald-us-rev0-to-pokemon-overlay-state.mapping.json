@@ -2,14 +2,14 @@
   "schemaVersion": "0.1.0",
   "id": "pokemon.emerald.us-rev0-to-overlay-state",
   "name": "Pokemon Emerald US Rev 0 To Pokemon Overlay State",
-  "version": "1.0.0",
-  "description": "Maps the fixed-slot Emerald acquisition snapshot into the current Pokemon normalized overlay state, using documented placeholders for fields acquisition does not yet provide.",
+  "version": "2.0.0",
+  "description": "Maps the provider-neutral, already-enriched Emerald acquisition snapshot (full party, opponent, badges, resolved location name) into the current Pokemon normalized overlay state. Unlike the prior fixed-single-slot mapping this supersedes, no synthetic placeholder Pokemon data is used: party members and the opponent are included only when the source genuinely reports them.",
   "source": {
     "id": "pokemon.emerald.us-rev0.acquisition",
     "type": "acquisition-source-snapshot",
     "version": "1.0.0",
     "schema": "urn:source-contract:pokemon.emerald.us-rev0.acquisition:1.0.0",
-    "description": "Strict-fingerprint live values acquired from Pokemon Emerald US Rev 0 through a supported provider."
+    "description": "Enriched (species/type/move/item/location names already resolved) live values acquired from Pokemon Emerald US Rev 0 through a supported provider."
   },
   "target": {
     "id": "pokemon.overlay-state",
@@ -48,81 +48,49 @@
       "required": true
     },
     {
-      "sourcePath": "/__placeholder/partyPokemon",
-      "targetPath": "/player/party/0",
-      "default": {
-        "speciesId": 0,
-        "name": "Species name unavailable",
-        "level": 1,
-        "currentHp": 0,
-        "maxHp": 1,
-        "types": ["unknown"],
-        "stats": { "hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0 },
-        "moves": []
-      },
-      "description": "Single fixed party slot with visible placeholders for unavailable species metadata, types, stats, and moves."
-    },
-    {
-      "sourcePath": "/party/first/speciesId",
-      "targetPath": "/player/party/0/speciesId"
-    },
-    {
-      "sourcePath": "/party/first/level",
-      "targetPath": "/player/party/0/level"
-    },
-    {
-      "sourcePath": "/party/first/currentHp",
-      "targetPath": "/player/party/0/currentHp"
-    },
-    {
-      "sourcePath": "/party/first/maxHp",
-      "targetPath": "/player/party/0/maxHp"
-    },
-    {
       "sourcePath": "/__placeholder/activePlayerIndex",
       "targetPath": "/battle/activePlayerIndex",
       "default": 0,
-      "description": "Literal fixed player slot; active-slot acquisition is not implemented."
+      "description": "Literal fixed player slot; active-slot tracking is not implemented."
     },
     {
-      "sourcePath": "/battle/opponent/speciesId",
-      "targetPath": "/battle/opponent/speciesId"
+      "sourcePath": "/__placeholder/bag",
+      "targetPath": "/bag",
+      "default": {},
+      "description": "Literal empty bag; bag acquisition is not implemented."
     },
     {
-      "sourcePath": "/battle/opponent/level",
-      "targetPath": "/battle/opponent/level"
+      "sourcePath": "/__placeholder/party",
+      "targetPath": "/player/party",
+      "default": [],
+      "description": "Ensures an empty party still produces a valid (empty-array) target even though no per-slot mapping ever fires."
     },
     {
-      "sourcePath": "/battle/opponent/currentHp",
-      "targetPath": "/battle/opponent/currentHp"
-    },
-    {
-      "sourcePath": "/battle/opponent/maxHp",
-      "targetPath": "/battle/opponent/maxHp"
-    },
-    {
-      "sourcePath": "/__placeholder/locationName",
+      "sourcePath": "/location/name",
       "targetPath": "/location/name",
-      "default": "Location name unavailable",
-      "description": "Literal placeholder until map-group/number lookup data is implemented."
+      "default": "Unknown location",
+      "description": "Resolved by the acquisition layer from map group/number. Falls back to a literal, honestly-labeled default (not a fake place name) when the save block region, or that specific lookup, is unavailable."
     },
     {
-      "sourcePath": "/__placeholder/encounters",
-      "targetPath": "/location/encounters",
-      "default": [],
-      "description": "Literal empty list because encounter-table lookup is not implemented."
+      "sourcePath": "/location/mapGroup",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/location/mapGroup"
     },
     {
-      "sourcePath": "/__placeholder/balls",
-      "targetPath": "/bag/balls",
-      "default": [],
-      "description": "Literal empty list because bag acquisition is not implemented."
+      "sourcePath": "/location/mapNumber",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/location/mapNumber"
     },
     {
-      "sourcePath": "/__placeholder/tms",
-      "targetPath": "/bag/tms",
-      "default": [],
-      "description": "Literal empty list because bag acquisition is not implemented."
+      "sourcePath": "/location/x",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/location/x"
+    },
+    {
+      "sourcePath": "/location/y",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/location/y"
+    },
+    {
+      "sourcePath": "/badges",
+      "targetPath": "/player/badges",
+      "description": "Eight-element badge-obtained array; omitted entirely (not a fake all-false array) when the save block region is unreadable."
     },
     {
       "sourcePath": "/contract/id",
@@ -189,90 +157,473 @@
       "required": true
     },
     {
-      "sourcePath": "/location/mapGroup",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/location/mapGroup"
+      "sourcePath": "/party/slots/0/speciesId",
+      "targetPath": "/player/party/0/speciesId",
+      "required": false
     },
     {
-      "sourcePath": "/location/mapNumber",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/location/mapNumber"
+      "sourcePath": "/party/slots/0/name",
+      "targetPath": "/player/party/0/name",
+      "required": false
     },
     {
-      "sourcePath": "/location/x",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/location/x"
+      "sourcePath": "/party/slots/0/nickname",
+      "targetPath": "/player/party/0/nickname"
     },
     {
-      "sourcePath": "/location/y",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/location/y"
-    }
-  ],
-  "valueMappings": [
+      "sourcePath": "/party/slots/0/types",
+      "targetPath": "/player/party/0/types"
+    },
     {
-      "sourcePath": "/party/count",
-      "targetPath": "/player/party",
-      "entries": [{ "from": 0, "to": [] }],
-      "unmatched": "omit",
-      "description": "Remove the fixed placeholder slot when the source explicitly reports an empty party."
-    }
-  ],
-  "calculatedFields": [
+      "sourcePath": "/party/slots/0/gender",
+      "targetPath": "/player/party/0/gender"
+    },
     {
+      "sourcePath": "/party/slots/0/level",
+      "targetPath": "/player/party/0/level",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/0/currentHp",
+      "targetPath": "/player/party/0/currentHp",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/0/maxHp",
+      "targetPath": "/player/party/0/maxHp",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/0/status",
+      "targetPath": "/player/party/0/status"
+    },
+    {
+      "sourcePath": "/party/slots/0/item",
+      "targetPath": "/player/party/0/item"
+    },
+    {
+      "sourcePath": "/party/slots/0/exp",
+      "targetPath": "/player/party/0/exp"
+    },
+    {
+      "sourcePath": "/party/slots/0/expProgress",
+      "targetPath": "/player/party/0/expProgress"
+    },
+    {
+      "sourcePath": "/party/slots/0/stats",
+      "targetPath": "/player/party/0/stats",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/0/ivs",
+      "targetPath": "/player/party/0/ivs"
+    },
+    {
+      "sourcePath": "/party/slots/0/moves",
+      "targetPath": "/player/party/0/moves",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/1/speciesId",
+      "targetPath": "/player/party/1/speciesId",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/1/name",
+      "targetPath": "/player/party/1/name",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/1/nickname",
+      "targetPath": "/player/party/1/nickname"
+    },
+    {
+      "sourcePath": "/party/slots/1/types",
+      "targetPath": "/player/party/1/types"
+    },
+    {
+      "sourcePath": "/party/slots/1/gender",
+      "targetPath": "/player/party/1/gender"
+    },
+    {
+      "sourcePath": "/party/slots/1/level",
+      "targetPath": "/player/party/1/level",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/1/currentHp",
+      "targetPath": "/player/party/1/currentHp",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/1/maxHp",
+      "targetPath": "/player/party/1/maxHp",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/1/status",
+      "targetPath": "/player/party/1/status"
+    },
+    {
+      "sourcePath": "/party/slots/1/item",
+      "targetPath": "/player/party/1/item"
+    },
+    {
+      "sourcePath": "/party/slots/1/exp",
+      "targetPath": "/player/party/1/exp"
+    },
+    {
+      "sourcePath": "/party/slots/1/expProgress",
+      "targetPath": "/player/party/1/expProgress"
+    },
+    {
+      "sourcePath": "/party/slots/1/stats",
+      "targetPath": "/player/party/1/stats",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/1/ivs",
+      "targetPath": "/player/party/1/ivs"
+    },
+    {
+      "sourcePath": "/party/slots/1/moves",
+      "targetPath": "/player/party/1/moves",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/2/speciesId",
+      "targetPath": "/player/party/2/speciesId",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/2/name",
+      "targetPath": "/player/party/2/name",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/2/nickname",
+      "targetPath": "/player/party/2/nickname"
+    },
+    {
+      "sourcePath": "/party/slots/2/types",
+      "targetPath": "/player/party/2/types"
+    },
+    {
+      "sourcePath": "/party/slots/2/gender",
+      "targetPath": "/player/party/2/gender"
+    },
+    {
+      "sourcePath": "/party/slots/2/level",
+      "targetPath": "/player/party/2/level",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/2/currentHp",
+      "targetPath": "/player/party/2/currentHp",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/2/maxHp",
+      "targetPath": "/player/party/2/maxHp",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/2/status",
+      "targetPath": "/player/party/2/status"
+    },
+    {
+      "sourcePath": "/party/slots/2/item",
+      "targetPath": "/player/party/2/item"
+    },
+    {
+      "sourcePath": "/party/slots/2/exp",
+      "targetPath": "/player/party/2/exp"
+    },
+    {
+      "sourcePath": "/party/slots/2/expProgress",
+      "targetPath": "/player/party/2/expProgress"
+    },
+    {
+      "sourcePath": "/party/slots/2/stats",
+      "targetPath": "/player/party/2/stats",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/2/ivs",
+      "targetPath": "/player/party/2/ivs"
+    },
+    {
+      "sourcePath": "/party/slots/2/moves",
+      "targetPath": "/player/party/2/moves",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/3/speciesId",
+      "targetPath": "/player/party/3/speciesId",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/3/name",
+      "targetPath": "/player/party/3/name",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/3/nickname",
+      "targetPath": "/player/party/3/nickname"
+    },
+    {
+      "sourcePath": "/party/slots/3/types",
+      "targetPath": "/player/party/3/types"
+    },
+    {
+      "sourcePath": "/party/slots/3/gender",
+      "targetPath": "/player/party/3/gender"
+    },
+    {
+      "sourcePath": "/party/slots/3/level",
+      "targetPath": "/player/party/3/level",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/3/currentHp",
+      "targetPath": "/player/party/3/currentHp",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/3/maxHp",
+      "targetPath": "/player/party/3/maxHp",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/3/status",
+      "targetPath": "/player/party/3/status"
+    },
+    {
+      "sourcePath": "/party/slots/3/item",
+      "targetPath": "/player/party/3/item"
+    },
+    {
+      "sourcePath": "/party/slots/3/exp",
+      "targetPath": "/player/party/3/exp"
+    },
+    {
+      "sourcePath": "/party/slots/3/expProgress",
+      "targetPath": "/player/party/3/expProgress"
+    },
+    {
+      "sourcePath": "/party/slots/3/stats",
+      "targetPath": "/player/party/3/stats",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/3/ivs",
+      "targetPath": "/player/party/3/ivs"
+    },
+    {
+      "sourcePath": "/party/slots/3/moves",
+      "targetPath": "/player/party/3/moves",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/4/speciesId",
+      "targetPath": "/player/party/4/speciesId",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/4/name",
+      "targetPath": "/player/party/4/name",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/4/nickname",
+      "targetPath": "/player/party/4/nickname"
+    },
+    {
+      "sourcePath": "/party/slots/4/types",
+      "targetPath": "/player/party/4/types"
+    },
+    {
+      "sourcePath": "/party/slots/4/gender",
+      "targetPath": "/player/party/4/gender"
+    },
+    {
+      "sourcePath": "/party/slots/4/level",
+      "targetPath": "/player/party/4/level",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/4/currentHp",
+      "targetPath": "/player/party/4/currentHp",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/4/maxHp",
+      "targetPath": "/player/party/4/maxHp",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/4/status",
+      "targetPath": "/player/party/4/status"
+    },
+    {
+      "sourcePath": "/party/slots/4/item",
+      "targetPath": "/player/party/4/item"
+    },
+    {
+      "sourcePath": "/party/slots/4/exp",
+      "targetPath": "/player/party/4/exp"
+    },
+    {
+      "sourcePath": "/party/slots/4/expProgress",
+      "targetPath": "/player/party/4/expProgress"
+    },
+    {
+      "sourcePath": "/party/slots/4/stats",
+      "targetPath": "/player/party/4/stats",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/4/ivs",
+      "targetPath": "/player/party/4/ivs"
+    },
+    {
+      "sourcePath": "/party/slots/4/moves",
+      "targetPath": "/player/party/4/moves",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/5/speciesId",
+      "targetPath": "/player/party/5/speciesId",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/5/name",
+      "targetPath": "/player/party/5/name",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/5/nickname",
+      "targetPath": "/player/party/5/nickname"
+    },
+    {
+      "sourcePath": "/party/slots/5/types",
+      "targetPath": "/player/party/5/types"
+    },
+    {
+      "sourcePath": "/party/slots/5/gender",
+      "targetPath": "/player/party/5/gender"
+    },
+    {
+      "sourcePath": "/party/slots/5/level",
+      "targetPath": "/player/party/5/level",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/5/currentHp",
+      "targetPath": "/player/party/5/currentHp",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/5/maxHp",
+      "targetPath": "/player/party/5/maxHp",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/5/status",
+      "targetPath": "/player/party/5/status"
+    },
+    {
+      "sourcePath": "/party/slots/5/item",
+      "targetPath": "/player/party/5/item"
+    },
+    {
+      "sourcePath": "/party/slots/5/exp",
+      "targetPath": "/player/party/5/exp"
+    },
+    {
+      "sourcePath": "/party/slots/5/expProgress",
+      "targetPath": "/player/party/5/expProgress"
+    },
+    {
+      "sourcePath": "/party/slots/5/stats",
+      "targetPath": "/player/party/5/stats",
+      "required": false
+    },
+    {
+      "sourcePath": "/party/slots/5/ivs",
+      "targetPath": "/player/party/5/ivs"
+    },
+    {
+      "sourcePath": "/party/slots/5/moves",
+      "targetPath": "/player/party/5/moves",
+      "required": false
+    },
+    {
+      "sourcePath": "/battle/opponent/speciesId",
+      "targetPath": "/battle/opponent/speciesId",
+      "required": false
+    },
+    {
+      "sourcePath": "/battle/opponent/name",
       "targetPath": "/battle/opponent/name",
-      "expression": {
-        "op": "if",
-        "condition": {
-          "op": "equal",
-          "left": { "op": "field", "path": "/battle/active" },
-          "right": { "op": "literal", "value": true }
-        },
-        "then": { "op": "literal", "value": "Species name unavailable" },
-        "else": { "op": "field", "path": "/battle/opponent/name" }
-      },
-      "description": "Visible species-name placeholder only while the fixed opponent slot is active."
+      "required": false
     },
     {
-      "targetPath": "/battle/opponent/types",
-      "expression": {
-        "op": "if",
-        "condition": {
-          "op": "equal",
-          "left": { "op": "field", "path": "/battle/active" },
-          "right": { "op": "literal", "value": true }
-        },
-        "then": { "op": "literal", "value": ["unknown"] },
-        "else": { "op": "field", "path": "/battle/opponent/types" }
-      },
-      "description": "Visible type placeholder only while the fixed opponent slot is active."
+      "sourcePath": "/battle/opponent/nickname",
+      "targetPath": "/battle/opponent/nickname"
     },
     {
+      "sourcePath": "/battle/opponent/types",
+      "targetPath": "/battle/opponent/types"
+    },
+    {
+      "sourcePath": "/battle/opponent/gender",
+      "targetPath": "/battle/opponent/gender"
+    },
+    {
+      "sourcePath": "/battle/opponent/level",
+      "targetPath": "/battle/opponent/level",
+      "required": false
+    },
+    {
+      "sourcePath": "/battle/opponent/currentHp",
+      "targetPath": "/battle/opponent/currentHp",
+      "required": false
+    },
+    {
+      "sourcePath": "/battle/opponent/maxHp",
+      "targetPath": "/battle/opponent/maxHp",
+      "required": false
+    },
+    {
+      "sourcePath": "/battle/opponent/status",
+      "targetPath": "/battle/opponent/status"
+    },
+    {
+      "sourcePath": "/battle/opponent/item",
+      "targetPath": "/battle/opponent/item"
+    },
+    {
+      "sourcePath": "/battle/opponent/exp",
+      "targetPath": "/battle/opponent/exp"
+    },
+    {
+      "sourcePath": "/battle/opponent/expProgress",
+      "targetPath": "/battle/opponent/expProgress"
+    },
+    {
+      "sourcePath": "/battle/opponent/stats",
       "targetPath": "/battle/opponent/stats",
-      "expression": {
-        "op": "if",
-        "condition": {
-          "op": "equal",
-          "left": { "op": "field", "path": "/battle/active" },
-          "right": { "op": "literal", "value": true }
-        },
-        "then": {
-          "op": "literal",
-          "value": { "hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0 }
-        },
-        "else": { "op": "field", "path": "/battle/opponent/stats" }
-      },
-      "description": "Visible zero-value stat placeholders only while the fixed opponent slot is active."
+      "required": false
     },
     {
+      "sourcePath": "/battle/opponent/ivs",
+      "targetPath": "/battle/opponent/ivs"
+    },
+    {
+      "sourcePath": "/battle/opponent/moves",
       "targetPath": "/battle/opponent/moves",
-      "expression": {
-        "op": "if",
-        "condition": {
-          "op": "equal",
-          "left": { "op": "field", "path": "/battle/active" },
-          "right": { "op": "literal", "value": true }
-        },
-        "then": { "op": "literal", "value": [] },
-        "else": { "op": "field", "path": "/battle/opponent/moves" }
-      },
-      "description": "Literal empty move list only while the fixed opponent slot is active."
+      "required": false
     }
   ],
   "validation": {
@@ -292,7 +643,8 @@
       "/party/count",
       "/battle/active",
       "/battle/typeFlags",
-      "/location"
+      "/location",
+      "/badges"
     ],
     "requiredTargetPaths": [
       "/schemaVersion",

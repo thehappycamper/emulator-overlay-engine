@@ -143,7 +143,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P05 — Live Gameplay Source
 
-**Status:** active. `P05-T001` through `P05-T006` are complete. The launcher now automates supported savestate loading while Lua script loading remains manual. The phase gate still requires real mGBA end-to-end acceptance evidence and broader party/opponent/seed/frame/bag/map coverage. `P05` remains active and is not complete until the real live acceptance test is performed and recorded.
+**Status:** active. `P05-T001` through `P05-T006` are complete. The launcher now automates supported savestate loading while Lua script loading remains manual. `P05-T009` implements a full six-slot party/battle dashboard with resolved species/move/item/location names, pending independent review on `feat/P05-T009-emerald-live-dashboard`. The phase gate still requires real mGBA (and, per `P06`, BizHawk) end-to-end acceptance evidence against this richer pipeline. `P05` remains active and is not complete until the real live acceptance test is performed and recorded.
 
 **Objective:** Implement the first live source integration — the Gen 3 mGBA adapter sketched in `adapters/gen3-mgba/README.md` and `docs/project/roadmap.md`'s "First Real Live Integration" — against the source-agnostic platform boundary clarified in `P01-T006`.
 
@@ -156,10 +156,11 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 - [`P05-T004`](../tasks/P05/P05-T004.md) - Existing-runtime mapping into canonical Pokemon state, explicit placeholders, Ajv target validation, and atomic `public/live-state.json` handoff. Completed (independent review APPROVE, merged to `main` at `f301d6b`); real mGBA end-to-end acceptance remains a separate, still-pending manual step.
 - [`P05-T005`](../tasks/P05/P05-T005.md) - Gitignored local Proof 1 configuration, path/setup validation, and Windows-friendly mGBA launch/manual handoff. Completed (independent review APPROVE, merged to `main` at `428324c`); no source, mapping, or emulator contract changes; real mGBA end-to-end acceptance remains a separate, still-pending manual step.
 - [`P05-T006`](../tasks/P05/P05-T006.md) - Automates savestate loading via mGBA's documented `--savestate` CLI flag, after confirming (via mgba-emu/mgba#3289) that script loading has no supported non-GUI path. Completed (independent review APPROVE, fast-forward merged at `aa5d97b`).
+- [`P05-T009`](../tasks/P05/P05-T009.md) - Full six-slot party/battle live dashboard: decodes all four Gen III encrypted substructs for every party slot (not one fixed slot), resolves species/move/item/location names and badges through a new game-owned reference-data layer, and redesigns the overlay presentation around it. Implemented and pushed to `feat/P05-T009-emerald-live-dashboard`; independent review and real mGBA/BizHawk end-to-end acceptance remain pending. The Lua port of the richer decode is untested (no Lua interpreter in this development environment) and is a named, disclosed risk for that acceptance session.
 
-Remaining roadmap deliverables will be scoped separately: real mGBA end-to-end acceptance and broader acquisition/mapping for phase-gate fields not yet available.
+Remaining roadmap deliverables will be scoped separately: real mGBA/BizHawk end-to-end acceptance against the richer pipeline.
 
-**Exit criteria:** Live party/opponent/seed/frame/bag/map data flows from mGBA through a source contract and mapping project into normalized state, rendered by the existing overlay. `P05-T001` supplies overlay refresh, `P05-T002` supplies acquisition, `P05-T003` supplies the source contract, and `P05-T004` supplies initial fixed-slot mapping/normalized delivery. Broader field acquisition and real end-to-end acceptance remain outstanding.
+**Exit criteria:** Live party/opponent/seed/frame/bag/map data flows from mGBA through a source contract and mapping project into normalized state, rendered by the existing overlay. `P05-T001` supplies overlay refresh, `P05-T002` supplies acquisition, `P05-T003` supplies the source contract, `P05-T004` supplies initial mapping/normalized delivery, and `P05-T009` supplies full-party/battle/lookup-data mapping and presentation. Real end-to-end acceptance remains outstanding; seed/frame and full bag acquisition remain out of scope for this task and are not yet available.
 
 **Dependencies:** `P01`.
 

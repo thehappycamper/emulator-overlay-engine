@@ -29,7 +29,7 @@
 | `src/domains/pokemon/type-chart.js` | Pokemon type effectiveness lookup and multiplier calculation. |
 | `src/domains/pokemon/damage.js` | Pokemon damage range and projected switch-in damage calculations. |
 | `src/domains/pokemon/capture.js` | Pokemon capture chance and bag ball chance calculations. |
-| `src/domains/pokemon/presentation.js` | Pokemon-owned static overlay rendering and calculator-backed presentation projections. |
+| `src/domains/pokemon/presentation.js` | Pokemon-owned six-slot team/battle dashboard rendering and calculator-backed presentation projections. |
 | `src/domains/pokemon/presentation.css` | Pokemon-owned overlay layout and component styles. |
 | `src/domains/pokemon/schemas/overlay-state.schema.json` | Canonical Pokemon normalized-state contract. |
 | `src/engine/*.js` | Compatibility re-exports for calculator imports that predate the domain package. |
@@ -55,13 +55,15 @@
 
 | Path | Purpose |
 | --- | --- |
-| `adapters/pokemon-emerald-us-rev0/` | Canonical game-owned Emerald Rev 0 acquisition package: identity, addresses, Gen III decoding, contract/schema, fixtures, mapping, validation, and shared Lua module. |
-| `adapters/pokemon-emerald-us-rev0/emerald-acquisition.lua` | Provider-neutral Lua acquisition/serialization module loaded by both emulator providers. |
-| `adapters/pokemon-emerald-us-rev0/emerald-us-rev0.js` | Pure/testable identity, Gen III Pokemon decoding, address, pointer, and acquisition logic. |
-| `adapters/pokemon-emerald-us-rev0/emerald-source-contract.js` | Provider-neutral contract descriptor, provenance descriptors, and acquisition-to-snapshot builder. |
+| `adapters/pokemon-emerald-us-rev0/` | Canonical game-owned Emerald Rev 0 acquisition package: identity, addresses, Gen III decoding, reference data, contract/schema, fixtures, mapping, validation, and shared Lua module. |
+| `adapters/pokemon-emerald-us-rev0/emerald-acquisition.lua` | Provider-neutral Lua acquisition/serialization module loaded by both emulator providers; loads `data/*.lua` reference tables via an explicit data-directory argument. |
+| `adapters/pokemon-emerald-us-rev0/emerald-us-rev0.js` | Pure/testable identity, full-party Gen III Pokemon decoding (all 4 encrypted substructs, nickname, status, badges), address, pointer, and acquisition logic. |
+| `adapters/pokemon-emerald-us-rev0/reference-data.js` | Static species/move/item/location/charmap lookups and pure decode helpers (gender, status label, PP-with-bonus, EXP progress) generated from `pret/pokeemerald` source; no game logic in emulator providers or presentation. |
+| `adapters/pokemon-emerald-us-rev0/data/` | Generated species/moves/items/locations/charmap tables (`.json` for JS, `.lua` for the shared Lua module); see `data/README.md` for provenance. |
+| `adapters/pokemon-emerald-us-rev0/emerald-source-contract.js` | Provider-neutral contract descriptor, provenance descriptors, and acquisition-to-snapshot builder (full party `slots`, badges). |
 | `adapters/pokemon-emerald-us-rev0/emerald-state-mapping.js` | Loads/validates the single Emerald mapping, invokes `applyMappingProject()`, validates canonical Pokemon state, and writes live state. |
 | `adapters/pokemon-emerald-us-rev0/schemas/emerald-us-rev0-source.schema.json` | Canonical `pokemon.emerald.us-rev0.acquisition@1.0.0` contract. |
-| `adapters/pokemon-emerald-us-rev0/mappings/emerald-us-rev0-to-pokemon-overlay-state.mapping.json` | Provider-independent fixed-slot mapping into `pokemon.overlay-state@0.1.0` with documented placeholders. |
+| `adapters/pokemon-emerald-us-rev0/mappings/emerald-us-rev0-to-pokemon-overlay-state.mapping.json` | Provider-independent mapping of the full party and opponent into `pokemon.overlay-state@0.1.0`; real resolved names, documented fallback only where genuinely unavailable. |
 | `adapters/pokemon-emerald-us-rev0/fixtures/` | Synthetic acquisition/source fixtures; no ROM/save/game binaries. |
 | `adapters/gen3-mgba/emerald-acquisition.lua` | Thin mGBA 0.10.3 provider: identity APIs, system-bus reads, lifecycle, and source publication. |
 | `adapters/gen3-mgba/*.js` | Compatibility re-exports for P05 module paths that predate game-owned acquisition. |

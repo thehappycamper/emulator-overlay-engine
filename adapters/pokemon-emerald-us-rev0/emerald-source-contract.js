@@ -61,6 +61,7 @@ export function createEmeraldSourceSnapshot(source, identity, acquisition) {
     }),
     party: Object.freeze({
       count: acquisition?.party?.count,
+      slots: Object.freeze((acquisition?.party?.slots ?? []).map(freezePokemon)),
       first: freezePokemon(acquisition?.party?.first ?? null),
     }),
     battle: Object.freeze({
@@ -72,5 +73,9 @@ export function createEmeraldSourceSnapshot(source, identity, acquisition) {
       acquisition?.location === null || acquisition?.location === undefined
         ? null
         : Object.freeze({ ...acquisition.location }),
+    badges:
+      acquisition?.badges === null || acquisition?.badges === undefined
+        ? null
+        : Object.freeze([...acquisition.badges]),
   });
 }

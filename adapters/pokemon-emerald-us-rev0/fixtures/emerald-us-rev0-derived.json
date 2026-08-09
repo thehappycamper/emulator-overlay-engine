@@ -1,5 +1,5 @@
 {
-  "description": "Synthetic, decoded-value fixture for the Emerald Rev 0 acquisition proof. Contains no ROM, save, or copied game bytes.",
+  "description": "Synthetic, decoded-value fixture for the Emerald Rev 0 acquisition proof. Contains no ROM, save, or copied game bytes. Two party slots (one full-health, one fainted+asleep), one battle opponent, badges, and a location, exercising nickname/status/gender/EXP-progress/held-item/moves-with-PP/stats/IVs decoding end to end.",
   "identity": {
     "gameCode": "AGB-BPEE",
     "title": "POKEMON EMER",
@@ -8,57 +8,346 @@
   },
   "memory": {
     "read8": {
-      "0x020244e9": 1,
+      "0x020244f4": 205,
+      "0x020244f5": 202,
+      "0x020244f6": 204,
+      "0x020244f7": 201,
+      "0x020244f8": 207,
+      "0x020244f9": 206,
+      "0x020244fa": 255,
+      "0x020244fb": 255,
+      "0x020244fc": 255,
+      "0x020244fd": 255,
       "0x02024540": 15,
+      "0x02024558": 205,
+      "0x02024559": 198,
+      "0x0202455a": 191,
+      "0x0202455b": 191,
+      "0x0202455c": 202,
+      "0x0202455d": 211,
+      "0x0202455e": 255,
+      "0x0202455f": 255,
+      "0x02024560": 255,
+      "0x02024561": 255,
+      "0x020245a4": 10,
+      "0x0202474c": 202,
+      "0x0202474d": 201,
+      "0x0202474e": 201,
+      "0x0202474f": 189,
+      "0x02024750": 194,
+      "0x02024751": 211,
+      "0x02024752": 255,
+      "0x02024753": 255,
+      "0x02024754": 255,
+      "0x02024755": 255,
       "0x02024798": 18,
+      "0x020244e9": 2,
+      "0x030026f9": 2,
       "0x02030004": 0,
       "0x02030005": 16,
-      "0x030026f9": 2
+      "0x0203137c": 128,
+      "0x0203137d": 5
     },
     "read16": {
       "0x02024542": 31,
       "0x02024544": 35,
+      "0x02024546": 20,
+      "0x02024548": 18,
+      "0x0202454a": 22,
+      "0x0202454c": 16,
+      "0x0202454e": 17,
+      "0x020245a6": 0,
+      "0x020245a8": 28,
+      "0x020245aa": 12,
+      "0x020245ac": 12,
+      "0x020245ae": 12,
+      "0x020245b0": 14,
+      "0x020245b2": 14,
       "0x0202479a": 40,
       "0x0202479c": 44,
+      "0x0202479e": 20,
+      "0x020247a0": 20,
+      "0x020247a2": 20,
+      "0x020247a4": 10,
+      "0x020247a6": 10,
       "0x02030000": 23,
       "0x02030002": 14
     },
     "read32": {
-      "0x02022fec": 0,
-      "0x020244ec": 25,
+      "0x020244ec": 12345,
       "0x020244f0": 305419896,
-      "0x0202450c": 305420131,
+      "0x02024530": 305751897,
+      "0x02024534": 305426092,
+      "0x02024538": 305423940,
+      "0x0202450c": 303654496,
+      "0x02024510": 305423937,
+      "0x02024514": 305415519,
+      "0x02024528": 799955716,
+      "0x0202453c": 0,
+      "0x02024550": 999,
+      "0x02024554": 305419896,
+      "0x02024594": 305419678,
+      "0x02024598": 305420053,
+      "0x0202459c": 305419679,
+      "0x0202457c": 305419678,
+      "0x02024580": 305419679,
+      "0x02024584": 305419708,
+      "0x0202458c": 305419679,
+      "0x020245a0": 7,
       "0x02024744": 6,
       "0x02024748": 2864434397,
-      "0x02024770": 2864434654,
+      "0x02024770": 2864434397,
+      "0x02024774": 2864434479,
+      "0x02024778": 2864434395,
+      "0x02024764": 2864434422,
+      "0x02024768": 2864434395,
+      "0x0202476c": 2864434419,
+      "0x0202478c": 2864434395,
+      "0x02024794": 0,
+      "0x02022fec": 0,
       "0x03005d8c": 33751040
     }
   },
   "expected": {
     "party": {
-      "count": 1,
+      "count": 2,
+      "slots": [
+        {
+          "speciesId": 280,
+          "name": "TORCHIC",
+          "nickname": "SPROUT",
+          "types": [
+            "Fire"
+          ],
+          "gender": "male",
+          "level": 15,
+          "currentHp": 31,
+          "maxHp": 35,
+          "status": "none",
+          "item": "POTION",
+          "itemId": 13,
+          "exp": 2285,
+          "expProgress": {
+            "expIntoLevel": 250,
+            "expForNextLevel": 500,
+            "percent": 50
+          },
+          "stats": {
+            "atk": 20,
+            "def": 18,
+            "spe": 22,
+            "spa": 16,
+            "spd": 17
+          },
+          "ivs": {
+            "hp": 5,
+            "atk": 10,
+            "def": 15,
+            "spe": 20,
+            "spa": 25,
+            "spd": 30
+          },
+          "moves": [
+            {
+              "id": 33,
+              "name": "TACKLE",
+              "type": "Normal",
+              "category": "physical",
+              "power": 35,
+              "accuracy": 95,
+              "currentPp": 30,
+              "maxPp": 42
+            },
+            {
+              "id": 45,
+              "name": "GROWL",
+              "type": "Normal",
+              "category": "physical",
+              "power": 0,
+              "accuracy": 100,
+              "currentPp": 35,
+              "maxPp": 48
+            }
+          ]
+        },
+        {
+          "speciesId": 1,
+          "name": "BULBASAUR",
+          "nickname": "SLEEPY",
+          "types": [
+            "Grass",
+            "Poison"
+          ],
+          "gender": "male",
+          "level": 10,
+          "currentHp": 0,
+          "maxHp": 28,
+          "status": "asleep",
+          "item": null,
+          "itemId": null,
+          "exp": 650,
+          "expProgress": {
+            "expIntoLevel": 90,
+            "expForNextLevel": 182,
+            "percent": 49.5
+          },
+          "stats": {
+            "atk": 12,
+            "def": 12,
+            "spe": 12,
+            "spa": 14,
+            "spd": 14
+          },
+          "ivs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spe": 0,
+            "spa": 0,
+            "spd": 0
+          },
+          "moves": [
+            {
+              "id": 1,
+              "name": "POUND",
+              "type": "Normal",
+              "category": "physical",
+              "power": 40,
+              "accuracy": 100,
+              "currentPp": 35,
+              "maxPp": 35
+            }
+          ]
+        }
+      ],
       "first": {
-        "speciesId": 258,
+        "speciesId": 280,
+        "name": "TORCHIC",
+        "nickname": "SPROUT",
+        "types": [
+          "Fire"
+        ],
+        "gender": "male",
         "level": 15,
         "currentHp": 31,
-        "maxHp": 35
+        "maxHp": 35,
+        "status": "none",
+        "item": "POTION",
+        "itemId": 13,
+        "exp": 2285,
+        "expProgress": {
+          "expIntoLevel": 250,
+          "expForNextLevel": 500,
+          "percent": 50
+        },
+        "stats": {
+          "atk": 20,
+          "def": 18,
+          "spe": 22,
+          "spa": 16,
+          "spd": 17
+        },
+        "ivs": {
+          "hp": 5,
+          "atk": 10,
+          "def": 15,
+          "spe": 20,
+          "spa": 25,
+          "spd": 30
+        },
+        "moves": [
+          {
+            "id": 33,
+            "name": "TACKLE",
+            "type": "Normal",
+            "category": "physical",
+            "power": 35,
+            "accuracy": 95,
+            "currentPp": 30,
+            "maxPp": 42
+          },
+          {
+            "id": 45,
+            "name": "GROWL",
+            "type": "Normal",
+            "category": "physical",
+            "power": 0,
+            "accuracy": 100,
+            "currentPp": 35,
+            "maxPp": 48
+          }
+        ]
       }
     },
     "battle": {
       "active": true,
       "typeFlags": 0,
       "opponent": {
-        "speciesId": 261,
+        "speciesId": 6,
+        "name": "CHARIZARD",
+        "nickname": "POOCHY",
+        "types": [
+          "Fire",
+          "Flying"
+        ],
+        "gender": "female",
         "level": 18,
         "currentHp": 40,
-        "maxHp": 44
+        "maxHp": 44,
+        "status": "none",
+        "item": null,
+        "itemId": null,
+        "exp": 500,
+        "expProgress": {
+          "expIntoLevel": 0,
+          "expForNextLevel": 777,
+          "percent": 0
+        },
+        "stats": {
+          "atk": 20,
+          "def": 20,
+          "spe": 20,
+          "spa": 10,
+          "spd": 10
+        },
+        "ivs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 0,
+          "spe": 0,
+          "spa": 0,
+          "spd": 0
+        },
+        "moves": [
+          {
+            "id": 45,
+            "name": "GROWL",
+            "type": "Normal",
+            "category": "physical",
+            "power": 0,
+            "accuracy": 100,
+            "currentPp": 40,
+            "maxPp": 40
+          }
+        ]
       }
     },
     "location": {
       "mapGroup": 0,
       "mapNumber": 16,
+      "name": "Route 101",
       "x": 23,
       "y": 14
-    }
+    },
+    "badges": [
+      true,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
   }
 }

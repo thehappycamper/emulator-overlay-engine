@@ -22,28 +22,243 @@
     "crc32": "1F1C08FB"
   },
   "party": {
-    "count": 1,
+    "count": 2,
+    "slots": [
+      {
+        "speciesId": 280,
+        "name": "TORCHIC",
+        "nickname": "SPROUT",
+        "types": [
+          "Fire"
+        ],
+        "gender": "male",
+        "level": 15,
+        "currentHp": 31,
+        "maxHp": 35,
+        "status": "none",
+        "item": "POTION",
+        "itemId": 13,
+        "exp": 2285,
+        "expProgress": {
+          "expIntoLevel": 250,
+          "expForNextLevel": 500,
+          "percent": 50
+        },
+        "stats": {
+          "atk": 20,
+          "def": 18,
+          "spe": 22,
+          "spa": 16,
+          "spd": 17
+        },
+        "ivs": {
+          "hp": 5,
+          "atk": 10,
+          "def": 15,
+          "spe": 20,
+          "spa": 25,
+          "spd": 30
+        },
+        "moves": [
+          {
+            "id": 33,
+            "name": "TACKLE",
+            "type": "Normal",
+            "category": "physical",
+            "power": 35,
+            "accuracy": 95,
+            "currentPp": 30,
+            "maxPp": 42
+          },
+          {
+            "id": 45,
+            "name": "GROWL",
+            "type": "Normal",
+            "category": "physical",
+            "power": 0,
+            "accuracy": 100,
+            "currentPp": 35,
+            "maxPp": 48
+          }
+        ]
+      },
+      {
+        "speciesId": 1,
+        "name": "BULBASAUR",
+        "nickname": "SLEEPY",
+        "types": [
+          "Grass",
+          "Poison"
+        ],
+        "gender": "male",
+        "level": 10,
+        "currentHp": 0,
+        "maxHp": 28,
+        "status": "asleep",
+        "item": null,
+        "itemId": null,
+        "exp": 650,
+        "expProgress": {
+          "expIntoLevel": 90,
+          "expForNextLevel": 182,
+          "percent": 49.5
+        },
+        "stats": {
+          "atk": 12,
+          "def": 12,
+          "spe": 12,
+          "spa": 14,
+          "spd": 14
+        },
+        "ivs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 0,
+          "spe": 0,
+          "spa": 0,
+          "spd": 0
+        },
+        "moves": [
+          {
+            "id": 1,
+            "name": "POUND",
+            "type": "Normal",
+            "category": "physical",
+            "power": 40,
+            "accuracy": 100,
+            "currentPp": 35,
+            "maxPp": 35
+          }
+        ]
+      }
+    ],
     "first": {
-      "speciesId": 258,
+      "speciesId": 280,
+      "name": "TORCHIC",
+      "nickname": "SPROUT",
+      "types": [
+        "Fire"
+      ],
+      "gender": "male",
       "level": 15,
       "currentHp": 31,
-      "maxHp": 35
+      "maxHp": 35,
+      "status": "none",
+      "item": "POTION",
+      "itemId": 13,
+      "exp": 2285,
+      "expProgress": {
+        "expIntoLevel": 250,
+        "expForNextLevel": 500,
+        "percent": 50
+      },
+      "stats": {
+        "atk": 20,
+        "def": 18,
+        "spe": 22,
+        "spa": 16,
+        "spd": 17
+      },
+      "ivs": {
+        "hp": 5,
+        "atk": 10,
+        "def": 15,
+        "spe": 20,
+        "spa": 25,
+        "spd": 30
+      },
+      "moves": [
+        {
+          "id": 33,
+          "name": "TACKLE",
+          "type": "Normal",
+          "category": "physical",
+          "power": 35,
+          "accuracy": 95,
+          "currentPp": 30,
+          "maxPp": 42
+        },
+        {
+          "id": 45,
+          "name": "GROWL",
+          "type": "Normal",
+          "category": "physical",
+          "power": 0,
+          "accuracy": 100,
+          "currentPp": 35,
+          "maxPp": 48
+        }
+      ]
     }
   },
   "battle": {
     "active": true,
     "typeFlags": 0,
     "opponent": {
-      "speciesId": 261,
+      "speciesId": 6,
+      "name": "CHARIZARD",
+      "nickname": "POOCHY",
+      "types": [
+        "Fire",
+        "Flying"
+      ],
+      "gender": "female",
       "level": 18,
       "currentHp": 40,
-      "maxHp": 44
+      "maxHp": 44,
+      "status": "none",
+      "item": null,
+      "itemId": null,
+      "exp": 500,
+      "expProgress": {
+        "expIntoLevel": 0,
+        "expForNextLevel": 777,
+        "percent": 0
+      },
+      "stats": {
+        "atk": 20,
+        "def": 20,
+        "spe": 20,
+        "spa": 10,
+        "spd": 10
+      },
+      "ivs": {
+        "hp": 0,
+        "atk": 0,
+        "def": 0,
+        "spe": 0,
+        "spa": 0,
+        "spd": 0
+      },
+      "moves": [
+        {
+          "id": 45,
+          "name": "GROWL",
+          "type": "Normal",
+          "category": "physical",
+          "power": 0,
+          "accuracy": 100,
+          "currentPp": 40,
+          "maxPp": 40
+        }
+      ]
     }
   },
   "location": {
     "mapGroup": 0,
     "mapNumber": 16,
+    "name": "Route 101",
     "x": 23,
     "y": 14
-  }
+  },
+  "badges": [
+    true,
+    true,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false
+  ]
 }

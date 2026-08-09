@@ -40,13 +40,13 @@ test("Emerald mapping project satisfies the mapping schema and contract descript
     type: "acquisition-source-snapshot",
     version: "1.0.0",
     schema: "urn:source-contract:pokemon.emerald.us-rev0.acquisition:1.0.0",
-    description: "Strict-fingerprint live values acquired from Pokemon Emerald US Rev 0 through a supported provider.",
+    description: "Enriched (species/type/move/item/location names already resolved) live values acquired from Pokemon Emerald US Rev 0 through a supported provider.",
   });
   assert.equal(project.target.id, "pokemon.overlay-state");
   assert.equal(project.target.version, "0.1.0");
 });
 
-test("live Emerald fields map into a valid Pokemon normalized state", async () => {
+test("live Emerald fields map every genuinely-present party slot (not just one) into a valid Pokemon normalized state", async () => {
   const source = await readJson(sourceFixtureUrl);
   const state = mapEmeraldSourceSnapshot(source);
   const acquisition = state.extensions["pokemon.emerald.us-rev0.acquisition"];
@@ -58,65 +58,88 @@ test("live Emerald fields map into a valid Pokemon normalized state", async () =
     adapter: "mGBA",
     romId: "AGB-BPEE",
   });
-  assert.deepEqual(
-    {
-      speciesId: state.player.party[0].speciesId,
-      level: state.player.party[0].level,
-      currentHp: state.player.party[0].currentHp,
-      maxHp: state.player.party[0].maxHp,
-    },
-    source.party.first,
-  );
-  assert.deepEqual(
-    {
-      speciesId: state.battle.opponent.speciesId,
-      level: state.battle.opponent.level,
-      currentHp: state.battle.opponent.currentHp,
-      maxHp: state.battle.opponent.maxHp,
-    },
-    source.battle.opponent,
-  );
-  assert.deepEqual(acquisition.location, source.location);
+
+  assert.equal(state.player.party.length, source.party.slots.length);
+  for (let index = 0; index < source.party.slots.length; index += 1) {
+    const expected = source.party.slots[index];
+    const actual = state.player.party[index];
+    assert.equal(actual.speciesId, expected.speciesId);
+    assert.equal(actual.name, expected.name);
+    assert.equal(actual.nickname, expected.nickname);
+    assert.deepEqual(actual.types, expected.types);
+    assert.equal(actual.gender, expected.gender);
+    assert.equal(actual.status, expected.status);
+    assert.equal(actual.item, expected.item);
+    assert.equal(actual.exp, expected.exp);
+    assert.deepEqual(actual.expProgress, expected.expProgress);
+    assert.deepEqual(actual.stats, expected.stats);
+    assert.deepEqual(actual.ivs, expected.ivs);
+    assert.deepEqual(actual.moves, expected.moves);
+  }
+
+  assert.equal(state.battle.opponent.speciesId, source.battle.opponent.speciesId);
+  assert.deepEqual(state.battle.opponent.moves, source.battle.opponent.moves);
+  assert.deepEqual(state.player.badges, source.badges);
+  assert.equal(state.location.name, source.location.name);
+  assert.deepEqual(acquisition.location, { mapGroup: source.location.mapGroup, mapNumber: source.location.mapNumber, x: source.location.x, y: source.location.y });
   assert.equal(acquisition.battleActive, true);
   assert.equal(acquisition.battleTypeFlags, source.battle.typeFlags);
 });
 
-test("literal placeholders are visible, schema-valid, and renderer-safe", async () => {
+test("resolved species/move/item/location names render as real values, not placeholder strings", async () => {
   const state = mapEmeraldSourceSnapshot(await readJson(sourceFixtureUrl));
   const partyPokemon = state.player.party[0];
   const opponent = state.battle.opponent;
 
-  assert.equal(partyPokemon.name, "Species name unavailable");
-  assert.deepEqual(partyPokemon.types, ["unknown"]);
-  assert.deepEqual(partyPokemon.moves, []);
-  assert.deepEqual(partyPokemon.stats, { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 });
-  assert.equal(opponent.name, "Species name unavailable");
-  assert.equal(state.location.name, "Location name unavailable");
-  assert.deepEqual(state.bag, { balls: [], tms: [] });
+  assert.equal(partyPokemon.name, "TORCHIC");
+  assert.deepEqual(partyPokemon.types, ["Fire"]);
+  assert.equal(partyPokemon.moves.length, 2);
+  assert.equal(partyPokemon.moves[0].name, "TACKLE");
+  assert.equal(opponent.name, "CHARIZARD");
+  assert.equal(state.location.name, "Route 101");
+  assert.deepEqual(state.bag, {});
 
   const html = renderPokemonOverlay(state);
   assert.match(html, /POKEMON EMER/);
-  assert.match(html, /Species name unavailable/);
-  assert.match(html, /HP 31\/35/);
-  assert.match(html, /Location name unavailable/);
+  assert.match(html, /TORCHIC/);
+  assert.match(html, /31\/35/);
+  assert.match(html, /Route 101/);
+  assert.doesNotMatch(html, /Species name unavailable/);
 });
 
-test("fixed source slots collapse safely when party or battle entries are absent", async () => {
+test("fixed source slots collapse safely (empty party, no battle, unreadable location/badges)", async () => {
   const source = await readJson(sourceFixtureUrl);
-  source.party = { count: 0, first: null };
+  source.party = { count: 0, slots: [], first: null };
   source.battle = { active: false, typeFlags: 0, opponent: null };
   source.location = null;
+  source.badges = null;
 
   const state = mapEmeraldSourceSnapshot(source);
   assert.deepEqual(state.player.party, []);
   assert.equal(state.battle.opponent, undefined);
-  assert.equal(state.location.name, "Location name unavailable");
+  // Genuinely unavailable location is a disclosed, literal fallback string
+  // ("Unknown location"), never a fabricated real place name.
+  assert.equal(state.location.name, "Unknown location");
+  assert.equal(state.player.badges, null);
   assert.equal(state.extensions["pokemon.emerald.us-rev0.acquisition"].location, undefined);
   assert.doesNotThrow(() => renderPokemonOverlay(state));
 });
 
+test("a fainted party member (currentHp: 0) and an asleep status map through and render without throwing", async () => {
+  const source = await readJson(sourceFixtureUrl);
+  const state = mapEmeraldSourceSnapshot(source);
+  const fainted = state.player.party[1];
+  assert.equal(fainted.currentHp, 0);
+  assert.equal(fainted.status, "asleep");
+
+  const html = renderPokemonOverlay(state);
+  assert.match(html, /class="card team-card fainted"/);
+  assert.match(html, /Asleep/);
+});
+
 test("Ajv target validation fails closed on source values invalid for Pokemon state", async () => {
   const source = await readJson(sourceFixtureUrl);
+  source.party.slots[0].level = 0;
   source.party.first.level = 0;
 
   assert.throws(
@@ -178,6 +201,7 @@ test("file orchestration preserves the last valid live state when mapping fails"
   const first = await mapEmeraldSourceFile({ sourcePath, targetPath });
   assert.deepEqual(await readJson(targetPath), first);
 
+  source.party.slots[0].maxHp = 0;
   source.party.first.maxHp = 0;
   await writeFile(sourcePath, JSON.stringify(source), "utf8");
   await assert.rejects(

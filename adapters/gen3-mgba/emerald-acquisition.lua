@@ -12,7 +12,12 @@ if snapshotPath == nil or snapshotPath == "" then
     error("Missing EMERALD_SOURCE_SNAPSHOT_PATH; launch mGBA with npm run proof:emerald")
 end
 
-local emerald = assert(loadfile(modulePath))()
+-- The shared module's reference-data tables (species/moves/items/locations/
+-- charmap, see adapters/pokemon-emerald-us-rev0/data/) live alongside it;
+-- derive that directory from the already-known module path rather than
+-- requiring a second environment variable for the same location.
+local moduleDir = modulePath:match("(.*[/\\])") or "./"
+local emerald = assert(loadfile(modulePath))(moduleDir .. "data/")
 local output = console:createBuffer("Emerald acquisition source")
 local supported = false
 local identity = nil

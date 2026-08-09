@@ -19,7 +19,12 @@ requireSetting("BIZHAWK_EXPECTED_VERSION", expectedVersion)
 requireSetting("BIZHAWK_EXPECTED_SYSTEM_ID", expectedSystemId)
 requireSetting("BIZHAWK_EXPECTED_ROM_HASH", expectedRomHash)
 
-local emerald = assert(loadfile(modulePath))()
+-- The shared module's reference-data tables (species/moves/items/locations/
+-- charmap, see adapters/pokemon-emerald-us-rev0/data/) live alongside it;
+-- derive that directory from the already-known module path rather than
+-- requiring a second environment variable for the same location.
+local moduleDir = modulePath:match("(.*[/\\])") or "./"
+local emerald = assert(loadfile(modulePath))(moduleDir .. "data/")
 local source = {
     provider = { id = "bizhawk", name = "BizHawk", version = expectedVersion },
     integration = "lua",

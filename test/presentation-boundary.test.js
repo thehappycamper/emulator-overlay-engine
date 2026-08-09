@@ -71,30 +71,53 @@ test("the generic overlay host rejects missing or malformed presentation capabil
   );
 });
 
-test("Pokemon rendering preserves the current static overlay content without mutating state", () => {
+test("Pokemon rendering (P05-T009 dashboard redesign) shows team/battle content without mutating state", () => {
   const state = readSampleState();
   const originalState = structuredClone(state);
   const html = renderDomainOverlay(pokemonDomain, state);
 
   assert.match(html, /Pokemon Emerald/);
-  assert.match(html, /<h2>Party<\/h2>/);
+  assert.match(html, /<h2>Team<\/h2>/);
   assert.match(html, /MUD/);
   assert.match(html, /Earthquake/);
-  assert.match(html, /<h2>Opponent<\/h2>/);
-  assert.match(html, /Projected Switch Damage/);
-  assert.match(html, /Catch Odds/);
-  assert.match(html, /Poke Ball x12/);
-  assert.match(html, /<h2>Route Encounters<\/h2>/);
-  assert.match(html, /Kecleon/);
-  assert.match(html, /<dt>Seed<\/dt>/);
-  assert.match(html, /<dt>Frame<\/dt>/);
-  assert.match(html, /<dt>Score<\/dt>/);
+  assert.match(html, /<h2>Battle<\/h2>/);
+  assert.match(html, /Projected Incoming Damage/);
   assert.deepEqual(state, originalState);
 });
 
-test("Pokemon rendering preserves the no-opponent fallback", () => {
+test("Pokemon rendering shows six team slots, rendering unoccupied slots intentionally rather than omitting them", () => {
+  const state = readSampleState();
+  const html = renderDomainOverlay(pokemonDomain, state);
+  // Sample state has 2 party members; slots 3-6 must render as explicit
+  // empty-slot cards, not be silently missing from the grid.
+  const emptySlotCount = (html.match(/class="card team-card empty-slot"/g) || []).length;
+  assert.equal(emptySlotCount, 4);
+  assert.match(html, /No Pokemon/);
+});
+
+test("Pokemon rendering preserves the no-battle fallback", () => {
   const state = readSampleState();
   state.battle.opponent = null;
 
-  assert.match(renderPokemonOverlay(state), /No opponent detected\./);
+  assert.match(renderPokemonOverlay(state), /Not currently in battle\./);
+});
+
+test("Pokemon rendering handles a completely empty party and missing badges without throwing", () => {
+  const state = readSampleState();
+  state.player.party = [];
+  delete state.player.badges;
+  state.battle.opponent = null;
+
+  const html = renderPokemonOverlay(state);
+  const emptySlotCount = (html.match(/class="card team-card empty-slot"/g) || []).length;
+  assert.equal(emptySlotCount, 6);
+  assert.match(html, /Badges: unavailable/);
+});
+
+test("Pokemon rendering escapes HTML-significant characters in nicknames and species/location names", () => {
+  const state = readSampleState();
+  state.player.party[0].nickname = '<script>alert("x")</script>';
+  const html = renderPokemonOverlay(state);
+  assert.doesNotMatch(html, /<script>alert/);
+  assert.match(html, /&lt;script&gt;/);
 });

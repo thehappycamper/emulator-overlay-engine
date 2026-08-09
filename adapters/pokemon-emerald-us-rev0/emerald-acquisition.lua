@@ -1,6 +1,33 @@
 -- Provider-neutral Pokemon Emerald (English retail Rev 0) acquisition logic.
 -- Emulator providers supply read8/read16/read32 functions over the GBA system
 -- bus and retain ownership of emulator lifecycle, identity APIs, and file I/O.
+--
+-- Takes the directory containing this file's sibling data/*.lua tables (an
+-- explicit argument, not derived via the `debug` library, since sandboxed
+-- Lua environments are not guaranteed to expose `debug.getinfo`) as its
+-- first argument: `loadfile(modulePath)(dataDir)`. Callers already know
+-- this directory, since they already resolved modulePath to load this
+-- file in the first place.
+
+local dataDir = ...
+if dataDir == nil or dataDir == "" then
+    error("emerald-acquisition.lua requires its data directory as the first argument: loadfile(modulePath)(dataDir)")
+end
+
+local function loadData(fileName)
+    local path = dataDir .. fileName
+    local chunk, loadError = loadfile(path)
+    if chunk == nil then
+        error("Could not load Emerald reference data " .. path .. ": " .. tostring(loadError))
+    end
+    return chunk()
+end
+
+local SPECIES = loadData("species.lua")
+local MOVES = loadData("moves.lua")
+local ITEMS = loadData("items.lua")
+local LOCATIONS = loadData("locations.lua")
+local CHARMAP = loadData("charmap.lua")
 
 local M = {}
 
@@ -27,19 +54,43 @@ M.addresses = {
 }
 
 local POKEMON = {
+    structSize = 100,
+    nicknameOffset = 8,
+    nicknameLength = 10,
     secureDataOffset = 32,
     substructSize = 12,
+    statusOffset = 80,
     levelOffset = 84,
     currentHpOffset = 86,
     maxHpOffset = 88,
+    attackOffset = 90,
+    defenseOffset = 92,
+    speedOffset = 94,
+    spAttackOffset = 96,
+    spDefenseOffset = 98,
 }
 
-local GROWTH_SUBSTRUCT_INDEX = {
-    0, 0, 0, 0, 0, 0,
-    1, 1, 2, 3, 2, 3,
-    1, 1, 2, 3, 2, 3,
-    1, 1, 2, 3, 2, 3,
+local SAVEBLOCK1 = {
+    ewramStart = 0x02000000,
+    ewramEnd = 0x02040000,
+    positionXOffset = 0,
+    positionYOffset = 2,
+    mapGroupOffset = 4,
+    mapNumberOffset = 5,
+    flagsOffset = 0x1270,
+    badge1ByteOffset = 268,
+    badge1Bit = 7,
+    badges2Through8ByteOffset = 269,
 }
+
+-- Substructure order tables for personality % 24 (all four types). See
+-- docs/tasks/P05/P05-T009.md's Implementation Notes for the full
+-- cross-check of every row against pokeemerald's own GetSubstruct()
+-- (src/pokemon.c) - these are a direct transcription of that table's four
+-- columns, not re-derived from a partial memory of the pattern.
+local GROWTH_SUBSTRUCT_INDEX = { 0, 0, 0, 0, 0, 0, 1, 1, 2, 3, 2, 3, 1, 1, 2, 3, 2, 3, 1, 1, 2, 3, 2, 3 }
+local ATTACKS_SUBSTRUCT_INDEX = { 1, 1, 2, 3, 2, 3, 0, 0, 0, 0, 0, 0, 2, 3, 1, 1, 3, 2, 2, 3, 1, 1, 3, 2 }
+local MISC_SUBSTRUCT_INDEX = { 3, 2, 3, 2, 1, 1, 3, 2, 3, 2, 1, 1, 3, 2, 3, 2, 1, 1, 0, 0, 0, 0, 0, 0 }
 
 local function jsonString(value)
     value = tostring(value)
@@ -51,17 +102,11 @@ local function jsonString(value)
     return '"' .. value .. '"'
 end
 
-local function pokemonJson(pokemon)
-    if pokemon == nil then
-        return "null"
-    end
-    return string.format(
-        '{"speciesId":%d,"level":%d,"currentHp":%d,"maxHp":%d}',
-        pokemon.speciesId,
-        pokemon.level,
-        pokemon.currentHp,
-        pokemon.maxHp
-    )
+local function jsonValueOrNull(value)
+    if value == nil then return "null" end
+    if type(value) == "string" then return jsonString(value) end
+    if type(value) == "boolean" then return tostring(value) end
+    return tostring(value)
 end
 
 local function stringArrayJson(values)
@@ -72,27 +117,218 @@ local function stringArrayJson(values)
     return "[" .. table.concat(parts, ",") .. "]"
 end
 
-local function readPokemon(reader, address)
-    local personality = reader.read32(address)
-    local otId = reader.read32(address + 4)
-    local growthIndex = GROWTH_SUBSTRUCT_INDEX[(personality % 24) + 1]
-    local encryptedGrowthWord = reader.read32(
-        address + POKEMON.secureDataOffset + growthIndex * POKEMON.substructSize
-    )
-
-    return {
-        speciesId = (encryptedGrowthWord ~ personality ~ otId) & 0xFFFF,
-        level = reader.read8(address + POKEMON.levelOffset),
-        currentHp = reader.read16(address + POKEMON.currentHpOffset),
-        maxHp = reader.read16(address + POKEMON.maxHpOffset),
-    }
-end
-
 local function signed16(value)
     if value >= 0x8000 then
         return value - 0x10000
     end
     return value
+end
+
+-- Gen III text decoding: stops at the 0xFF terminator, matching the game's
+-- own string-reading convention (see reference-data.js's decodeGen3Text
+-- for the JS twin of this function, both driven by the same
+-- pret/pokeemerald charmap.txt-derived table).
+local function decodeGen3Text(bytes)
+    local result = {}
+    for _, byte in ipairs(bytes) do
+        if byte == 0xFF then break end
+        local char = CHARMAP[byte]
+        if char ~= nil then
+            result[#result + 1] = char
+        end
+    end
+    return table.concat(result)
+end
+
+-- STATUS1 bitfield decoding (bit layout confirmed against
+-- include/constants/battle.h - see reference-data.js's decodeStatusCondition
+-- for the full citation).
+local function decodeStatusCondition(status1)
+    if (status1 & 0x07) ~= 0 then return "asleep" end
+    if (status1 & 0x80) ~= 0 then return "badly-poisoned" end
+    if (status1 & 0x08) ~= 0 then return "poisoned" end
+    if (status1 & 0x10) ~= 0 then return "burned" end
+    if (status1 & 0x20) ~= 0 then return "frozen" end
+    if (status1 & 0x40) ~= 0 then return "paralyzed" end
+    return "none"
+end
+
+-- Gender derivation (confirmed against pokemon.c's
+-- GetGenderFromSpeciesAndPersonality - see reference-data.js's deriveGender).
+local function deriveGender(genderRatio, personality)
+    if genderRatio == nil then return nil end
+    if genderRatio == 0 then return "male" end
+    if genderRatio == 254 then return "female" end
+    if genderRatio == 255 then return "genderless" end
+    if genderRatio > (personality & 0xFF) then return "female" end
+    return "male"
+end
+
+-- Max PP with PP Up bonus (confirmed against pokemon.c's
+-- CalculatePPWithBonus - see reference-data.js's calculateMaxPp).
+local function calculateMaxPp(basePp, ppBonuses, moveIndex)
+    local bonusCount = (ppBonuses >> (2 * moveIndex)) & 0x3
+    return basePp + (basePp * 20 * bonusCount) // 100
+end
+
+-- EXP-to-level curves (formulas confirmed against
+-- src/data/pokemon/experience_tables.h - see reference-data.js's
+-- EXP_FORMULAS for the JS twin, both computing identical integer values).
+local EXP_FORMULAS = {
+    ["medium-fast"] = function(n) return n * n * n end,
+    ["fast"] = function(n) return (4 * n * n * n) // 5 end,
+    ["slow"] = function(n) return (5 * n * n * n) // 4 end,
+    ["medium-slow"] = function(n) return (6 * n * n * n) // 5 - 15 * n * n + 100 * n - 140 end,
+    ["erratic"] = function(n)
+        if n <= 50 then return ((100 - n) * n * n * n) // 50 end
+        if n <= 68 then return ((150 - n) * n * n * n) // 100 end
+        if n <= 98 then return (((1911 - 10 * n) // 3) * n * n * n) // 500 end
+        return ((160 - n) * n * n * n) // 100
+    end,
+    ["fluctuating"] = function(n)
+        if n <= 15 then return (((n + 1) // 3 + 24) * n * n * n) // 50 end
+        if n <= 36 then return ((n + 14) * n * n * n) // 50 end
+        return ((n // 2 + 32) * n * n * n) // 50
+    end,
+}
+
+local function expForLevel(growthRate, level)
+    local formula = growthRate and EXP_FORMULAS[growthRate]
+    if formula == nil or level < 1 or level > 100 then return nil end
+    if level == 1 then return 0 end
+    local value = formula(level)
+    if value < 0 then value = 0 end
+    return value
+end
+
+local function expProgress(growthRate, level, exp)
+    if level >= 100 then return nil end
+    local currentThreshold = expForLevel(growthRate, level)
+    local nextThreshold = expForLevel(growthRate, level + 1)
+    if currentThreshold == nil or nextThreshold == nil or nextThreshold <= currentThreshold then
+        return nil
+    end
+    local span = nextThreshold - currentThreshold
+    local into = exp - currentThreshold
+    if into < 0 then into = 0 end
+    if into > span then into = span end
+    return {
+        expIntoLevel = into,
+        expForNextLevel = span,
+        percent = math.floor((into / span) * 1000 + 0.5) / 10,
+    }
+end
+
+local function substructAddress(baseAddress, personality, indexTable)
+    return baseAddress + POKEMON.secureDataOffset + indexTable[(personality % 24) + 1] * POKEMON.substructSize
+end
+
+-- Decodes one 100-byte Gen III Pokemon struct at `address` into a rich,
+-- already-enriched (species/move/item names resolved) table. Mirrors
+-- emerald-us-rev0.js's decodeGen3Pokemon field-for-field; see that file
+-- for the byte-offset/substruct-layout citations this depends on.
+local function readPokemon(reader, address)
+    local personality = reader.read32(address)
+    local otId = reader.read32(address + 4)
+    local xorKey = personality ~ otId
+
+    local growthAddr = substructAddress(address, personality, GROWTH_SUBSTRUCT_INDEX)
+    local attacksAddr = substructAddress(address, personality, ATTACKS_SUBSTRUCT_INDEX)
+    local miscAddr = substructAddress(address, personality, MISC_SUBSTRUCT_INDEX)
+
+    local function decryptWord(substructAddr, offset)
+        return (reader.read32(substructAddr + offset) ~ xorKey) & 0xFFFFFFFF
+    end
+    local function decryptHalf(substructAddr, offset)
+        local wordOffset = offset - (offset % 4)
+        local word = decryptWord(substructAddr, wordOffset)
+        if offset % 4 == 0 then return word & 0xFFFF end
+        return (word >> 16) & 0xFFFF
+    end
+    local function decryptByte(substructAddr, offset)
+        local wordOffset = offset - (offset % 4)
+        local word = decryptWord(substructAddr, wordOffset)
+        local shift = (offset % 4) * 8
+        return (word >> shift) & 0xFF
+    end
+
+    local speciesId = decryptHalf(growthAddr, 0)
+    local heldItemId = decryptHalf(growthAddr, 2)
+    local experience = decryptWord(growthAddr, 4)
+    local ppBonuses = decryptByte(growthAddr, 8)
+
+    local moves = {}
+    for moveIndex = 0, 3 do
+        local moveId = decryptHalf(attacksAddr, moveIndex * 2)
+        local currentPp = decryptByte(attacksAddr, 8 + moveIndex)
+        if moveId ~= 0 then
+            local moveInfo = MOVES[moveId]
+            moves[#moves + 1] = {
+                id = moveId,
+                name = moveInfo and moveInfo.name or nil,
+                type = moveInfo and moveInfo.type or nil,
+                category = moveInfo and moveInfo.category or nil,
+                power = moveInfo and moveInfo.power or nil,
+                accuracy = moveInfo and moveInfo.accuracy or nil,
+                currentPp = currentPp,
+                maxPp = moveInfo and calculateMaxPp(moveInfo.pp, ppBonuses, moveIndex) or nil,
+            }
+        end
+    end
+
+    local ivWord = decryptWord(miscAddr, 4)
+    local ivs = {
+        hp = ivWord & 0x1F,
+        atk = (ivWord >> 5) & 0x1F,
+        def = (ivWord >> 10) & 0x1F,
+        spe = (ivWord >> 15) & 0x1F,
+        spa = (ivWord >> 20) & 0x1F,
+        spd = (ivWord >> 25) & 0x1F,
+    }
+
+    local nicknameBytes = {}
+    for i = 0, POKEMON.nicknameLength - 1 do
+        nicknameBytes[i + 1] = reader.read8(address + POKEMON.nicknameOffset + i)
+    end
+
+    local speciesInfo = SPECIES[speciesId]
+    local status1 = reader.read32(address + POKEMON.statusOffset)
+    local level = reader.read8(address + POKEMON.levelOffset)
+
+    return {
+        speciesId = speciesId,
+        name = speciesInfo and speciesInfo.name or nil,
+        nickname = decodeGen3Text(nicknameBytes),
+        types = speciesInfo and speciesInfo.types or nil,
+        gender = speciesInfo and deriveGender(speciesInfo.genderRatio, personality) or nil,
+        level = level,
+        currentHp = reader.read16(address + POKEMON.currentHpOffset),
+        maxHp = reader.read16(address + POKEMON.maxHpOffset),
+        status = decodeStatusCondition(status1),
+        item = (heldItemId ~= 0) and ITEMS[heldItemId] or nil,
+        itemId = (heldItemId ~= 0) and heldItemId or nil,
+        exp = experience,
+        expProgress = speciesInfo and speciesInfo.growthRate and expProgress(speciesInfo.growthRate, level, experience) or nil,
+        stats = {
+            atk = reader.read16(address + POKEMON.attackOffset),
+            def = reader.read16(address + POKEMON.defenseOffset),
+            spe = reader.read16(address + POKEMON.speedOffset),
+            spa = reader.read16(address + POKEMON.spAttackOffset),
+            spd = reader.read16(address + POKEMON.spDefenseOffset),
+        },
+        ivs = ivs,
+        moves = moves,
+    }
+end
+
+local function readBadges(reader, saveBlock1Address)
+    local badge1Byte = reader.read8(saveBlock1Address + SAVEBLOCK1.flagsOffset + SAVEBLOCK1.badge1ByteOffset)
+    local badges28Byte = reader.read8(saveBlock1Address + SAVEBLOCK1.flagsOffset + SAVEBLOCK1.badges2Through8ByteOffset)
+    local badges = { (badge1Byte >> SAVEBLOCK1.badge1Bit) & 1 == 1 }
+    for bit = 0, 6 do
+        badges[#badges + 1] = ((badges28Byte >> bit) & 1) == 1
+    end
+    return badges
 end
 
 function M.assertIdentity(identity)
@@ -127,9 +363,9 @@ function M.acquire(reader)
         error("Invalid Emerald party count: " .. tostring(partyCount))
     end
 
-    local firstParty = nil
-    if partyCount > 0 then
-        firstParty = readPokemon(reader, address.playerParty)
+    local slots = {}
+    for slot = 0, partyCount - 1 do
+        slots[#slots + 1] = readPokemon(reader, address.playerParty + slot * POKEMON.structSize)
     end
 
     local battleActive = (reader.read8(address.mainInBattleFlags) & 0x02) ~= 0
@@ -139,24 +375,33 @@ function M.acquire(reader)
     end
 
     local saveBlock1 = reader.read32(address.saveBlock1Pointer)
+    local locationReadable = saveBlock1 >= SAVEBLOCK1.ewramStart and saveBlock1 + 5 < SAVEBLOCK1.ewramEnd
+    local badgesReadable = saveBlock1 >= SAVEBLOCK1.ewramStart
+        and saveBlock1 + SAVEBLOCK1.flagsOffset + SAVEBLOCK1.badges2Through8ByteOffset < SAVEBLOCK1.ewramEnd
+
     local location = nil
-    if saveBlock1 >= 0x02000000 and saveBlock1 + 5 < 0x02040000 then
+    if locationReadable then
+        local mapGroup = reader.read8(saveBlock1 + 4)
+        local mapNumber = reader.read8(saveBlock1 + 5)
+        local locationKey = tostring(mapGroup) .. ":" .. tostring(mapNumber)
         location = {
-            mapGroup = reader.read8(saveBlock1 + 4),
-            mapNumber = reader.read8(saveBlock1 + 5),
+            mapGroup = mapGroup,
+            mapNumber = mapNumber,
+            name = LOCATIONS[locationKey],
             x = signed16(reader.read16(saveBlock1)),
             y = signed16(reader.read16(saveBlock1 + 2)),
         }
     end
 
     return {
-        party = { count = partyCount, first = firstParty },
+        party = { count = partyCount, slots = slots, first = slots[1] or nil },
         battle = {
             active = battleActive,
             typeFlags = reader.read32(address.battleTypeFlags),
             opponent = opponent,
         },
         location = location,
+        badges = badgesReadable and readBadges(reader, saveBlock1) or nil,
     }
 end
 
@@ -176,23 +421,112 @@ local function sourceJson(source)
     )
 end
 
+local function typesJson(types)
+    if types == nil then return "null" end
+    return stringArrayJson(types)
+end
+
+local function statsJson(stats)
+    if stats == nil then return "null" end
+    return string.format(
+        '{"atk":%d,"def":%d,"spa":%d,"spd":%d,"spe":%d}',
+        stats.atk, stats.def, stats.spa, stats.spd, stats.spe
+    )
+end
+
+local function moveJson(move)
+    return string.format(
+        '{"id":%d,"name":%s,"type":%s,"category":%s,"power":%s,"accuracy":%s,"currentPp":%d,"maxPp":%s}',
+        move.id,
+        jsonValueOrNull(move.name),
+        jsonValueOrNull(move.type),
+        jsonValueOrNull(move.category),
+        jsonValueOrNull(move.power),
+        jsonValueOrNull(move.accuracy),
+        move.currentPp,
+        jsonValueOrNull(move.maxPp)
+    )
+end
+
+local function movesJson(moves)
+    local parts = {}
+    for index, move in ipairs(moves or {}) do
+        parts[index] = moveJson(move)
+    end
+    return "[" .. table.concat(parts, ",") .. "]"
+end
+
+local function expProgressJson(expProgressValue)
+    if expProgressValue == nil then return "null" end
+    return string.format(
+        '{"expIntoLevel":%d,"expForNextLevel":%d,"percent":%s}',
+        expProgressValue.expIntoLevel, expProgressValue.expForNextLevel, tostring(expProgressValue.percent)
+    )
+end
+
+local function pokemonJson(pokemon)
+    if pokemon == nil then
+        return "null"
+    end
+    return string.format(
+        '{"speciesId":%d,"name":%s,"nickname":%s,"types":%s,"gender":%s,"level":%d,"currentHp":%d,"maxHp":%d,'
+            .. '"status":%s,"item":%s,"itemId":%s,"exp":%d,"expProgress":%s,"stats":%s,"ivs":%s,"moves":%s}',
+        pokemon.speciesId,
+        jsonValueOrNull(pokemon.name),
+        jsonString(pokemon.nickname or ""),
+        typesJson(pokemon.types),
+        jsonValueOrNull(pokemon.gender),
+        pokemon.level,
+        pokemon.currentHp,
+        pokemon.maxHp,
+        jsonString(pokemon.status),
+        jsonValueOrNull(pokemon.item),
+        jsonValueOrNull(pokemon.itemId),
+        pokemon.exp,
+        expProgressJson(pokemon.expProgress),
+        statsJson(pokemon.stats),
+        statsJson(pokemon.ivs),
+        movesJson(pokemon.moves)
+    )
+end
+
+local function partySlotsJson(slots)
+    local parts = {}
+    for index, pokemon in ipairs(slots or {}) do
+        parts[index] = pokemonJson(pokemon)
+    end
+    return "[" .. table.concat(parts, ",") .. "]"
+end
+
 local function locationJson(location)
     if location == nil then
         return "null"
     end
     return string.format(
-        '{"mapGroup":%d,"mapNumber":%d,"x":%d,"y":%d}',
+        '{"mapGroup":%d,"mapNumber":%d,"name":%s,"x":%d,"y":%d}',
         location.mapGroup,
         location.mapNumber,
+        jsonValueOrNull(location.name),
         location.x,
         location.y
     )
 end
 
+local function badgesJson(badges)
+    if badges == nil then return "null" end
+    local parts = {}
+    for index, value in ipairs(badges) do
+        parts[index] = tostring(value)
+    end
+    return "[" .. table.concat(parts, ",") .. "]"
+end
+
 function M.snapshotJson(source, identity, acquisition)
     M.assertIdentity(identity)
     return string.format(
-        '{"contract":{"id":%s,"version":%s},"source":%s,"game":{"gameCode":%s,"title":%s,"revision":%d,"crc32":%s},"party":{"count":%d,"first":%s},"battle":{"active":%s,"typeFlags":%d,"opponent":%s},"location":%s}',
+        '{"contract":{"id":%s,"version":%s},"source":%s,"game":{"gameCode":%s,"title":%s,"revision":%d,"crc32":%s},'
+            .. '"party":{"count":%d,"slots":%s,"first":%s},"battle":{"active":%s,"typeFlags":%d,"opponent":%s},'
+            .. '"location":%s,"badges":%s}',
         jsonString(M.contract.id),
         jsonString(M.contract.version),
         sourceJson(source),
@@ -201,11 +535,13 @@ function M.snapshotJson(source, identity, acquisition)
         M.identity.revision,
         jsonString(M.identity.crc32),
         acquisition.party.count,
+        partySlotsJson(acquisition.party.slots),
         pokemonJson(acquisition.party.first),
         tostring(acquisition.battle.active),
         acquisition.battle.typeFlags,
         pokemonJson(acquisition.battle.opponent),
-        locationJson(acquisition.location)
+        locationJson(acquisition.location),
+        badgesJson(acquisition.badges)
     )
 end
 
