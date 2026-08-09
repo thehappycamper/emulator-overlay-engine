@@ -144,3 +144,21 @@ test("mGBA launch preserves the ROM argument and exports proof settings to the c
   assert.equal(launch.environment.PORT, "6000");
   assert.equal(launch.environment.SYSTEM_VALUE, "kept");
 });
+
+test("mGBA launch passes a configured savestate via mgba-qt's documented --savestate flag", () => {
+  const config = buildEmeraldProofConfig(
+    values({ EOE_EMERALD_SAVESTATE: "saves/proof.ss1" }),
+    { projectRoot: "C:\\repo" },
+  );
+  const launch = createMgbaLaunch(config);
+
+  assert.deepEqual(launch.args, [config.emeraldRom, "--savestate", config.emeraldSavestate]);
+});
+
+test("mGBA launch omits --savestate entirely when no savestate is configured", () => {
+  const config = buildEmeraldProofConfig(values(), { projectRoot: "C:\\repo" });
+  const launch = createMgbaLaunch(config);
+
+  assert.deepEqual(launch.args, [config.emeraldRom]);
+  assert.equal(launch.args.includes("--savestate"), false);
+});

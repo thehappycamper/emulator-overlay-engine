@@ -39,7 +39,7 @@ The Emerald mGBA provider writes an acquisition source snapshot, not overlay sta
 
 ## Local Configuration
 
-For the Emerald Proof 1 workflow, copy `.env.local.example` to `.env.local`, fill in local mGBA/ROM paths, then run `npm run proof:emerald`. The launcher validates the setup, creates local snapshot directories, starts mGBA with the configured ROM, and prints the remaining manual Lua/savestate and mapper/server steps.
+For the Emerald Proof 1 workflow, copy `.env.local.example` to `.env.local`, fill in local mGBA/ROM paths, then run `npm run proof:emerald`. The launcher validates the setup, creates local snapshot directories, and starts mGBA with the configured ROM and (if set) savestate via mGBA's documented `--savestate` flag. It prints the remaining steps: the one genuinely manual step (loading the Lua script — mGBA has no supported way to do this from the command line) plus the mapper/server commands.
 
 `.env.local` and `.env` are ignored. Never commit either file, ROMs, saves, savestates, BIOS files, or machine-specific paths. See [local configuration](docs/project/configuration.md).
 

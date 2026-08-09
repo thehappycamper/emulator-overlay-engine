@@ -196,9 +196,13 @@ export async function prepareEmeraldProofDirectories(
 }
 
 export function createMgbaLaunch(config, { environment = process.env } = {}) {
+  const args = config.emeraldSavestate
+    ? [config.emeraldRom, "--savestate", config.emeraldSavestate]
+    : [config.emeraldRom];
+
   return Object.freeze({
     executable: config.mgbaExecutable,
-    args: Object.freeze([config.emeraldRom]),
+    args: Object.freeze(args),
     environment: Object.freeze({
       ...environment,
       EOE_MGBA_EXE: config.mgbaExecutable,

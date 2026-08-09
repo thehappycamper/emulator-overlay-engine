@@ -38,19 +38,23 @@ function quotePowerShell(value) {
 function printNextSteps(config) {
   const scriptPath = resolve(projectRoot, "adapters/gen3-mgba/emerald-acquisition.lua");
   console.log("");
-  console.log("Complete the mGBA steps manually:");
   if (config.emeraldSavestate) {
     console.log(
-      `1. Load the optional savestate through mGBA's UI: ${config.emeraldSavestate}`,
+      `The configured savestate loads automatically via mGBA's --savestate flag: ${config.emeraldSavestate}`,
     );
   } else {
-    console.log(
-      "1. Start or load the desired in-game position (no savestate is configured).",
-    );
+    console.log("No savestate is configured; mGBA starts from the ROM's normal boot.");
   }
-  console.log("2. Open Tools > Scripting..., choose Load script, and select:");
+  console.log("");
+  console.log("mGBA has no supported way to auto-load a script (mgba-emu/mgba#3289, closed");
+  console.log("as not planned), so this one step remains manual:");
+  console.log("1. In mGBA, open Tools > Scripting..., choose Load script, and select:");
   console.log(`   ${scriptPath}`);
-  console.log("3. Keep mGBA running. The Lua script will publish the source snapshot.");
+  console.log(
+    "   (After the first time, Tools > Scripting... > Load recent script is a faster,",
+  );
+  console.log("   one-click way to reload the same script in later sessions.)");
+  console.log("2. Keep mGBA running. The Lua script will publish the source snapshot.");
   console.log("");
   console.log("In a second PowerShell terminal at the repository root:");
   console.log(
@@ -102,7 +106,11 @@ try {
     console.log("Setup check complete; mGBA was not launched.");
   } else {
     await launchMgba(createMgbaLaunch(config));
-    console.log("mGBA launched with the configured Emerald ROM.");
+    console.log(
+      config.emeraldSavestate
+        ? "mGBA launched with the configured Emerald ROM and savestate."
+        : "mGBA launched with the configured Emerald ROM.",
+    );
   }
 
   printNextSteps(config);

@@ -76,7 +76,9 @@ npm run proof:emerald
 
 The launcher validates the mGBA executable, ROM, optional savestate, output paths, poll interval, and port. It creates the source/live-state parent directories and launches mGBA with the ROM while exporting `EMERALD_SOURCE_SNAPSHOT_PATH` to the child process. It then prints the exact Lua, mapper, server, and browser steps for the configured paths.
 
-Close any existing mGBA instance before launching so the process that loads the script inherits the environment. Savestate loading and **Tools > Scripting... > Load script** remain manual because the supported workflow does not rely on fragile GUI automation or an assumed savestate/script CLI. `.env.local` is ignored; `.env.local.example` contains fake paths only.
+When a savestate is configured, the launcher passes it via `mgba-qt`'s documented `-t`/`--savestate` command-line flag, so mGBA starts already at that position — no manual **File > Load State** step. This flag is officially documented for `mgba-qt` (see the [command-line reference](https://manpages.ubuntu.com/manpages/focal/man6/mgba-qt.6.html)); it is not GUI automation, it is a supported startup argument.
+
+**Tools > Scripting... > Load script** remains the one manual step: mGBA has no supported command-line or config-file way to auto-load a script. This was explicitly requested upstream and closed as "not planned" by the mGBA maintainers ([mgba-emu/mgba#3289](https://github.com/mgba-emu/mgba/issues/3289)), so a reliable non-GUI path does not currently exist. After the first session, **Tools > Scripting... > Load recent script** is a faster one-click reload of the same script than browsing to it again. Close any existing mGBA instance before launching so the process that loads the script inherits the environment. `.env.local` is ignored; `.env.local.example` contains fake paths only.
 
 ## Configure The Snapshot
 
@@ -123,7 +125,7 @@ The preferred workflow is `npm run proof:emerald`; the launcher prints commands 
    npm run proof:emerald
    ```
 
-3. If configured, load the savestate path printed by the launcher through mGBA's UI. Open **Tools > Scripting...**, load `adapters/gen3-mgba/emerald-acquisition.lua`, and confirm the configured source snapshot appears with contract version `1.0.0`.
+3. If a savestate is configured, mGBA already started from it (via `--savestate`, printed by the launcher for confirmation — no manual load needed). Open **Tools > Scripting...**, load `adapters/gen3-mgba/emerald-acquisition.lua`, and confirm the configured source snapshot appears with contract version `1.0.0`.
 
 4. Open a second PowerShell terminal at the repository root and run the environment assignments and `npm run live:emerald` command printed by the launcher.
 

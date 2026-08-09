@@ -19,7 +19,7 @@ Replace the fake mGBA and ROM paths before running the check. The parser accepts
 | `EOE_LIVE_STATE_PATH` | Validated normalized-state output path for the Emerald mapper; defaults to `public/live-state.json`. |
 | `EOE_MGBA_EXE` | Required local path to the mGBA executable for `npm run proof:emerald`. |
 | `EOE_EMERALD_ROM` | Required local path to a legally obtained supported Emerald ROM. The launcher passes it to mGBA but does not inspect or copy it. |
-| `EOE_EMERALD_SAVESTATE` | Optional local savestate path. The launcher validates it and prints the path; loading remains a manual mGBA UI action. |
+| `EOE_EMERALD_SAVESTATE` | Optional local savestate path. The launcher passes it to mGBA via the documented `--savestate` flag, so it loads automatically at startup. |
 | `EOE_MGBA_SCRIPTS_DIR` | Optional local path to mGBA Lua scripts. |
 | `EMERALD_SOURCE_SNAPSHOT_PATH` | Local path where the Emerald mGBA provider publishes its acquisition source snapshot. Relative values resolve from the repository root. It must be in mGBA's process environment before launch; mGBA does not load config files itself. |
 | `EMERALD_MAPPING_POLL_INTERVAL_MS` | Optional positive polling interval for `npm run live:emerald`; defaults to `250`. |
@@ -41,7 +41,7 @@ Replace the fake mGBA and ROM paths before running the check. The parser accepts
 
 ## Emerald Proof Launcher
 
-`npm run proof:emerald` loads `.env.local`, validates the executable/ROM/optional-savestate paths, validates both output destinations, creates their parent directories, and launches mGBA with the configured ROM. The child mGBA process inherits `EMERALD_SOURCE_SNAPSHOT_PATH` for the Lua provider. The launcher does not automate GUI clicks, savestate loading, or script loading.
+`npm run proof:emerald` loads `.env.local`, validates the executable/ROM/optional-savestate paths, validates both output destinations, creates their parent directories, and launches mGBA with the configured ROM. When a savestate is configured, it is passed via `mgba-qt`'s documented `--savestate` flag, so mGBA starts from it automatically. The child mGBA process inherits `EMERALD_SOURCE_SNAPSHOT_PATH` for the Lua provider. The launcher does not automate GUI clicks or script loading — mGBA has no supported command-line or config-file way to auto-load a Lua script ([mgba-emu/mgba#3289](https://github.com/mgba-emu/mgba/issues/3289), closed as not planned), so that one step remains manual.
 
 Use `npm run proof:emerald -- --check` to validate and create directories without launching mGBA. A different local file can be selected with `--config <path>`.
 
