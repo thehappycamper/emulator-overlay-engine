@@ -7,6 +7,9 @@
 
 import koffi from "koffi";
 
+// libretro.h: #define RETRO_API_VERSION 1
+export const RETRO_API_VERSION = 1;
+
 // libretro.h: #define RETRO_ENVIRONMENT_EXPERIMENTAL 0x10000
 const RETRO_ENVIRONMENT_EXPERIMENTAL = 0x10000;
 
@@ -120,6 +123,7 @@ export function decodeMemoryMap(dataPointer) {
   const descriptors = koffi.decode(map.descriptors, RetroMemoryDescriptor, map.num_descriptors);
   return descriptors.map((descriptor) => ({
     ptr: descriptor.ptr,
+    offset: Number(descriptor.offset),
     start: Number(descriptor.start),
     len: Number(descriptor.len),
     select: Number(descriptor.select),
