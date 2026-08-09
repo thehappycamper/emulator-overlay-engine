@@ -1,37 +1,13 @@
-import { readFileSync } from "node:fs";
-import Ajv2020 from "ajv/dist/2020.js";
-
+// Compatibility entry point for the original mGBA-owned module path.
 import {
-  EMERALD_SOURCE_CONTRACT,
-  createEmeraldSourceSnapshot,
-} from "./emerald-source-contract.js";
-import { readEmeraldAcquisition } from "./emerald-us-rev0.js";
+  EmeraldSourceSnapshotValidationError,
+  assertValidEmeraldSourceSnapshot,
+  readValidatedEmeraldSourceSnapshot as readProviderSnapshot,
+} from "../pokemon-emerald-us-rev0/validate-source-snapshot.js";
+import { MGBA_SOURCE } from "../pokemon-emerald-us-rev0/emerald-source-contract.js";
 
-const schema = JSON.parse(
-  readFileSync(new URL("./schemas/emerald-us-rev0-source.schema.json", import.meta.url), "utf8"),
-);
-const ajv = new Ajv2020({ allErrors: true, strict: true });
-const validate = ajv.compile(schema);
-
-export class EmeraldSourceSnapshotValidationError extends TypeError {
-  constructor(errors) {
-    super(
-      `Invalid ${EMERALD_SOURCE_CONTRACT.id}@${EMERALD_SOURCE_CONTRACT.version} source snapshot: ${ajv.errorsText(errors)}`,
-    );
-    this.name = "EmeraldSourceSnapshotValidationError";
-    this.errors = structuredClone(errors ?? []);
-  }
-}
-
-export function assertValidEmeraldSourceSnapshot(snapshot) {
-  if (!validate(snapshot)) {
-    throw new EmeraldSourceSnapshotValidationError(validate.errors);
-  }
-  return true;
-}
+export { EmeraldSourceSnapshotValidationError, assertValidEmeraldSourceSnapshot };
 
 export function readValidatedEmeraldSourceSnapshot(identity, reader) {
-  const snapshot = createEmeraldSourceSnapshot(identity, readEmeraldAcquisition(reader));
-  assertValidEmeraldSourceSnapshot(snapshot);
-  return snapshot;
+  return readProviderSnapshot(MGBA_SOURCE, identity, reader);
 }

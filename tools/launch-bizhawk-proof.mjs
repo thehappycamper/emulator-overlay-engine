@@ -12,6 +12,10 @@ import {
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
+function quotePowerShell(value) {
+  return `'${String(value).replaceAll("'", "''")}'`;
+}
+
 function readArguments(args) {
   const options = {
     checkOnly: false,
@@ -54,11 +58,26 @@ function printNextSteps(config) {
       ? `The configured savestate also loads automatically: ${config.emeraldSavestate}`
       : "No savestate is configured; BizHawk starts from the ROM's normal boot.",
   );
-  console.log(`Diagnostic heartbeat: ${config.diagnosticPath}`);
-  console.log("Watch that JSON file and confirm runtime.frame advances while the game runs.");
+  console.log(`Shared Emerald source snapshot: ${config.sourceSnapshot}`);
+  console.log("The connector compares System Bus reads with direct EWRAM/IWRAM reads");
+  console.log("before it publishes the shared Emerald acquisition contract.");
   console.log("");
-  console.log("This bootstrap does not emit the mGBA-named Emerald source contract and does");
-  console.log("not write public/live-state.json. Source-contract adaptation is the next P06 slice.");
+  console.log("In a second PowerShell terminal at the repository root:");
+  console.log(
+    `$env:EMERALD_SOURCE_SNAPSHOT_PATH = ${quotePowerShell(config.sourceSnapshot)}`,
+  );
+  console.log(`$env:EOE_LIVE_STATE_PATH = ${quotePowerShell(config.liveState)}`);
+  console.log(
+    `$env:EMERALD_MAPPING_POLL_INTERVAL_MS = ${quotePowerShell(config.mappingPollIntervalMs)}`,
+  );
+  console.log("npm run live:emerald");
+  console.log("");
+  console.log("In a third PowerShell terminal at the repository root:");
+  console.log(`$env:PORT = ${quotePowerShell(config.port)}`);
+  console.log("npm start");
+  console.log(
+    `Open http://127.0.0.1:${config.port}/?state=/public/live-state.json in a browser.`,
+  );
 }
 
 try {
@@ -73,12 +92,14 @@ try {
   console.log(`Local config is valid: ${options.configPath}`);
   console.log(`Supported BizHawk version: ${config.expectedBizHawkVersion}`);
   console.log(`Expected Emerald Rev 0 SHA-1: ${config.expectedRomHash}`);
+  console.log(`Emerald source snapshot: ${config.sourceSnapshot}`);
+  console.log(`Validated live state: ${config.liveState}`);
 
   if (options.checkOnly) {
     console.log("Setup check complete; BizHawk was not launched.");
   } else {
     await launchBizHawk(createBizHawkLaunch(config));
-    console.log("BizHawk launched with Emerald and the EOE proof connector.");
+    console.log("BizHawk launched with Emerald and the EOE acquisition connector.");
   }
 
   printNextSteps(config);

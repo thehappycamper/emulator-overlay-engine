@@ -56,7 +56,7 @@ Goal:
 
 Deliverables:
 
-- `adapters/gen3-mgba` Lua exporter.
+- Thin mGBA provider composed with the game-owned Emerald acquisition package.
 - Named/versioned adapter-owned acquisition source contract and safe local snapshot handoff (`P05-T003`, completed).
 - Declarative fixed-slot mapping, canonical target validation, and atomic `public/live-state.json` handoff (`P05-T004`, completed).
 - Local `.env.local` setup and Windows-friendly mGBA launcher (`P05-T005`, completed), with supported savestate auto-loading (`P05-T006`, completed).
@@ -68,7 +68,7 @@ Deliverables:
 
 These are future tracks, not committed implementation slices:
 
-- A second-emulator proof using BizHawk 2.11.1. Its local auto-launch/diagnostic bootstrap is active; source-contract and mapping reuse remain separate reviewed slices.
+- A second-emulator proof using BizHawk 2.11.1. Local auto-launch is implemented and the provider-neutral Emerald contract/mapping/domain/overlay reuse slice is in review; real-ROM operator acceptance remains required.
 
 - Richer Pokemon assistant functionality: battle projections, route/capture support, scoring, facility set identification, and move prediction.
 - Extension Workbench for mapping and later event/rule/action authoring through reviewable contracts.

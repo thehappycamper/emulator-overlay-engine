@@ -1,5 +1,5 @@
 flowchart LR
-  Sources["Gameplay Sources\nEmulator / Native / Web /\nTelemetry / Files / Vision / Hardware"] --> Adapters["Source Providers / Adapters\nfuture live implementations"]
+  Sources["Gameplay Sources\nEmulator / Native / Web /\nTelemetry / Files / Vision / Hardware"] --> Adapters["Source Providers / Adapters\nCurrent: mGBA + BizHawk Emerald"]
   Adapters --> SourceContract["Source Contract\nacquisition-independent boundary"]
   MappingProject["Declarative Mapping\nSafe JSON AST"] --> MappingRuntime["Mapping Runtime"]
   SourceContract --> MappingRuntime
@@ -29,5 +29,5 @@ flowchart LR
   classDef future fill:#fafafa,stroke:#777,stroke-dasharray:5 5,color:#333
   classDef external fill:#f5f5f5,stroke:#555,color:#111
   class Sources external
-  class SourceContract,MappingProject,MappingRuntime,NormalizedState,DomainBoundary,PokemonDomain,CurrentConsumers current
-  class Adapters,EventDetection,NormalizedEvents,EventConsumers,Actions,Experiences,SpatialData,MapViews,ProgressionData,ProgressResults,Workflows,Cloud future
+  class Adapters,SourceContract,MappingProject,MappingRuntime,NormalizedState,DomainBoundary,PokemonDomain,CurrentConsumers current
+  class EventDetection,NormalizedEvents,EventConsumers,Actions,Experiences,SpatialData,MapViews,ProgressionData,ProgressResults,Workflows,Cloud future

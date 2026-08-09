@@ -8,10 +8,10 @@ import {
   decodeGen3Pokemon,
   growthSubstructIndex,
   readEmeraldAcquisition,
-} from "../adapters/gen3-mgba/emerald-us-rev0.js";
+} from "../adapters/pokemon-emerald-us-rev0/emerald-us-rev0.js";
 
 const fixtureUrl = new URL(
-  "../adapters/gen3-mgba/fixtures/emerald-us-rev0-derived.json",
+  "../adapters/pokemon-emerald-us-rev0/fixtures/emerald-us-rev0-derived.json",
   import.meta.url,
 );
 
@@ -88,18 +88,19 @@ test("invalid save pointers produce a null location instead of arbitrary memory 
   assert.equal(readEmeraldAcquisition(createReader(fixture.memory)).location, null);
 });
 
-test("Lua provider constants stay synchronized with the tested acquisition layout", async () => {
+test("shared Lua acquisition constants stay synchronized with the tested layout", async () => {
   const lua = await readFile(
-    new URL("../adapters/gen3-mgba/emerald-acquisition.lua", import.meta.url),
+    new URL(
+      "../adapters/pokemon-emerald-us-rev0/emerald-acquisition.lua",
+      import.meta.url,
+    ),
     "utf8",
   );
-  const expectedHexValues = [
-    EMERALD_US_REV0.identity.crc32,
-    ...Object.values(EMERALD_US_REV0.addresses).map((value) =>
-      value.toString(16).toUpperCase().padStart(8, "0"),
-    ),
-  ];
-  for (const value of expectedHexValues) {
+  assert.match(lua, new RegExp(EMERALD_US_REV0.identity.crc32));
+  const expectedAddresses = Object.values(EMERALD_US_REV0.addresses).map((value) =>
+    value.toString(16).toUpperCase().padStart(8, "0"),
+  );
+  for (const value of expectedAddresses) {
     assert.match(lua, new RegExp(`0x${value}`));
   }
 });

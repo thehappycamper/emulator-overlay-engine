@@ -19,7 +19,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
 | `P05` | Live Gameplay Source | active - `P05-T001`-`T006` completed; real mGBA end-to-end acceptance still required |
-| `P06` | Second Source / Domain Proof | active (preparatory BizHawk bootstrap; `P05` gate remains open) |
+| `P06` | Second Source / Domain Proof | active (provider-neutral BizHawk acquisition in review; real acceptance and `P05` gate remain open) |
 | — | Later Product Tracks | coarse / not phased yet |
 
 ---
@@ -169,21 +169,21 @@ Remaining roadmap deliverables will be scoped separately: real mGBA end-to-end a
 
 ## P06 — Second Source / Domain Proof
 
-**Status:** active for the narrowly scoped BizHawk bootstrap. `P05` remains active and its real acceptance gate is not waived.
+**Status:** active. BizHawk bootstrap is complete and provider-neutral Emerald acquisition reuse is implemented for review. `P05` remains active and its real acceptance gate is not waived.
 
 **Objective:** Prove the architecture is not accidentally Pokemon-specific or emulator-specific by exercising it against a second source and/or domain. The exact choice does not need to be made now.
 
-**Entry conditions:** `P02` complete. The original full-proof gate also requires `P05` complete. By explicit project-owner direction, `P06-T001` starts only the independent launcher/connector bootstrap in parallel while `P05` acceptance remains open; no P06 exit criterion can be claimed until the original gate and full contract reuse proof are met.
+**Entry conditions:** `P02` complete. The original full-proof gate also requires `P05` complete. By explicit project-owner direction, BizHawk launcher/acquisition work proceeds in parallel while `P05` acceptance remains open; no P06 exit criterion can be claimed until the original gate and real second-source proof are met.
 
 **Major tasks:**
-- [`P06-T001`](../tasks/P06/P06-T001.md) - BizHawk 2.11.1 local launcher and auto-loaded domain-neutral identity/frame connector. Implemented for review; diagnostic only.
-- Follow-up work must establish a validated BizHawk/provider-neutral Emerald source snapshot and reuse the mapping/domain/overlay path without duplicating Pokemon logic.
+- [`P06-T001`](../tasks/P06/P06-T001.md) - BizHawk 2.11.1 local launcher and auto-loaded identity/frame connector. Completed.
+- [`P06-T002`](../tasks/P06/P06-T002.md) - Provider-neutral Emerald Rev 0 acquisition ownership and BizHawk emission through the existing mapping/domain/overlay path. Implemented; awaiting independent review and real-ROM operator acceptance.
 
 **Exit criteria:** A second source or domain works through the existing platform contracts (extension, mapping, and — if `P02`/`P05` order allows — domain boundary) without platform-layer changes beyond what the contracts already allow.
 
 **Dependencies:** `P02`, `P05`.
 
-**Out of scope:** A second game domain, semantic events/actions, and treating the bootstrap diagnostic as a source contract or phase completion proof.
+**Out of scope:** A second game domain, semantic events/actions, and treating repository-only tests as real-ROM Proof 2 acceptance.
 
 ---
 

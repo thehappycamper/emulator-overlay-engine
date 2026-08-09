@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import {
   mapEmeraldSourceSnapshot,
   writePokemonLiveState,
-} from "../adapters/gen3-mgba/emerald-state-mapping.js";
+} from "../adapters/pokemon-emerald-us-rev0/emerald-state-mapping.js";
 
 const sourcePath = resolve(
   process.env.EMERALD_SOURCE_SNAPSHOT_PATH || "var/snapshots/emerald-us-rev0.source.json",

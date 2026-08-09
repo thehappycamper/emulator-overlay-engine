@@ -113,6 +113,12 @@ export function buildEmeraldProofConfig(values, { projectRoot = process.cwd() } 
       projectRoot,
     ),
     liveState: resolveConfiguredPath(values.EOE_LIVE_STATE_PATH.trim(), projectRoot),
+    acquisitionModule: resolve(
+      projectRoot,
+      "adapters",
+      "pokemon-emerald-us-rev0",
+      "emerald-acquisition.lua",
+    ),
     mappingPollIntervalMs,
     port,
   });
@@ -178,6 +184,7 @@ export async function validateEmeraldProofConfig(
   if (config.emeraldSavestate) {
     await assertFile(config.emeraldSavestate, "EOE_EMERALD_SAVESTATE", fileSystem);
   }
+  await assertFile(config.acquisitionModule, "Shared Emerald acquisition module", fileSystem);
   await assertOutputPath(
     config.sourceSnapshot,
     "EMERALD_SOURCE_SNAPSHOT_PATH",
@@ -211,6 +218,7 @@ export function createMgbaLaunch(config, { environment = process.env } = {}) {
         ? { EOE_EMERALD_SAVESTATE: config.emeraldSavestate }
         : {}),
       EMERALD_SOURCE_SNAPSHOT_PATH: config.sourceSnapshot,
+      EMERALD_ACQUISITION_MODULE_PATH: config.acquisitionModule,
       EOE_LIVE_STATE_PATH: config.liveState,
       EMERALD_MAPPING_POLL_INTERVAL_MS: String(config.mappingPollIntervalMs),
       PORT: String(config.port),

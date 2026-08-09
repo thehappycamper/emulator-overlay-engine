@@ -12,13 +12,17 @@ export const BIZHAWK_PROOF_VARIABLES = Object.freeze([
   "EOE_BIZHAWK_EXE",
   "EOE_BIZHAWK_EMERALD_ROM",
   "EOE_BIZHAWK_EMERALD_SAVESTATE",
-  "BIZHAWK_CONNECTOR_DIAGNOSTIC_PATH",
+  "EMERALD_SOURCE_SNAPSHOT_PATH",
+  "EOE_LIVE_STATE_PATH",
+  "EMERALD_MAPPING_POLL_INTERVAL_MS",
+  "PORT",
 ]);
 
 const REQUIRED_VARIABLES = Object.freeze([
   "EOE_BIZHAWK_EXE",
   "EOE_BIZHAWK_EMERALD_ROM",
-  "BIZHAWK_CONNECTOR_DIAGNOSTIC_PATH",
+  "EMERALD_SOURCE_SNAPSHOT_PATH",
+  "EOE_LIVE_STATE_PATH",
 ]);
 
 export class BizHawkProofConfigError extends Error {
@@ -55,17 +59,40 @@ export function buildBizHawkProofConfig(
     );
   }
 
+  const pollIntervalText = values.EMERALD_MAPPING_POLL_INTERVAL_MS?.trim() || "250";
+  const mappingPollIntervalMs = Number(pollIntervalText);
+  if (!Number.isFinite(mappingPollIntervalMs) || mappingPollIntervalMs <= 0) {
+    throw new BizHawkProofConfigError(
+      "EMERALD_MAPPING_POLL_INTERVAL_MS must be a positive number",
+    );
+  }
+
+  const portText = values.PORT?.trim() || "5173";
+  const port = Number(portText);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new BizHawkProofConfigError("PORT must be an integer from 1 through 65535");
+  }
+
   return Object.freeze({
     bizhawkExecutable: resolveConfiguredPath(values.EOE_BIZHAWK_EXE.trim(), projectRoot),
     emeraldRom: resolveConfiguredPath(values.EOE_BIZHAWK_EMERALD_ROM.trim(), projectRoot),
     emeraldSavestate: values.EOE_BIZHAWK_EMERALD_SAVESTATE?.trim()
       ? resolveConfiguredPath(values.EOE_BIZHAWK_EMERALD_SAVESTATE.trim(), projectRoot)
       : undefined,
-    diagnosticPath: resolveConfiguredPath(
-      values.BIZHAWK_CONNECTOR_DIAGNOSTIC_PATH.trim(),
+    sourceSnapshot: resolveConfiguredPath(
+      values.EMERALD_SOURCE_SNAPSHOT_PATH.trim(),
       projectRoot,
     ),
+    liveState: resolveConfiguredPath(values.EOE_LIVE_STATE_PATH.trim(), projectRoot),
     connectorPath: resolve(projectRoot, "adapters", "bizhawk", "proof-connector.lua"),
+    acquisitionModule: resolve(
+      projectRoot,
+      "adapters",
+      "pokemon-emerald-us-rev0",
+      "emerald-acquisition.lua",
+    ),
+    mappingPollIntervalMs,
+    port,
     expectedBizHawkVersion: SUPPORTED_BIZHAWK_VERSION,
     expectedSystemId: SUPPORTED_SYSTEM_ID,
     expectedRomHash: EMERALD_US_REV0_SHA1,
@@ -149,11 +176,13 @@ export async function validateBizHawkProofConfig(
     );
   }
   await assertFile(config.connectorPath, "BizHawk proof connector", fileSystem);
+  await assertFile(config.acquisitionModule, "Shared Emerald acquisition module", fileSystem);
   await assertOutputPath(
-    config.diagnosticPath,
-    "BIZHAWK_CONNECTOR_DIAGNOSTIC_PATH",
+    config.sourceSnapshot,
+    "EMERALD_SOURCE_SNAPSHOT_PATH",
     fileSystem,
   );
+  await assertOutputPath(config.liveState, "EOE_LIVE_STATE_PATH", fileSystem);
   return true;
 }
 
@@ -161,7 +190,8 @@ export async function prepareBizHawkProofDirectory(
   config,
   { fileSystem = { mkdir } } = {},
 ) {
-  await fileSystem.mkdir(dirname(config.diagnosticPath), { recursive: true });
+  await fileSystem.mkdir(dirname(config.sourceSnapshot), { recursive: true });
+  await fileSystem.mkdir(dirname(config.liveState), { recursive: true });
 }
 
 export function createBizHawkLaunch(config, { environment = process.env } = {}) {
@@ -176,7 +206,11 @@ export function createBizHawkLaunch(config, { environment = process.env } = {}) 
     args: Object.freeze(args),
     environment: Object.freeze({
       ...environment,
-      BIZHAWK_CONNECTOR_DIAGNOSTIC_PATH: config.diagnosticPath,
+      EMERALD_SOURCE_SNAPSHOT_PATH: config.sourceSnapshot,
+      EMERALD_ACQUISITION_MODULE_PATH: config.acquisitionModule,
+      EOE_LIVE_STATE_PATH: config.liveState,
+      EMERALD_MAPPING_POLL_INTERVAL_MS: String(config.mappingPollIntervalMs),
+      PORT: String(config.port),
       BIZHAWK_EXPECTED_VERSION: config.expectedBizHawkVersion,
       BIZHAWK_EXPECTED_SYSTEM_ID: config.expectedSystemId,
       BIZHAWK_EXPECTED_ROM_HASH: config.expectedRomHash,

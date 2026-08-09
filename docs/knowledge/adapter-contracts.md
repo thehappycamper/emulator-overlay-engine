@@ -8,7 +8,7 @@ The intended boundary is:
 Source Provider / Adapter -> Source Contract -> Mapping Runtime -> Named Target
 ```
 
-The platform-wide source-provider runtime contract is not implemented yet. The current mapping format identifies named/versioned source contracts without assuming emulator memory. The first concrete contract is adapter-owned: `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0` under `adapters/gen3-mgba/`.
+The platform-wide source-provider runtime contract is not implemented yet. The current mapping format identifies named/versioned source contracts without assuming emulator memory. The first reusable game-owned contract is `pokemon.emerald.us-rev0.acquisition@1.0.0` under `adapters/pokemon-emerald-us-rev0/`; mGBA and BizHawk provide it without changing downstream semantics.
 
 ## Common Source Provider Contract
 
@@ -17,7 +17,7 @@ Responsibilities:
 - Acquire gameplay information from one supported source.
 - Decode enough source-specific structure to emit a documented source contract.
 - Identify source/provider and supported game/version assumptions.
-- Keep source-specific APIs, addresses, protocols, parsing, or inference inside the provider boundary.
+- Keep provider-specific APIs, protocols, and memory-domain translation inside the provider boundary. Shared game addresses/decoding belong to the game adapter when multiple providers target the same game revision.
 - Document whether values are exact, derived, detected, or otherwise limited when known.
 
 Non-responsibilities:
@@ -92,9 +92,7 @@ src/domains/pokemon/schemas/overlay-state.schema.json
 
 The first live implementation may write `public/live-state.json` for polling. A later transport may differ, but payload semantics should remain tied to the selected named target contract rather than acquisition mechanics.
 
-`P05-T003` turns the strict-fingerprint Emerald Rev 0 acquisition proof into a schema-validated source snapshot under `adapters/gen3-mgba/`. `P05-T004` adds the checked-in mapping into `pokemon.overlay-state@0.1.0`, canonical Ajv target validation, and an atomic `public/live-state.json` handoff. The source snapshot still must not be consumed directly by the overlay, and the narrow local watcher does not define a universal provider runtime or transport.
-
-`P06-T001` adds a second-emulator bootstrap under `adapters/bizhawk/`, but deliberately stops at a strict identity/frame diagnostic. The existing source contract includes `mgba` in its ID, so BizHawk must not emit it under false provenance. A later reviewed task must define the BizHawk/provider-neutral acquisition contract and shared Emerald decoding ownership before the existing mapping/domain/overlay pipeline is connected.
+`P05-T003` and `P05-T004` originally established the strict-fingerprint source snapshot, checked-in mapping into `pokemon.overlay-state@0.1.0`, Ajv target validation, and atomic `public/live-state.json` handoff under the mGBA adapter. `P06-T002` moves the genuinely shared pieces to the game-owned package, introduces provider provenance, and makes both mGBA and BizHawk emit the same contract. The source snapshot still must not be consumed directly by the overlay, and the narrow local watcher does not define a universal provider runtime or transport.
 
 ## Fidelity, Provenance, And Confidence
 

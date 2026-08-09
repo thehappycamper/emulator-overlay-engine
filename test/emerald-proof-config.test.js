@@ -85,9 +85,15 @@ test("path validation and setup accept real files and create both output directo
   await mkdir(join(root, "bin"), { recursive: true });
   await mkdir(join(root, "games"), { recursive: true });
   await mkdir(join(root, "saves"), { recursive: true });
+  await mkdir(join(root, "adapters", "pokemon-emerald-us-rev0"), { recursive: true });
   await writeFile(join(root, "bin", "mGBA.exe"), "test", "utf8");
   await writeFile(join(root, "games", "emerald.gba"), "test", "utf8");
   await writeFile(join(root, "saves", "proof.ss1"), "test", "utf8");
+  await writeFile(
+    join(root, "adapters", "pokemon-emerald-us-rev0", "emerald-acquisition.lua"),
+    "test",
+    "utf8",
+  );
 
   const config = buildEmeraldProofConfig(
     values({ EOE_EMERALD_SAVESTATE: "saves/proof.ss1" }),
@@ -140,6 +146,7 @@ test("mGBA launch preserves the ROM argument and exports proof settings to the c
   assert.equal(launch.executable, config.mgbaExecutable);
   assert.deepEqual(launch.args, [config.emeraldRom]);
   assert.equal(launch.environment.EMERALD_SOURCE_SNAPSHOT_PATH, config.sourceSnapshot);
+  assert.equal(launch.environment.EMERALD_ACQUISITION_MODULE_PATH, config.acquisitionModule);
   assert.equal(launch.environment.EOE_LIVE_STATE_PATH, config.liveState);
   assert.equal(launch.environment.PORT, "6000");
   assert.equal(launch.environment.SYSTEM_VALUE, "kept");

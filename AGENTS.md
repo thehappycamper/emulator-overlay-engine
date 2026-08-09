@@ -127,8 +127,8 @@ worktrees-or-clones/
 ## Architecture Rules
 
 - Shared platform code must not acquire gameplay data directly. Source providers/adapters own acquisition and expose source contracts.
-- Emulator adapters own emulator APIs, memory addresses, and live export mechanics, but emulator memory must not become a platform-wide assumption.
-- Game/data adapters own generation, ROM, and ROM-hack mappings.
+- Emulator adapters own emulator APIs, emulator-specific memory-domain translation, and live export mechanics, but emulator memory must not become a platform-wide assumption.
+- Game/data adapters own game addresses, packed/encrypted game structures, generation semantics, ROM/revision mappings, and ROM-hack overrides. Do not duplicate those semantics across providers for the same game target.
 - Raw emulator and source details must remain at source/adapter boundaries; future consumers should use normalized domain state or semantic events.
 - Preserve `Source Provider -> Source Contract -> Mapping -> Normalized State`; downstream code must not branch on acquisition method.
 - Different providers may eventually need fidelity, provenance, or confidence metadata. Do not invent those fields without a separate architecture/schema decision.

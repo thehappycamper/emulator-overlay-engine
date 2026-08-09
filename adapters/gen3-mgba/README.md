@@ -1,6 +1,6 @@
 # Pokemon Emerald mGBA Source Provider
 
-This adapter reads a small, changing set of Pokemon Emerald values through mGBA and publishes the named source contract `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0`. A checked-in declarative mapping and local runner transform that source into validated `pokemon.overlay-state@0.1.0` at `public/live-state.json`.
+This adapter is the mGBA-specific provider for the game-owned `pokemon.emerald.us-rev0.acquisition@1.0.0` contract. It owns mGBA lifecycle/API access and atomic publication; shared Emerald addresses, Gen III decoding, schema, fixtures, and mapping live under `adapters/pokemon-emerald-us-rev0/`.
 
 ## Supported Baseline
 
@@ -21,7 +21,7 @@ The SHA-1 is the English retail ROM fingerprint documented by [pret/pokeemerald]
 
 mGBA 0.10 introduced built-in Lua scripting. The provider uses the documented `emu:read8`, `emu:read16`, `emu:read32`, ROM-memory domain, checksum, text-buffer, and frame-callback APIs. See the [mGBA scripting API](https://mgba.io/docs/scripting.html).
 
-`emerald-acquisition.lua` owns emulator API calls, retail addresses, contract serialization, and the local snapshot handoff. `emerald-us-rev0.js` is the deterministic reference for identity checks, Gen III encrypted-species decoding, struct offsets, and pointer validation. `emerald-source-contract.js` wraps those acquired values with contract/game identity; `validate-source-snapshot.js` validates snapshots against the adapter-owned JSON Schema.
+`emerald-acquisition.lua` owns emulator API calls and the local snapshot handoff. It loads the game-owned `adapters/pokemon-emerald-us-rev0/emerald-acquisition.lua` module for retail addresses, contract serialization, Gen III encrypted-species decoding, struct offsets, and pointer validation. JavaScript files retained in this directory are compatibility re-exports.
 
 The script is read-only with respect to emulator/game memory. It writes derived JSON telemetry only to the configured local snapshot path.
 
@@ -29,16 +29,16 @@ The script is read-only with respect to emulator/game memory. It writes derived 
 
 | Property | Value |
 | --- | --- |
-| Contract ID | `pokemon.emerald.us-rev0.mgba.acquisition` |
+| Contract ID | `pokemon.emerald.us-rev0.acquisition` |
 | Contract version | `1.0.0` |
-| Canonical schema | `schemas/emerald-us-rev0-source.schema.json` |
-| Public-safe fixture | `fixtures/emerald-us-rev0.source.json` |
+| Canonical schema | `../pokemon-emerald-us-rev0/schemas/emerald-us-rev0-source.schema.json` |
+| Public-safe fixture | `../pokemon-emerald-us-rev0/fixtures/emerald-us-rev0.source.json` |
 
-The schema is adapter-owned because these are raw acquisition fields for one game/revision/provider, not platform or normalized Pokemon fields. Success snapshots contain no diagnostic status. `waiting-for-game`, `unsupported-rom`, and `invalid-memory` remain text-buffer diagnostics and cause the canonical snapshot to be absent.
+The schema is game-adapter-owned because these are raw acquisition fields for one game/revision, not platform or normalized Pokemon fields. Provider provenance remains explicit under `source`. Success snapshots contain no diagnostic status; provider failures cause the canonical snapshot to be absent.
 
 ## Normalized-State Mapping
 
-`mappings/emerald-us-rev0-to-pokemon-overlay-state.mapping.json` is the canonical source-to-target mapping. `emerald-state-mapping.js` validates the source and mapping, calls the shared `applyMappingProject()` runtime, then validates the result against `src/domains/pokemon/schemas/overlay-state.schema.json` with Ajv.
+`../pokemon-emerald-us-rev0/mappings/emerald-us-rev0-to-pokemon-overlay-state.mapping.json` is the canonical source-to-target mapping. The game-owned `emerald-state-mapping.js` validates the source and mapping, calls the shared `applyMappingProject()` runtime, then validates the result against `src/domains/pokemon/schemas/overlay-state.schema.json` with Ajv.
 
 The current source has one fixed party record and one fixed opponent record. The mapping therefore emits at most party index `0` and one opponent. It uses explicit compatibility placeholders for required fields acquisition does not provide:
 
@@ -48,7 +48,7 @@ The current source has one fixed party record and one fixed opponent record. The
 - moves, bag balls, TMs, and encounters: empty arrays;
 - location name: `Location name unavailable`.
 
-These are not inferred gameplay values. Raw revision, CRC, party count, battle flags, and map identifiers/coordinates are retained under `extensions["pokemon.emerald.us-rev0.mgba.acquisition"]`.
+These are not inferred gameplay values. Provider provenance, raw revision, CRC, party count, battle flags, and map identifiers/coordinates are retained under `extensions["pokemon.emerald.us-rev0.acquisition"]`.
 
 ## Live Fields
 
@@ -74,7 +74,7 @@ npm run proof:emerald -- --check
 npm run proof:emerald
 ```
 
-The launcher validates the mGBA executable, ROM, optional savestate, output paths, poll interval, and port. It creates the source/live-state parent directories and launches mGBA with the ROM while exporting `EMERALD_SOURCE_SNAPSHOT_PATH` to the child process. It then prints the exact Lua, mapper, server, and browser steps for the configured paths.
+The launcher validates the mGBA executable, ROM, optional savestate, shared acquisition module, output paths, poll interval, and port. It creates the source/live-state parent directories and launches mGBA with the ROM while exporting both `EMERALD_SOURCE_SNAPSHOT_PATH` and `EMERALD_ACQUISITION_MODULE_PATH`. It then prints the exact Lua, mapper, server, and browser steps for the configured paths.
 
 When a savestate is configured, the launcher passes it via `mgba-qt`'s documented `-t`/`--savestate` command-line flag, so mGBA starts already at that position — no manual **File > Load State** step. This flag is officially documented for `mgba-qt` (see the [command-line reference](https://manpages.ubuntu.com/manpages/focal/man6/mgba-qt.6.html)); it is not GUI automation, it is a supported startup argument.
 
@@ -82,11 +82,12 @@ When a savestate is configured, the launcher passes it via `mgba-qt`'s documente
 
 ## Configure The Snapshot
 
-Set `EMERALD_SOURCE_SNAPSHOT_PATH` in the process environment **before starting mGBA**. mGBA does not load this repository's `.env` file itself. Use an absolute path and create its parent directory first. For example, from the repository root in PowerShell:
+Set `EMERALD_SOURCE_SNAPSHOT_PATH` and `EMERALD_ACQUISITION_MODULE_PATH` in the process environment **before starting mGBA**. The supported launcher handles both; mGBA does not load this repository's `.env` file itself.
 
 ```powershell
 New-Item -ItemType Directory -Force var/snapshots
 $env:EMERALD_SOURCE_SNAPSHOT_PATH = (Resolve-Path var/snapshots).Path + "\emerald-us-rev0.source.json"
+$env:EMERALD_ACQUISITION_MODULE_PATH = (Resolve-Path adapters/pokemon-emerald-us-rev0/emerald-acquisition.lua).Path
 & $env:EOE_MGBA_EXE
 ```
 
@@ -100,7 +101,7 @@ Do not configure the overlay to read this source file. Run `npm run live:emerald
 2. In mGBA, choose **Tools > Scripting...**.
 3. Choose **Load script** and select `adapters/gen3-mgba/emerald-acquisition.lua` from this repository.
 4. Open the `Emerald acquisition source` text buffer in the scripting window.
-5. Confirm the JSON has `"contract":{"id":"pokemon.emerald.us-rev0.mgba.acquisition","version":"1.0.0"}` and inspect `party.first.currentHp`.
+5. Confirm the JSON has `"contract":{"id":"pokemon.emerald.us-rev0.acquisition","version":"1.0.0"}`, `"provider":{"id":"mgba"`, and inspect `party.first.currentHp`.
 6. Take damage or heal the first party Pokemon in game without restarting mGBA.
 7. Confirm `party.first.currentHp` changes in the diagnostic.
 8. Parse the file at `EMERALD_SOURCE_SNAPSHOT_PATH` and confirm its HP changed without restarting mGBA. Enter or leave a battle and confirm `battle.active` changes; move to another map and confirm at least one location identifier changes.
@@ -137,11 +138,11 @@ The preferred workflow is `npm run proof:emerald`; the launcher prints commands 
 
 8. Take damage or heal the first party Pokemon. Confirm the source snapshot, `public/live-state.json`, and rendered HP all change without restarting mGBA, mapper, or server.
 
-9. Enter and leave a battle. Confirm the fixed opponent appears and disappears. Change maps and confirm the raw values under `extensions.pokemon.emerald.us-rev0.mgba.acquisition.location` change; `location.name` remains the explicit placeholder.
+9. Enter and leave a battle. Confirm the fixed opponent appears and disappears. Change maps and confirm the raw values under `extensions.pokemon.emerald.us-rev0.acquisition.location` change; `location.name` remains the explicit placeholder.
 
 10. Stop the mapper and server with **Ctrl+C**. `public/live-state.json` and `var/snapshots/` are runtime files ignored by Git.
 
-For a source-fixture preflight without mGBA, set `EMERALD_SOURCE_SNAPSHOT_PATH` to `adapters/gen3-mgba/fixtures/emerald-us-rev0.source.json` and run `npm run live:emerald -- --once`.
+For a source-fixture preflight without mGBA, set `EMERALD_SOURCE_SNAPSHOT_PATH` to `adapters/pokemon-emerald-us-rev0/fixtures/emerald-us-rev0.source.json` and run `npm run live:emerald -- --once`.
 
 ## Source Snapshot Shape
 
@@ -149,7 +150,8 @@ The canonical schema is authoritative. A representative source snapshot is:
 
 ```json
 {
-  "contract": { "id": "pokemon.emerald.us-rev0.mgba.acquisition", "version": "1.0.0" },
+  "contract": { "id": "pokemon.emerald.us-rev0.acquisition", "version": "1.0.0" },
+  "source": { "provider": { "id": "mgba", "name": "mGBA" } },
   "game": { "gameCode": "AGB-BPEE", "title": "POKEMON EMER", "revision": 0, "crc32": "1F1C08FB" },
   "party": { "count": 1, "first": { "speciesId": 258, "level": 15, "currentHp": 31, "maxHp": 35 } },
   "battle": { "active": false, "typeFlags": 0, "opponent": null },

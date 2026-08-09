@@ -1,15 +1,15 @@
 {
   "schemaVersion": "0.1.0",
-  "id": "pokemon.emerald.us-rev0.mgba-to-overlay-state",
-  "name": "Pokemon Emerald US Rev 0 mGBA To Pokemon Overlay State",
+  "id": "pokemon.emerald.us-rev0-to-overlay-state",
+  "name": "Pokemon Emerald US Rev 0 To Pokemon Overlay State",
   "version": "1.0.0",
   "description": "Maps the fixed-slot Emerald acquisition snapshot into the current Pokemon normalized overlay state, using documented placeholders for fields acquisition does not yet provide.",
   "source": {
-    "id": "pokemon.emerald.us-rev0.mgba.acquisition",
+    "id": "pokemon.emerald.us-rev0.acquisition",
     "type": "acquisition-source-snapshot",
     "version": "1.0.0",
-    "schema": "urn:source-contract:pokemon.emerald.us-rev0.mgba.acquisition:1.0.0",
-    "description": "Strict-fingerprint live values acquired from Pokemon Emerald US Rev 0 through mGBA."
+    "schema": "urn:source-contract:pokemon.emerald.us-rev0.acquisition:1.0.0",
+    "description": "Strict-fingerprint live values acquired from Pokemon Emerald US Rev 0 through a supported provider."
   },
   "target": {
     "id": "pokemon.overlay-state",
@@ -37,10 +37,10 @@
       "required": true
     },
     {
-      "sourcePath": "/__placeholder/adapter",
+      "sourcePath": "/source/provider/name",
       "targetPath": "/game/adapter",
-      "default": "mGBA Emerald US Rev 0",
-      "description": "Literal provider label for display and diagnostics."
+      "required": true,
+      "description": "Provider provenance label for display and diagnostics."
     },
     {
       "sourcePath": "/game/gameCode",
@@ -126,54 +126,83 @@
     },
     {
       "sourcePath": "/contract/id",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/contractId",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/contractId",
       "required": true
     },
     {
       "sourcePath": "/contract/version",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/contractVersion",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/contractVersion",
+      "required": true
+    },
+    {
+      "sourcePath": "/source/provider/id",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/source/providerId",
+      "required": true
+    },
+    {
+      "sourcePath": "/source/provider/version",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/source/providerVersion"
+    },
+    {
+      "sourcePath": "/source/integration",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/source/integration",
+      "required": true
+    },
+    {
+      "sourcePath": "/source/memory/addressSpace",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/source/addressSpace",
+      "required": true
+    },
+    {
+      "sourcePath": "/source/memory/primaryDomain",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/source/primaryDomain",
+      "required": true
+    },
+    {
+      "sourcePath": "/source/memory/verifiedDomains",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/source/verifiedDomains",
       "required": true
     },
     {
       "sourcePath": "/game/revision",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/revision",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/revision",
       "required": true
     },
     {
       "sourcePath": "/game/crc32",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/crc32",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/crc32",
       "required": true
     },
     {
       "sourcePath": "/party/count",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/partyCount",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/partyCount",
       "required": true
     },
     {
       "sourcePath": "/battle/active",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/battleActive",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/battleActive",
       "required": true
     },
     {
       "sourcePath": "/battle/typeFlags",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/battleTypeFlags",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/battleTypeFlags",
       "required": true
     },
     {
       "sourcePath": "/location/mapGroup",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/location/mapGroup"
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/location/mapGroup"
     },
     {
       "sourcePath": "/location/mapNumber",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/location/mapNumber"
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/location/mapNumber"
     },
     {
       "sourcePath": "/location/x",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/location/x"
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/location/x"
     },
     {
       "sourcePath": "/location/y",
-      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/location/y"
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.acquisition/location/y"
     }
   ],
   "valueMappings": [
@@ -250,6 +279,12 @@
     "requiredSourcePaths": [
       "/contract/id",
       "/contract/version",
+      "/source/provider/id",
+      "/source/provider/name",
+      "/source/integration",
+      "/source/memory/addressSpace",
+      "/source/memory/primaryDomain",
+      "/source/memory/verifiedDomains",
       "/game/gameCode",
       "/game/title",
       "/game/revision",

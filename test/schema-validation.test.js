@@ -11,7 +11,7 @@ const pokemonSchemaDirectory = join(repositoryRoot, "src", "domains", "pokemon",
 const emeraldSourceSchemaPath = join(
   repositoryRoot,
   "adapters",
-  "gen3-mgba",
+  "pokemon-emerald-us-rev0",
   "schemas",
   "emerald-us-rev0-source.schema.json"
 );
@@ -145,9 +145,9 @@ test("all mapping projects satisfy the mapping project contract", async (t) => {
   }
 });
 
-test("Emerald acquisition source fixtures satisfy their adapter-owned contract", async (t) => {
+test("Emerald acquisition source fixtures satisfy their game-owned contract", async (t) => {
   const files = findFiles(
-    join(repositoryRoot, "adapters", "gen3-mgba", "fixtures"),
+    join(repositoryRoot, "adapters", "pokemon-emerald-us-rev0", "fixtures"),
     (path) => path.endsWith(".source.json")
   );
   assert.ok(files.length > 0);

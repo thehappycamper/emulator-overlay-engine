@@ -1,10 +1,10 @@
 {
   "schemaVersion": "0.1.0",
-  "id": "bizhawk.lua.proof-connector",
-  "name": "BizHawk Lua Proof Connector",
+  "id": "pokemon.emerald.bizhawk.source-provider",
+  "name": "BizHawk Emerald Source Provider",
   "type": "emulator",
-  "version": "0.1.0",
-  "description": "Generic read-only BizHawk bootstrap connector for strict local emulator/system/ROM identity and frame-heartbeat diagnostics.",
+  "version": "0.2.0",
+  "description": "Read-only BizHawk provider for the shared Pokemon Emerald Rev 0 acquisition contract.",
   "entrypoints": {
     "docs": "README.md",
     "main": "proof-connector.lua"
@@ -15,13 +15,28 @@
         "name": "BizHawk",
         "versions": ["2.11.1"]
       }
-    ]
+    ],
+    "games": [
+      {
+        "name": "Pokemon Emerald (English retail Rev 0)",
+        "romIds": ["SHA1:F3AE088181BF583E55DAF962A92BB46F4F1D07B7"],
+        "versions": ["0"]
+      }
+    ],
+    "generations": [3]
   },
   "provides": {
-    "diagnosticHeartbeat": true,
-    "sourceSnapshots": false,
+    "diagnosticHeartbeat": false,
+    "sourceSnapshots": true,
     "normalizedStateMapping": false,
     "readOnly": true
+  },
+  "exports": {
+    "sourceContract": {
+      "id": "pokemon.emerald.us-rev0.acquisition",
+      "version": "1.0.0"
+    },
+    "gameAdapter": "pokemon.emerald.us-rev0-acquisition"
   },
   "publicSafety": {
     "containsRoms": false,

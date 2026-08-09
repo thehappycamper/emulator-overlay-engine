@@ -55,21 +55,19 @@
 
 | Path | Purpose |
 | --- | --- |
-| `adapters/gen3-mgba/README.md` | Supported fingerprint, source contract, snapshot lifecycle, mGBA setup, manual smoke procedure, sources, and limitations. |
-| `adapters/gen3-mgba/emerald-acquisition.lua` | Read-only mGBA 0.10.3 Lua provider for strict-fingerprint Emerald Rev 0 source snapshots and local replace-via-temp handoff. |
-| `adapters/gen3-mgba/emerald-us-rev0.js` | Pure/testable identity, Gen III Pokemon decoding, address, pointer, and acquisition logic. |
-| `adapters/gen3-mgba/emerald-source-contract.js` | Source contract descriptor and acquisition-to-snapshot builder. |
-| `adapters/gen3-mgba/validate-source-snapshot.js` | Ajv validation entry point for Emerald source snapshots. |
-| `adapters/gen3-mgba/atomic-json-file.js` | Adapter-local complete-file JSON replacement shared by validated source and normalized-state writers. |
-| `adapters/gen3-mgba/write-source-snapshot.js` | Validated source snapshot writer using complete-file replacement. |
-| `adapters/gen3-mgba/emerald-state-mapping.js` | Loads/validates the Emerald mapping, invokes `applyMappingProject()`, validates canonical Pokemon state, and writes live state. |
-| `adapters/gen3-mgba/schemas/emerald-us-rev0-source.schema.json` | Canonical `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0` contract. |
-| `adapters/gen3-mgba/mappings/emerald-us-rev0-to-pokemon-overlay-state.mapping.json` | Fixed-slot declarative mapping into `pokemon.overlay-state@0.1.0` with documented placeholders. |
-| `adapters/gen3-mgba/extension.json` | Public extension manifest for the Emerald source provider. |
-| `adapters/gen3-mgba/fixtures/` | Synthetic acquisition/source fixtures; no ROM/save/game binaries. |
-| `adapters/bizhawk/proof-connector.lua` | Generic BizHawk 2.11.1 identity/frame bootstrap; consumes launcher-supplied expectations and contains no Pokemon state decoding. |
-| `adapters/bizhawk/extension.json` | Public manifest for the read-only BizHawk diagnostic connector. |
-| `adapters/bizhawk/README.md` | Supported release, Lua-vs-External-Tool decision, setup, trust/version boundaries, and next source-contract slice. |
+| `adapters/pokemon-emerald-us-rev0/` | Canonical game-owned Emerald Rev 0 acquisition package: identity, addresses, Gen III decoding, contract/schema, fixtures, mapping, validation, and shared Lua module. |
+| `adapters/pokemon-emerald-us-rev0/emerald-acquisition.lua` | Provider-neutral Lua acquisition/serialization module loaded by both emulator providers. |
+| `adapters/pokemon-emerald-us-rev0/emerald-us-rev0.js` | Pure/testable identity, Gen III Pokemon decoding, address, pointer, and acquisition logic. |
+| `adapters/pokemon-emerald-us-rev0/emerald-source-contract.js` | Provider-neutral contract descriptor, provenance descriptors, and acquisition-to-snapshot builder. |
+| `adapters/pokemon-emerald-us-rev0/emerald-state-mapping.js` | Loads/validates the single Emerald mapping, invokes `applyMappingProject()`, validates canonical Pokemon state, and writes live state. |
+| `adapters/pokemon-emerald-us-rev0/schemas/emerald-us-rev0-source.schema.json` | Canonical `pokemon.emerald.us-rev0.acquisition@1.0.0` contract. |
+| `adapters/pokemon-emerald-us-rev0/mappings/emerald-us-rev0-to-pokemon-overlay-state.mapping.json` | Provider-independent fixed-slot mapping into `pokemon.overlay-state@0.1.0` with documented placeholders. |
+| `adapters/pokemon-emerald-us-rev0/fixtures/` | Synthetic acquisition/source fixtures; no ROM/save/game binaries. |
+| `adapters/gen3-mgba/emerald-acquisition.lua` | Thin mGBA 0.10.3 provider: identity APIs, system-bus reads, lifecycle, and source publication. |
+| `adapters/gen3-mgba/*.js` | Compatibility re-exports for P05 module paths that predate game-owned acquisition. |
+| `adapters/bizhawk/proof-connector.lua` | Thin BizHawk 2.11.1 provider with strict identity and System Bus/direct EWRAM-IWRAM read verification. |
+| `adapters/bizhawk/gba-memory-domains.js` | Pure/testable reference for BizHawk GBA System Bus-to-direct-WRAM translation and domain dimensions. |
+| `adapters/{gen3-mgba,bizhawk}/extension.json` | Provider manifests exporting the shared Emerald acquisition contract. |
 | `extensions/README.md` | Extension model and rules. |
 | `examples/extensions/` | Example extension manifests and README templates. |
 | `examples/templates/` | Example shareable template manifests and README files. |
@@ -93,6 +91,7 @@
 | `test/mgba-emerald-acquisition.test.js` | Emerald fingerprint, Gen III encrypted-species/stat decoding, battle/location acquisition, pointer safety, and Lua-layout synchronization tests. |
 | `test/emerald-source-contract.test.js` | Emerald source validation, reader output, unsupported-ROM refusal, and atomic snapshot-handoff tests. |
 | `test/emerald-live-state-mapping.test.js` | Mapping contract, target validation, placeholder renderer safety, fixed-slot behavior, and atomic normalized-state handoff tests. |
+| `test/emerald-provider-parity.test.js` | Equivalent-provider source semantics, provider-independent downstream mapping, and mGBA compatibility import identity. |
 | `test/emerald-proof-config.test.js` | Local env parsing, required path/numeric validation, output-directory setup, and mGBA child environment tests. |
 | `tools/dev-server.mjs` | Dependency-free local static server for overlay development. |
 | `tools/emerald-live-state.mjs` | Narrow local watcher from Emerald source snapshot through mapping/validation to `public/live-state.json`. |
@@ -101,7 +100,7 @@
 | `tools/local-env.mjs` | Non-executable parser shared by new local launcher configuration; shell expressions are treated as literal data. |
 | `tools/bizhawk-proof-config.mjs` | BizHawk Proof 2 local path validation, supported identity expectations, and CLI/environment construction. |
 | `tools/launch-bizhawk-proof.mjs` | Windows-friendly `npm run proof:bizhawk` launcher; auto-loads ROM, optional savestate, and Lua connector. |
-| `test/bizhawk-proof-config.test.js` | BizHawk local config, fail-before-launch, CLI argument, identity environment, and adapter-boundary regression tests. |
+| `test/bizhawk-proof-config.test.js` | BizHawk local config, fail-before-launch, CLI argument, shared-module environment, and memory-domain boundary regression tests. |
 
 ## Documentation
 

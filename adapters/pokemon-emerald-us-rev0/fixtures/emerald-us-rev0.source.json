@@ -1,7 +1,19 @@
 {
   "contract": {
-    "id": "pokemon.emerald.us-rev0.mgba.acquisition",
+    "id": "pokemon.emerald.us-rev0.acquisition",
     "version": "1.0.0"
+  },
+  "source": {
+    "provider": {
+      "id": "mgba",
+      "name": "mGBA"
+    },
+    "integration": "lua",
+    "memory": {
+      "addressSpace": "gba-system-bus",
+      "primaryDomain": "mGBA emu API",
+      "verifiedDomains": []
+    }
   },
   "game": {
     "gameCode": "AGB-BPEE",

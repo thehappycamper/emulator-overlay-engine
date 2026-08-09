@@ -2,7 +2,7 @@
 
 Date: 2026-08-08
 
-Status: accepted
+Status: accepted; provider ownership and mapping location superseded by ADR 0020
 
 Implements: ADR 0012, ADR 0015, ADR 0018
 

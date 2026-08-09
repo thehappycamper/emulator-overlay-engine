@@ -42,7 +42,7 @@ The mapping and downstream domain layers should not branch on whether state orig
 
 Different providers may eventually carry different fidelity, provenance, or confidence. Exact memory values and inferred computer-vision observations are not equivalent, but metadata for that distinction has not been designed. Adding it requires a separate contract decision.
 
-The first implemented concrete source contract is `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0`, owned by `adapters/gen3-mgba/`. Its adapter-owned mapping now proves the local path into validated Pokemon normalized state and `public/live-state.json`. A generic source-provider runtime remains future work; the current watcher is narrow Emerald integration tooling.
+The first implemented reusable source contract is `pokemon.emerald.us-rev0.acquisition@1.0.0`, owned by the game adapter at `adapters/pokemon-emerald-us-rev0/`. mGBA and BizHawk own their emulator API/lifecycle boundaries and emit that shared contract with provider provenance. Its game-owned mapping proves the local path into validated Pokemon normalized state and `public/live-state.json`. A generic source-provider runtime remains future work; the current watcher is narrow Emerald integration tooling.
 
 ## Layers
 

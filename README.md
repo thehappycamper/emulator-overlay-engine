@@ -16,8 +16,8 @@ The implemented foundation is intentionally small and Pokemon-focused:
 - Dependency-free, domain-neutral browser host that polls a state source and renders a useful challenge dashboard through the selected domain presentation.
 - Pokemon domain package with its normalized-state contract, overlay presentation, and damage, catch, and type-effectiveness calculators plus Node tests.
 - Domain-neutral mapping contract with safe calculated expressions and schema-validated examples.
-- Read-only Pokemon Emerald Rev 0 source provider for mGBA 0.10.3, with strict ROM identification, a named/versioned acquisition contract, declarative mapping into validated Pokemon state, and safe local source/live-state handoffs.
-- BizHawk 2.11.1 Proof 2 bootstrap with local-only configuration, automatic Emerald/Lua connector launch, strict identity checks, and a changing diagnostic heartbeat. Source-contract adaptation remains a separate task.
+- Provider-neutral Pokemon Emerald Rev 0 acquisition contract with shared game decoding, declarative mapping into validated Pokemon state, and safe local source/live-state handoffs.
+- Read-only mGBA 0.10.3 and BizHawk 2.11.1 providers. BizHawk auto-loads the connector and empirically checks System Bus reads against direct EWRAM/IWRAM before publication; real-ROM Proof 2 acceptance remains pending.
 - GitHub Actions CI for tests.
 
 ## Local Use
@@ -36,13 +36,13 @@ http://127.0.0.1:5173
 
 The overlay currently polls `public/sample-state.json` (once per second by default) and re-renders only when the fetched state actually changes. The Emerald mapper can produce validated `public/live-state.json`, and the UI can select it with `?state=/public/live-state.json`. A missing, invalid, or partially-written state file is tolerated without losing the last successfully rendered content; a small status indicator reports `live`/`stale`/`error`. The polling interval can be overridden per page via `data-poll-interval-ms` on `#app`.
 
-The Emerald mGBA provider writes an acquisition source snapshot, not overlay state. `npm run live:emerald` watches that source, applies the checked-in mapping, validates against the Pokemon schema, and atomically publishes the live-state file. See the [adapter README](adapters/gen3-mgba/README.md) for exact setup and current placeholder limitations.
+An Emerald provider writes an acquisition source snapshot, not overlay state. `npm run live:emerald` watches that source, applies the one checked-in game-owned mapping, validates against the Pokemon schema, and atomically publishes the live-state file. See the [Emerald adapter](adapters/pokemon-emerald-us-rev0/README.md), [mGBA provider](adapters/gen3-mgba/README.md), and [BizHawk provider](adapters/bizhawk/README.md).
 
 ## Local Configuration
 
 For the Emerald Proof 1 workflow, copy `.env.local.example` to `.env.local`, fill in local mGBA/ROM paths, then run `npm run proof:emerald`. The launcher validates the setup, creates local snapshot directories, and starts mGBA with the configured ROM and (if set) savestate via mGBA's documented `--savestate` flag. It prints the remaining steps: the one genuinely manual step (loading the Lua script — mGBA has no supported way to do this from the command line) plus the mapper/server commands.
 
-For the BizHawk Proof 2 bootstrap, copy `.env.bizhawk.local.example` to `.env.bizhawk.local`, fill in local BizHawk/ROM paths, then run `npm run proof:bizhawk`. BizHawk can auto-load both the repository Lua connector and an optional savestate. This first slice publishes only an identity/frame diagnostic; see the [BizHawk adapter README](adapters/bizhawk/README.md).
+For BizHawk Proof 2, copy `.env.bizhawk.local.example` to `.env.bizhawk.local`, fill in local BizHawk/ROM paths, then run `npm run proof:bizhawk`. BizHawk auto-loads the repository Lua provider and optional savestate, then publishes the shared Emerald source snapshot for the same mapper/overlay path. See the [BizHawk adapter README](adapters/bizhawk/README.md); the real-ROM acceptance session is still required.
 
 `.env.local`, `.env.bizhawk.local`, and `.env` are ignored. Never commit these files, ROMs, saves, savestates, BIOS files, emulator binaries, or machine-specific paths. See [local configuration](docs/project/configuration.md).
 

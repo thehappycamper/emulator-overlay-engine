@@ -31,8 +31,8 @@ npm run proof:bizhawk -- --check
 | `EOE_BIZHAWK_EXE` | Required local path to BizHawk 2.11.1 `EmuHawk.exe` for `npm run proof:bizhawk`. |
 | `EOE_BIZHAWK_EMERALD_ROM` | Required local path to a legally obtained Emerald English retail Rev 0 image for Proof 2. |
 | `EOE_BIZHAWK_EMERALD_SAVESTATE` | Optional local BizHawk savestate; passed through `--load-state`. |
-| `BIZHAWK_CONNECTOR_DIAGNOSTIC_PATH` | Local output for the Proof 2 identity/frame heartbeat. This is not a source contract or normalized state. |
-| `EMERALD_SOURCE_SNAPSHOT_PATH` | Local path where the Emerald mGBA provider publishes its acquisition source snapshot. Relative values resolve from the repository root. It must be in mGBA's process environment before launch; mGBA does not load config files itself. |
+| `EMERALD_SOURCE_SNAPSHOT_PATH` | Local path where either supported Emerald provider publishes its acquisition source snapshot. Relative values resolve from the repository root. It must be inherited by the emulator process. |
+| `EMERALD_ACQUISITION_MODULE_PATH` | Launcher-managed path to the checked-in shared Emerald Lua module. Users normally do not set this directly. |
 | `EMERALD_MAPPING_POLL_INTERVAL_MS` | Optional positive polling interval for `npm run live:emerald`; defaults to `250`. |
 | `EOE_VBA_RR_EXE` | Optional local path to VBA-RR executable. |
 | `EOE_SAVE_DIR` | Optional local path to emulator save directory. |
@@ -53,7 +53,7 @@ npm run proof:bizhawk -- --check
 
 ## Emerald Proof Launcher
 
-`npm run proof:emerald` loads `.env.local`, validates the executable/ROM/optional-savestate paths, validates both output destinations, creates their parent directories, and launches mGBA with the configured ROM. When a savestate is configured, it is passed via `mgba-qt`'s documented `--savestate` flag, so mGBA starts from it automatically. The child mGBA process inherits `EMERALD_SOURCE_SNAPSHOT_PATH` for the Lua provider. The launcher does not automate GUI clicks or script loading — mGBA has no supported command-line or config-file way to auto-load a Lua script ([mgba-emu/mgba#3289](https://github.com/mgba-emu/mgba/issues/3289), closed as not planned), so that one step remains manual.
+`npm run proof:emerald` loads `.env.local`, validates the executable/ROM/optional-savestate paths, shared acquisition module, and both output destinations, creates their parent directories, and launches mGBA with the configured ROM. When a savestate is configured, it is passed via `mgba-qt`'s documented `--savestate` flag, so mGBA starts from it automatically. The child mGBA process inherits both source-snapshot and shared-module paths. The launcher does not automate GUI clicks or script loading — mGBA has no supported command-line or config-file way to auto-load a Lua script ([mgba-emu/mgba#3289](https://github.com/mgba-emu/mgba/issues/3289), closed as not planned), so that one step remains manual.
 
 Use `npm run proof:emerald -- --check` to validate and create directories without launching mGBA. A different local file can be selected with `--config <path>`.
 
@@ -61,6 +61,6 @@ Close an already-running mGBA instance before using the launcher so the process 
 
 ## BizHawk Proof Launcher
 
-`npm run proof:bizhawk` loads `.env.bizhawk.local`, validates the executable, ROM, optional savestate, checked-in connector, and diagnostic destination, then launches BizHawk with `--lua=<connector>`, optional `--load-state=<savestate>`, and the ROM as the final argument. BizHawk 2.11.1 loads the ROM/state before starting the Lua connector. The connector verifies BizHawk version `2.11.1`, system `GBA`, and the supported Emerald Rev 0 SHA-1 before writing a heartbeat.
+`npm run proof:bizhawk` loads `.env.bizhawk.local`, validates the executable, ROM, optional savestate, shared acquisition module, connector, source destination, and live-state destination, then launches BizHawk with `--lua=<connector>`, optional `--load-state=<savestate>`, and the ROM as the final argument. BizHawk 2.11.1 loads the ROM/state before starting Lua. The provider verifies BizHawk version `2.11.1`, system `GBA`, the supported Emerald Rev 0 SHA-1, expected GBA memory domains/sizes, and System Bus/direct WRAM read parity before publishing the shared source contract.
 
-Use `npm run proof:bizhawk -- --check` to validate and create the diagnostic directory without launching BizHawk. The bootstrap does not emit an acquisition source contract, invoke mapping, or update the overlay yet.
+Use `npm run proof:bizhawk -- --check` to validate and create output directories without launching BizHawk. The launcher prints the exact `npm run live:emerald` and `npm start` handoff commands; the real-ROM acceptance observations remain unrecorded.

@@ -2,7 +2,7 @@
 
 Date: 2026-08-08
 
-Status: accepted
+Status: accepted; provider ownership and contract identity superseded by ADR 0020
 
 ## Context
 

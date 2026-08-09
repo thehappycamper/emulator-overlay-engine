@@ -6,10 +6,10 @@ The engine is source-agnostic; an emulator is one source-provider type, not a pl
 
 | Emulator | Status | Notes |
 | --- | --- | --- |
-| mGBA 0.10.3 | active live integration | `adapters/gen3-mgba/emerald-acquisition.lua` emits strict-fingerprint `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0`; `npm run live:emerald` maps it into validated `pokemon.overlay-state@0.1.0` and atomically writes `public/live-state.json`. `npm run proof:emerald` validates local paths, prepares directories, and launches the configured ROM. Richer fields and real end-to-end smoke evidence remain outstanding. |
+| mGBA 0.10.3 | active live integration | `adapters/gen3-mgba/emerald-acquisition.lua` supplies mGBA reads to the shared `pokemon.emerald.us-rev0.acquisition@1.0.0` game adapter; the existing mapper validates and atomically writes `public/live-state.json`. Richer fields and real end-to-end smoke evidence remain outstanding. |
 | VBA-RR | planned extension | Has Lua support and can draw overlays directly. Good fallback for classic Lua overlays. |
 | VisualBoyAdvance-M | unknown | Standalone executable detected locally. Lua support depends on build and configuration. |
-| BizHawk 2.11.1 | active Proof 2 bootstrap | `npm run proof:bizhawk` starts Emerald Rev 0 and auto-loads a generic Lua identity/frame connector. Strict version/system/hash diagnostics are implemented; a validated acquisition source contract and mapping handoff are not yet implemented. |
+| BizHawk 2.11.1 | active Proof 2 acquisition | `npm run proof:bizhawk` starts Emerald Rev 0 and auto-loads the Lua provider. It checks version/system/SHA-1 plus System Bus/direct EWRAM-IWRAM parity, emits the shared Emerald contract, and reuses the existing mapper/domain/overlay. Real-ROM acceptance evidence remains outstanding. |
 
 ## Adapter Requirements
 
@@ -33,6 +33,6 @@ Reason:
 
 ## Second Emulator Target
 
-BizHawk 2.11.1 is the Proof 2 target. `P06-T001` chooses its supported `--lua` bootstrap because it auto-loads repository-owned code with the ROM and optional state without adding a compiled plugin artifact. The first connector is intentionally emulator-generic and diagnostic-only. It does not copy Pokemon decoding/calculation logic or emit the mGBA-named source contract.
+BizHawk 2.11.1 is the Proof 2 target. `P06-T001` chose its supported `--lua` bootstrap; `P06-T002` makes that provider emit the game-owned Emerald contract without copying Pokemon decoding/calculation logic. Both providers now compose with one shared Emerald acquisition module and one downstream mapping.
 
 BizHawk C#/.NET External Tools remain a documented longer-term option for richer typed integration. They are not used for the bootstrap because they require a compiled .NET Framework 4.8 assembly in BizHawk's `ExternalTools` directory, carry tighter assembly/trust coupling, and provide no benefit needed by this first proof.

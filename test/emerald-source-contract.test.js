@@ -6,25 +6,26 @@ import test from "node:test";
 
 import {
   EMERALD_SOURCE_CONTRACT,
+  MGBA_SOURCE,
   createEmeraldSourceSnapshot,
-} from "../adapters/gen3-mgba/emerald-source-contract.js";
+} from "../adapters/pokemon-emerald-us-rev0/emerald-source-contract.js";
 import {
   EMERALD_US_REV0,
   readEmeraldAcquisition,
-} from "../adapters/gen3-mgba/emerald-us-rev0.js";
+} from "../adapters/pokemon-emerald-us-rev0/emerald-us-rev0.js";
 import {
   EmeraldSourceSnapshotValidationError,
   assertValidEmeraldSourceSnapshot,
   readValidatedEmeraldSourceSnapshot,
-} from "../adapters/gen3-mgba/validate-source-snapshot.js";
-import { writeEmeraldSourceSnapshot } from "../adapters/gen3-mgba/write-source-snapshot.js";
+} from "../adapters/pokemon-emerald-us-rev0/validate-source-snapshot.js";
+import { writeEmeraldSourceSnapshot } from "../adapters/pokemon-emerald-us-rev0/write-source-snapshot.js";
 
 const derivedFixtureUrl = new URL(
-  "../adapters/gen3-mgba/fixtures/emerald-us-rev0-derived.json",
+  "../adapters/pokemon-emerald-us-rev0/fixtures/emerald-us-rev0-derived.json",
   import.meta.url,
 );
 const sourceFixtureUrl = new URL(
-  "../adapters/gen3-mgba/fixtures/emerald-us-rev0.source.json",
+  "../adapters/pokemon-emerald-us-rev0/fixtures/emerald-us-rev0.source.json",
   import.meta.url,
 );
 
@@ -72,7 +73,7 @@ test("malformed and missing source fields fail deterministically", async () => {
   malformed.party.first.currentHp = "31";
   assert.throws(
     () => assertValidEmeraldSourceSnapshot(malformed),
-    /Invalid pokemon\.emerald\.us-rev0\.mgba\.acquisition@1\.0\.0 source snapshot/,
+    /Invalid pokemon\.emerald\.us-rev0\.acquisition@1\.0\.0 source snapshot/,
   );
 });
 
@@ -91,7 +92,7 @@ test("contract version and source invariants reject incompatible snapshots", asy
 });
 
 test("empty party, inactive battle, and unreadable location remain valid source states", async () => {
-  const snapshot = createEmeraldSourceSnapshot(EMERALD_US_REV0.identity, {
+  const snapshot = createEmeraldSourceSnapshot(MGBA_SOURCE, EMERALD_US_REV0.identity, {
     party: { count: 0, first: null },
     battle: { active: false, typeFlags: 0, opponent: null },
     location: null,
@@ -103,6 +104,7 @@ test("tested mGBA reader output builds the canonical source snapshot", async () 
   const derived = await readJson(derivedFixtureUrl);
   const expected = await readJson(sourceFixtureUrl);
   const snapshot = readValidatedEmeraldSourceSnapshot(
+    MGBA_SOURCE,
     derived.identity,
     createReader(derived.memory),
   );
@@ -116,7 +118,7 @@ test("unsupported ROM identity cannot produce a source snapshot", async () => {
   const derived = await readJson(derivedFixtureUrl);
   const acquisition = readEmeraldAcquisition(createReader(derived.memory));
   assert.throws(
-    () => createEmeraldSourceSnapshot({ ...derived.identity, revision: 1 }, acquisition),
+    () => createEmeraldSourceSnapshot(MGBA_SOURCE, { ...derived.identity, revision: 1 }, acquisition),
     /Unsupported Emerald ROM/,
   );
 });
@@ -174,13 +176,20 @@ test("invalid snapshots never replace an existing valid handoff", async (t) => {
   assert.deepEqual(JSON.parse(await readFile(destination, "utf8")), valid);
 });
 
-test("Lua provider pins contract identity and replace-via-temp handoff", async () => {
-  const lua = await readFile(
+test("shared Lua contract and mGBA provider pin ownership and atomic handoff", async () => {
+  const sharedLua = await readFile(
+    new URL("../adapters/pokemon-emerald-us-rev0/emerald-acquisition.lua", import.meta.url),
+    "utf8",
+  );
+  const providerLua = await readFile(
     new URL("../adapters/gen3-mgba/emerald-acquisition.lua", import.meta.url),
     "utf8",
   );
-  assert.match(lua, new RegExp(EMERALD_SOURCE_CONTRACT.id.replaceAll(".", "\\.")));
-  assert.match(lua, new RegExp(EMERALD_SOURCE_CONTRACT.version.replaceAll(".", "\\.")));
+  assert.match(sharedLua, new RegExp(EMERALD_SOURCE_CONTRACT.id.replaceAll(".", "\\.")));
+  assert.match(sharedLua, new RegExp(EMERALD_SOURCE_CONTRACT.version.replaceAll(".", "\\.")));
+  assert.doesNotMatch(providerLua, /0x020244E9|GROWTH_SUBSTRUCT_INDEX/u);
+  assert.match(providerLua, /EMERALD_ACQUISITION_MODULE_PATH/);
+  const lua = providerLua;
   assert.match(lua, /EMERALD_SOURCE_SNAPSHOT_PATH/);
   assert.match(lua, /snapshotPath \.\. "\.tmp"/);
   assert.match(lua, /io\.open\(temporaryPath, "wb"\)/);

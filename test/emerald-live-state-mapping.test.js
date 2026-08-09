@@ -20,11 +20,11 @@ import {
   mapEmeraldSourceFile,
   mapEmeraldSourceSnapshot,
   writePokemonLiveState,
-} from "../adapters/gen3-mgba/emerald-state-mapping.js";
+} from "../adapters/pokemon-emerald-us-rev0/emerald-state-mapping.js";
 import { renderPokemonOverlay } from "../src/domains/pokemon/index.js";
 
 const sourceFixtureUrl = new URL(
-  "../adapters/gen3-mgba/fixtures/emerald-us-rev0.source.json",
+  "../adapters/pokemon-emerald-us-rev0/fixtures/emerald-us-rev0.source.json",
   import.meta.url,
 );
 
@@ -36,11 +36,11 @@ test("Emerald mapping project satisfies the mapping schema and contract descript
   const project = loadEmeraldStateMappingProject();
   assert.equal(assertValidEmeraldStateMappingProject(project), true);
   assert.deepEqual(project.source, {
-    id: "pokemon.emerald.us-rev0.mgba.acquisition",
+    id: "pokemon.emerald.us-rev0.acquisition",
     type: "acquisition-source-snapshot",
     version: "1.0.0",
-    schema: "urn:source-contract:pokemon.emerald.us-rev0.mgba.acquisition:1.0.0",
-    description: "Strict-fingerprint live values acquired from Pokemon Emerald US Rev 0 through mGBA.",
+    schema: "urn:source-contract:pokemon.emerald.us-rev0.acquisition:1.0.0",
+    description: "Strict-fingerprint live values acquired from Pokemon Emerald US Rev 0 through a supported provider.",
   });
   assert.equal(project.target.id, "pokemon.overlay-state");
   assert.equal(project.target.version, "0.1.0");
@@ -49,13 +49,13 @@ test("Emerald mapping project satisfies the mapping schema and contract descript
 test("live Emerald fields map into a valid Pokemon normalized state", async () => {
   const source = await readJson(sourceFixtureUrl);
   const state = mapEmeraldSourceSnapshot(source);
-  const acquisition = state.extensions["pokemon.emerald.us-rev0.mgba.acquisition"];
+  const acquisition = state.extensions["pokemon.emerald.us-rev0.acquisition"];
 
   assert.equal(assertValidPokemonState(state), true);
   assert.deepEqual(state.game, {
     generation: 3,
     title: "POKEMON EMER",
-    adapter: "mGBA Emerald US Rev 0",
+    adapter: "mGBA",
     romId: "AGB-BPEE",
   });
   assert.deepEqual(
@@ -111,7 +111,7 @@ test("fixed source slots collapse safely when party or battle entries are absent
   assert.deepEqual(state.player.party, []);
   assert.equal(state.battle.opponent, undefined);
   assert.equal(state.location.name, "Location name unavailable");
-  assert.equal(state.extensions["pokemon.emerald.us-rev0.mgba.acquisition"].location, undefined);
+  assert.equal(state.extensions["pokemon.emerald.us-rev0.acquisition"].location, undefined);
   assert.doesNotThrow(() => renderPokemonOverlay(state));
 });
 
