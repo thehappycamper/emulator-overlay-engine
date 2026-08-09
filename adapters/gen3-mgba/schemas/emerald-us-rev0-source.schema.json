@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:source-contract:pokemon.emerald.us-rev0.mgba.acquisition:1.0.0",
+  "title": "Pokemon Emerald US Rev 0 mGBA Acquisition Source Snapshot",
+  "type": "object",
+  "required": ["contract", "game", "party", "battle", "location"],
+  "properties": {
+    "contract": {
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "const": "pokemon.emerald.us-rev0.mgba.acquisition" },
+        "version": { "const": "1.0.0" }
+      },
+      "additionalProperties": false
+    },
+    "game": {
+      "type": "object",
+      "required": ["gameCode", "title", "revision", "crc32"],
+      "properties": {
+        "gameCode": { "const": "AGB-BPEE" },
+        "title": { "const": "POKEMON EMER" },
+        "revision": { "const": 0 },
+        "crc32": { "const": "1F1C08FB" }
+      },
+      "additionalProperties": false
+    },
+    "party": {
+      "type": "object",
+      "required": ["count", "first"],
+      "properties": {
+        "count": { "type": "integer", "minimum": 0, "maximum": 6 },
+        "first": {
+          "oneOf": [
+            { "$ref": "#/$defs/sourcePokemon" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "count": { "const": 0 } }, "required": ["count"] },
+          "then": { "properties": { "first": { "type": "null" } } },
+          "else": { "properties": { "first": { "$ref": "#/$defs/sourcePokemon" } } }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "battle": {
+      "type": "object",
+      "required": ["active", "typeFlags", "opponent"],
+      "properties": {
+        "active": { "type": "boolean" },
+        "typeFlags": { "type": "integer", "minimum": 0, "maximum": 4294967295 },
+        "opponent": {
+          "oneOf": [
+            { "$ref": "#/$defs/sourcePokemon" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "active": { "const": true } }, "required": ["active"] },
+          "then": { "properties": { "opponent": { "$ref": "#/$defs/sourcePokemon" } } },
+          "else": { "properties": { "opponent": { "type": "null" } } }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "location": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["mapGroup", "mapNumber", "x", "y"],
+          "properties": {
+            "mapGroup": { "type": "integer", "minimum": 0, "maximum": 255 },
+            "mapNumber": { "type": "integer", "minimum": 0, "maximum": 255 },
+            "x": { "type": "integer", "minimum": -32768, "maximum": 32767 },
+            "y": { "type": "integer", "minimum": -32768, "maximum": 32767 }
+          },
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ]
+    }
+  },
+  "$defs": {
+    "sourcePokemon": {
+      "type": "object",
+      "required": ["speciesId", "level", "currentHp", "maxHp"],
+      "properties": {
+        "speciesId": { "type": "integer", "minimum": 0, "maximum": 65535 },
+        "level": { "type": "integer", "minimum": 0, "maximum": 255 },
+        "currentHp": { "type": "integer", "minimum": 0, "maximum": 65535 },
+        "maxHp": { "type": "integer", "minimum": 0, "maximum": 65535 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -6,7 +6,7 @@ The engine is source-agnostic; an emulator is one source-provider type, not a pl
 
 | Emulator | Status | Notes |
 | --- | --- | --- |
-| mGBA 0.10.3 | active acquisition proof | `adapters/gen3-mgba/emerald-acquisition.lua` supports the exact English retail Emerald Rev 0 fingerprint and displays live party HP/species, battle/opponent, and map diagnostics. Source-contract and normalized export are not implemented. |
+| mGBA 0.10.3 | active source integration | `adapters/gen3-mgba/emerald-acquisition.lua` supports the exact English retail Emerald Rev 0 fingerprint and emits `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0` snapshots with party HP/species, battle/opponent, and map values. Mapping and normalized export are not implemented. |
 | VBA-RR | planned extension | Has Lua support and can draw overlays directly. Good fallback for classic Lua overlays. |
 | VisualBoyAdvance-M | unknown | Standalone executable detected locally. Lua support depends on build and configuration. |
 | BizHawk | candidate | Good future option for multi-system tooling and Lua support, not currently scaffolded. |
@@ -24,7 +24,7 @@ An emulator adapter should:
 
 ## First Adapter Target
 
-First live target: Gen 3 mGBA export. The initial acquisition-only proof is implemented under `P05-T002` for mGBA 0.10.3 and English retail Pokemon Emerald Rev 0 (`AGB-BPEE`, CRC32 `1F1C08FB`).
+First live target: Gen 3 mGBA export. `P05-T002` proved acquisition for mGBA 0.10.3 and English retail Pokemon Emerald Rev 0 (`AGB-BPEE`, CRC32 `1F1C08FB`); `P05-T003` defines and emits the first named source contract. Mapping into Pokemon normalized state remains the next task.
 
 Reason:
 

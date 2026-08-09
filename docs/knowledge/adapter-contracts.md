@@ -8,7 +8,7 @@ The intended boundary is:
 Source Provider / Adapter -> Source Contract -> Mapping Runtime -> Named Target
 ```
 
-The source-provider runtime contract is not implemented yet. The current mapping format already identifies named/versioned source contracts without assuming emulator memory.
+The platform-wide source-provider runtime contract is not implemented yet. The current mapping format identifies named/versioned source contracts without assuming emulator memory. The first concrete contract is adapter-owned: `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0` under `adapters/gen3-mgba/`.
 
 ## Common Source Provider Contract
 
@@ -92,7 +92,7 @@ src/domains/pokemon/schemas/overlay-state.schema.json
 
 The first live implementation may write `public/live-state.json` for polling. A later transport may differ, but payload semantics should remain tied to the selected named target contract rather than acquisition mechanics.
 
-`P05-T002` precedes that integration with an acquisition-only proof under `adapters/gen3-mgba/`: a strict-fingerprint Emerald Rev 0 Lua diagnostic reads changing emulator values but intentionally defines no source contract, normalized export, transport, or overlay polling behavior. Those remain separately reviewed tasks.
+`P05-T003` turns the strict-fingerprint Emerald Rev 0 acquisition proof into a schema-validated source snapshot under `adapters/gen3-mgba/`. It uses an adapter-owned local replace-via-temporary-file handoff and remains pre-mapping. It is not normalized Pokemon state, must not be consumed directly by the overlay, and does not define a universal provider runtime or transport.
 
 ## Fidelity, Provenance, And Confidence
 

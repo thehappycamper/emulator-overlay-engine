@@ -8,6 +8,13 @@ import Ajv2020 from "ajv/dist/2020.js";
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const schemaDirectory = join(repositoryRoot, "src", "schemas");
 const pokemonSchemaDirectory = join(repositoryRoot, "src", "domains", "pokemon", "schemas");
+const emeraldSourceSchemaPath = join(
+  repositoryRoot,
+  "adapters",
+  "gen3-mgba",
+  "schemas",
+  "emerald-us-rev0-source.schema.json"
+);
 const pokemonStateSchemaId = "https://emulator-overlay-engine.local/schemas/overlay-state.schema.json";
 
 function readJson(path) {
@@ -34,10 +41,11 @@ const platformSchemas = [
 ].map((name) => readJson(join(schemaDirectory, name)));
 const extensionSchema = platformSchemas.find((schema) => schema.$id.endsWith("/extension.schema.json"));
 const pokemonStateSchema = readJson(join(pokemonSchemaDirectory, "overlay-state.schema.json"));
+const emeraldSourceSchema = readJson(emeraldSourceSchemaPath);
 const legacyStateSchema = readJson(join(schemaDirectory, "overlay-state.schema.json"));
 
 const ajv = new Ajv2020({ allErrors: true, strict: true, allowUnionTypes: true });
-for (const schema of [...platformSchemas, pokemonStateSchema]) {
+for (const schema of [...platformSchemas, pokemonStateSchema, emeraldSourceSchema]) {
   ajv.addSchema(schema);
 }
 
@@ -129,6 +137,20 @@ test("mapping example satisfies the mapping project contract", () => {
     "https://emulator-overlay-engine.local/schemas/mapping.schema.json",
     join(repositoryRoot, "examples", "mapping-project", "mapping.example.json")
   );
+});
+
+test("Emerald acquisition source fixtures satisfy their adapter-owned contract", async (t) => {
+  const files = findFiles(
+    join(repositoryRoot, "adapters", "gen3-mgba", "fixtures"),
+    (path) => path.endsWith(".source.json")
+  );
+  assert.ok(files.length > 0);
+
+  for (const file of files) {
+    await t.test(relative(repositoryRoot, file), () => {
+      assertValid(emeraldSourceSchema.$id, file);
+    });
+  }
 });
 
 test("mapping schema rejects executable expression concepts", () => {

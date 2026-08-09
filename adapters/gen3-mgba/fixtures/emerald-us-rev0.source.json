@@ -1,0 +1,37 @@
+{
+  "contract": {
+    "id": "pokemon.emerald.us-rev0.mgba.acquisition",
+    "version": "1.0.0"
+  },
+  "game": {
+    "gameCode": "AGB-BPEE",
+    "title": "POKEMON EMER",
+    "revision": 0,
+    "crc32": "1F1C08FB"
+  },
+  "party": {
+    "count": 1,
+    "first": {
+      "speciesId": 258,
+      "level": 15,
+      "currentHp": 31,
+      "maxHp": 35
+    }
+  },
+  "battle": {
+    "active": true,
+    "typeFlags": 0,
+    "opponent": {
+      "speciesId": 261,
+      "level": 18,
+      "currentHp": 40,
+      "maxHp": 44
+    }
+  },
+  "location": {
+    "mapGroup": 0,
+    "mapNumber": 16,
+    "x": 23,
+    "y": 14
+  }
+}

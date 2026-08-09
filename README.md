@@ -16,7 +16,7 @@ The implemented foundation is intentionally small and Pokemon-focused:
 - Dependency-free, domain-neutral browser host that polls a state source and renders a useful challenge dashboard through the selected domain presentation.
 - Pokemon domain package with its normalized-state contract, overlay presentation, and damage, catch, and type-effectiveness calculators plus Node tests.
 - Domain-neutral mapping contract with safe calculated expressions and schema-validated examples.
-- Read-only Pokemon Emerald Rev 0 acquisition proof for mGBA 0.10.3, with strict ROM identification and live diagnostic reads; source-contract and normalized-state export remain future work.
+- Read-only Pokemon Emerald Rev 0 source provider for mGBA 0.10.3, with strict ROM identification, a named/versioned acquisition contract, schema-validated public fixture, and safe local snapshot handoff; mapping into normalized state remains future work.
 - GitHub Actions CI for tests.
 
 ## Local Use
@@ -33,7 +33,9 @@ Then open:
 http://127.0.0.1:5173
 ```
 
-The overlay currently polls `public/sample-state.json` (once per second by default) and re-renders only when the fetched state actually changes. A live emulator adapter can later reach `public/live-state.json` with normalized state (via the mapping runtime, or a documented direct-export exception — see `docs/knowledge/adapter-contracts.md`), and the UI can select it with `?state=/public/live-state.json`. A missing, invalid, or partially-written state file is tolerated without losing the last successfully rendered content; a small status indicator reports `live`/`stale`/`error`. The polling interval can be overridden per page via `data-poll-interval-ms` on `#app`. Producing that live file (an actual mGBA source) remains future live-integration work — see `docs/tasks/P05/P05-T001.md`.
+The overlay currently polls `public/sample-state.json` (once per second by default) and re-renders only when the fetched state actually changes. A later mapping/delivery task can produce `public/live-state.json` as normalized state, and the UI can select it with `?state=/public/live-state.json`. A missing, invalid, or partially-written state file is tolerated without losing the last successfully rendered content; a small status indicator reports `live`/`stale`/`error`. The polling interval can be overridden per page via `data-poll-interval-ms` on `#app`.
+
+The Emerald mGBA provider now writes an acquisition source snapshot, not overlay state. Do not point the overlay at that file. See the [adapter README](adapters/gen3-mgba/README.md) and [adapter contract](docs/knowledge/adapter-contracts.md) for the source/mapping boundary.
 
 ## Local Configuration
 

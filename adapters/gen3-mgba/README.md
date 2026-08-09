@@ -1,6 +1,6 @@
-# Pokemon Emerald mGBA Acquisition Proof
+# Pokemon Emerald mGBA Source Provider
 
-This adapter contains the first read-only live acquisition proof for Pokemon Emerald. It displays a changing, developer-oriented JSON diagnostic inside mGBA; it does not emit the final source contract or normalized Pokemon state.
+This adapter reads a small, changing set of Pokemon Emerald values through mGBA and publishes the named source contract `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0`. It does not emit normalized Pokemon state; declarative mapping remains the next pipeline step.
 
 ## Supported Baseline
 
@@ -21,13 +21,24 @@ The SHA-1 is the English retail ROM fingerprint documented by [pret/pokeemerald]
 
 mGBA 0.10 introduced built-in Lua scripting. The provider uses the documented `emu:read8`, `emu:read16`, `emu:read32`, ROM-memory domain, checksum, text-buffer, and frame-callback APIs. See the [mGBA scripting API](https://mgba.io/docs/scripting.html).
 
-`emerald-acquisition.lua` owns emulator API calls and retail addresses. `emerald-us-rev0.js` is the deterministic reference for identity checks, Gen III encrypted-species decoding, struct offsets, pointer validation, and diagnostic assembly used by Node tests.
+`emerald-acquisition.lua` owns emulator API calls, retail addresses, contract serialization, and the local snapshot handoff. `emerald-us-rev0.js` is the deterministic reference for identity checks, Gen III encrypted-species decoding, struct offsets, and pointer validation. `emerald-source-contract.js` wraps those acquired values with contract/game identity; `validate-source-snapshot.js` validates snapshots against the adapter-owned JSON Schema.
 
-The script is read-only. It does not write emulator memory, create save data, or write files.
+The script is read-only with respect to emulator/game memory. It writes derived JSON telemetry only to the configured local snapshot path.
+
+## Source Contract
+
+| Property | Value |
+| --- | --- |
+| Contract ID | `pokemon.emerald.us-rev0.mgba.acquisition` |
+| Contract version | `1.0.0` |
+| Canonical schema | `schemas/emerald-us-rev0-source.schema.json` |
+| Public-safe fixture | `fixtures/emerald-us-rev0.source.json` |
+
+The schema is adapter-owned because these are raw acquisition fields for one game/revision/provider, not platform or normalized Pokemon fields. Success snapshots contain no diagnostic status. `waiting-for-game`, `unsupported-rom`, and `invalid-memory` remain text-buffer diagnostics and cause the canonical snapshot to be absent.
 
 ## Live Fields
 
-The diagnostic currently reads:
+The source snapshot currently reads:
 
 - game code, title, software revision, and CRC32;
 - party count;
@@ -38,27 +49,40 @@ The diagnostic currently reads:
 
 Species values are Gen III internal species IDs. Name-table lookup is intentionally deferred.
 
-## Run The Proof
+## Configure The Snapshot
+
+Set `EMERALD_SOURCE_SNAPSHOT_PATH` in the process environment **before starting mGBA**. mGBA does not load this repository's `.env` file itself. Use an absolute path and create its parent directory first. For example, from the repository root in PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force var/snapshots
+$env:EMERALD_SOURCE_SNAPSHOT_PATH = (Resolve-Path var/snapshots).Path + "\emerald-us-rev0.source.json"
+& $env:EOE_MGBA_EXE
+```
+
+The path is local-only and ignored under `var/snapshots/`. The provider writes a sibling `.tmp` file, flushes and closes it, then renames it to the configured path. On Windows, replacement may briefly make the canonical path absent; it never exposes partially written JSON. The provider rewrites only when acquired values change. It removes the canonical snapshot when the game is absent, unsupported, or fails the implemented plausibility check.
+
+Do not configure the overlay to read this file. It is source data and must pass through the future declarative mapping task before becoming Pokemon normalized state.
+
+## Run The Provider
 
 1. Start mGBA 0.10.3 and load a legally obtained English retail Pokemon Emerald Rev 0 ROM matching the fingerprint above.
 2. In mGBA, choose **Tools > Scripting...**.
 3. Choose **Load script** and select `adapters/gen3-mgba/emerald-acquisition.lua` from this repository.
-4. Open the `Emerald acquisition` text buffer in the scripting window.
-5. Confirm the JSON has `"status":"ok"` and inspect `party.first.currentHp`.
+4. Open the `Emerald acquisition source` text buffer in the scripting window.
+5. Confirm the JSON has `"contract":{"id":"pokemon.emerald.us-rev0.mgba.acquisition","version":"1.0.0"}` and inspect `party.first.currentHp`.
 6. Take damage or heal the first party Pokemon in game without restarting mGBA.
 7. Confirm `party.first.currentHp` changes in the diagnostic.
-8. Enter or leave a battle and confirm `battle.active` changes. Move to another map and confirm at least one of `location.mapGroup` or `location.mapNumber` changes.
+8. Parse the file at `EMERALD_SOURCE_SNAPSHOT_PATH` and confirm its HP changed without restarting mGBA. Enter or leave a battle and confirm `battle.active` changes; move to another map and confirm at least one location identifier changes.
 
 An unsupported fingerprint should instead display `"status":"unsupported-rom"` with actual and expected identifiers.
 
-## Diagnostic Shape
+## Source Snapshot Shape
 
-Example only; this is not a public source or normalized-state contract:
+The canonical schema is authoritative. A representative source snapshot is:
 
 ```json
 {
-  "diagnosticVersion": "0.1.0",
-  "status": "ok",
+  "contract": { "id": "pokemon.emerald.us-rev0.mgba.acquisition", "version": "1.0.0" },
   "game": { "gameCode": "AGB-BPEE", "title": "POKEMON EMER", "revision": 0, "crc32": "1F1C08FB" },
   "party": { "count": 1, "first": { "speciesId": 258, "level": 15, "currentHp": 31, "maxHp": 35 } },
   "battle": { "active": false, "typeFlags": 0, "opponent": null },
@@ -79,17 +103,18 @@ The addresses are deliberately kept in this game/emulator adapter. They are not 
 
 ## Tests And Fixtures
 
-`fixtures/emerald-us-rev0-derived.json` contains synthetic numeric values only. It contains no ROM, BIOS, save, savestate, or copied game bytes. `npm test` verifies fingerprint rejection, all growth-substructure positions, encrypted species decoding, HP/stat offsets, battle/location diagnostics, pointer rejection, and synchronization of Lua address constants with the tested JavaScript layout.
+The fixtures contain synthetic numeric/derived values only. They contain no ROM, BIOS, save, savestate, or copied game bytes. `npm test` verifies fingerprint rejection, decoding, source-schema invariants, reader-to-contract output, unsupported-ROM refusal, adapter manifest/schema validation, and complete-file replacement behavior. It also pins Lua contract constants and write operations to the tested reference.
 
 ## Known Limitations
 
 - Only the exact English retail Rev 0 fingerprint is accepted.
 - mGBA 0.10.3 is the only emulator build verified for this task.
-- Output is a text-buffer diagnostic, not a source contract, mapping input, normalized state, file transport, or live overlay feed.
+- The contract has no timestamp/freshness metadata; file modification time is local handoff metadata, not contract data.
+- The local file is a single-writer snapshot handoff, not a general transport or event stream.
 - Only the first party and first enemy-party records are read.
 - Species names, double-battle active slots, transient loading states, and broader corruption/plausibility checks are deferred.
-- The Lua script and JavaScript reference implement the same small layout separately; tests pin shared constants, but CI cannot execute mGBA's embedded Lua runtime.
+- The Lua script constructs the fixed schema shape but cannot run Ajv inside mGBA; tests validate the mirrored Node output and pin shared constants/handoff operations, but CI cannot execute mGBA's embedded Lua runtime.
 
 ## Recommended Next Task
 
-Define the named/versioned Emerald acquisition source contract and adapt this proven reader to emit validated source snapshots. Keep mapping into the Pokemon state contract and end-to-end live integration in later, separate tasks; domain-neutral overlay polling is already implemented independently on the `P05-T001` review branch.
+Define the declarative mapping project from this source contract into the Pokemon-owned normalized-state contract. The mapping must handle normalized fields not yet present in acquisition data explicitly rather than pretending source values exist. Keep normalized file delivery and end-to-end overlay integration in later reviewed tasks.

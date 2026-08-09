@@ -6,6 +6,7 @@ coverage/
 dist/
 .env
 live-state.json
+/var/snapshots/
 
 # Game images and disc dumps (repository policy remains the primary control)
 *.gb

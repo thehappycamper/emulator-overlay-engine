@@ -48,7 +48,7 @@ These are the intended next architecture slices. Each requires separate approval
 
 ### Live Gen 3 mGBA Export
 
-Status: acquisition proof active. `P05-T002` reads a strict-fingerprint Emerald Rev 0 session into an mGBA text-buffer diagnostic; it does not yet emit a source contract or normalized state.
+Status: source integration active. `P05-T002` proved strict-fingerprint Emerald Rev 0 reads and `P05-T003` defines/emits the first acquisition source contract. Mapping and normalized-state delivery are not yet implemented.
 
 Goal:
 
@@ -57,6 +57,7 @@ Goal:
 Deliverables:
 
 - `adapters/gen3-mgba` Lua exporter.
+- Named/versioned adapter-owned acquisition source contract and safe local snapshot handoff (`P05-T003`, implemented and in review).
 - Overlay option for `live-state.json` with continuous refresh (`P05-T001`, completed: the overlay polls its state source, re-renders on change, and tolerates a missing/invalid/partial file — see [`docs/tasks/P05/P05-T001.md`](../tasks/P05/P05-T001.md)).
 - Documentation for emulator setup.
 - Tests for exported sample fixtures.

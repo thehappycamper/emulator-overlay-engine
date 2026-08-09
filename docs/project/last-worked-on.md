@@ -5,15 +5,15 @@ This is a short pointer, not the project history. For full history, see `docs/ta
 ## Current status
 
 - **Active phase:** `P05` — Live Gameplay Source. `P03` and `P04` remain planned and unstarted; phase numbering and dependencies are unchanged. See [implementation plan](implementation-plan.md).
-- **Active task:** none. [`P05-T001` — Overlay live-state consumption](../tasks/P05/P05-T001.md) and [`P05-T002` — Prove Emerald Rev 0 acquisition through mGBA](../tasks/P05/P05-T002.md) are both completed.
+- **Active task:** [`P05-T003` - Define Emerald acquisition source contract](../tasks/P05/P05-T003.md) is implemented on `feat/P05-T003-emerald-source-contract` and awaiting independent review. [`P05-T001`](../tasks/P05/P05-T001.md) and [`P05-T002`](../tasks/P05/P05-T002.md) are completed.
 - **Last completed task:** [`P05-T001` — Overlay live-state consumption](../tasks/P05/P05-T001.md) (2026-08-08, independent review APPROVE, integrated after reconciling the concurrently completed acquisition task).
-- **Next P05 step:** define the named/versioned Emerald source contract and adapt the proven reader to emit validated source snapshots. Mapping, normalized delivery, and integration with overlay polling remain later tasks. `P05` is not complete.
+- **Next P05 step after review/merge:** define the declarative mapping from `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0` into the Pokemon normalized-state contract. Normalized delivery and integration with overlay polling remain later tasks. `P05` is not complete.
 
 ## Most recent session (2026-08-08)
 
 `P05-T001` replaced the overlay's one-shot state load with a domain-neutral polling controller that prevents overlapping fetches, renders only changed JSON-derived state, preserves the last good render through missing/truncated state files, and reports `live`/`stale`/`error`. Independent review reproduced HP changes, truncated-JSON staleness, recovery, and default sample-state rendering against the real controller/dev-server path; verdict APPROVE, no blocking findings. Its integration was reconciled with the concurrently completed `P05-T002` acquisition proof.
 
-`P05-T002` added the first repository-owned mGBA Lua acquisition proof for English retail Pokemon Emerald Rev 0. It strictly checks game code, title, header revision, and CRC32 before reading live party HP/species, battle/opponent, and map fields into a developer diagnostic. Both tasks are now complete, but no source contract, mapping, normalized live delivery, or end-to-end integration exists yet.
+`P05-T003` defines `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0`, validates public-safe source fixtures, adapts the mGBA provider to emit that shape, and adds a replace-via-temporary-file local handoff. It remains pre-mapping: no Pokemon normalized live delivery or end-to-end overlay integration exists yet.
 
 `P02-T006` (earlier session) moved Pokemon markup, state interpretation, calculator-backed projections, and styles into the Pokemon package, closing `P02` — Domain Boundary.
 

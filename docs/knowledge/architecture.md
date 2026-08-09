@@ -42,6 +42,8 @@ The mapping and downstream domain layers should not branch on whether state orig
 
 Different providers may eventually carry different fidelity, provenance, or confidence. Exact memory values and inferred computer-vision observations are not equivalent, but metadata for that distinction has not been designed. Adding it requires a separate contract decision.
 
+The first implemented concrete source contract is `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0`, owned by `adapters/gen3-mgba/`. It proves the boundary through a local source snapshot only. Declarative mapping into Pokemon normalized state and a generic source-provider runtime remain future work.
+
 ## Layers
 
 1. Source Provider / Adapter

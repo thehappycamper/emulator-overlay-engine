@@ -1,13 +1,14 @@
 {
   "schemaVersion": "0.1.0",
   "id": "pokemon.gen3.mgba.emerald-us-rev0-acquisition",
-  "name": "Pokemon Emerald Rev 0 mGBA Acquisition Proof",
+  "name": "Pokemon Emerald Rev 0 mGBA Source Provider",
   "type": "emulator",
-  "version": "0.1.0",
-  "description": "Read-only mGBA Lua diagnostic for a small set of live Pokemon Emerald Rev 0 values.",
+  "version": "0.2.0",
+  "description": "Read-only mGBA Lua provider for a named, versioned Pokemon Emerald Rev 0 source snapshot.",
   "entrypoints": {
     "docs": "README.md",
     "main": "emerald-acquisition.lua",
+    "schema": "schemas/emerald-us-rev0-source.schema.json",
     "fixtures": "fixtures"
   },
   "compatibility": {
@@ -27,8 +28,14 @@
     "generations": [3]
   },
   "provides": {
-    "diagnosticAcquisition": true,
+    "sourceSnapshots": true,
     "readOnly": true
+  },
+  "exports": {
+    "sourceContract": {
+      "id": "pokemon.emerald.us-rev0.mgba.acquisition",
+      "version": "1.0.0"
+    }
   },
   "publicSafety": {
     "containsRoms": false,

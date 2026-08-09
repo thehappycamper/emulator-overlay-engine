@@ -18,6 +18,7 @@ Then fill in only the values needed for your machine.
 | `EOE_LIVE_STATE_PATH` | Future live adapter output path. |
 | `EOE_MGBA_EXE` | Optional local path to mGBA executable. |
 | `EOE_MGBA_SCRIPTS_DIR` | Optional local path to mGBA Lua scripts. |
+| `EMERALD_SOURCE_SNAPSHOT_PATH` | Absolute local path where the Emerald mGBA provider publishes its acquisition source snapshot. Must be in mGBA's process environment before launch; mGBA does not load `.env` itself. |
 | `EOE_VBA_RR_EXE` | Optional local path to VBA-RR executable. |
 | `EOE_SAVE_DIR` | Optional local path to emulator save directory. |
 | `EOE_DEFAULT_DOMAIN` | Optional default domain, such as `pokemon`. |
