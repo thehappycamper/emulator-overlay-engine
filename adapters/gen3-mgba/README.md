@@ -92,4 +92,4 @@ The addresses are deliberately kept in this game/emulator adapter. They are not 
 
 ## Recommended Next Task
 
-Define the named/versioned Emerald acquisition source contract and adapt this proven reader to emit validated source snapshots. Keep mapping into the Pokemon state contract and overlay polling in later, separate tasks.
+Define the named/versioned Emerald acquisition source contract and adapt this proven reader to emit validated source snapshots. Keep mapping into the Pokemon state contract and end-to-end live integration in later, separate tasks; domain-neutral overlay polling is already implemented independently on the `P05-T001` review branch.
