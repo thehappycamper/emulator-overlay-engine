@@ -32,6 +32,12 @@ export function renderPokemonOverlay(state) {
   const opponent = state.battle?.opponent ?? null;
   const badges = state.player?.badges ?? null;
   const incoming = opponent ? projectIncomingDamage(opponent, party.filter(Boolean)) : [];
+  // `activePlayerIndex` is a pre-existing placeholder from the mapping layer
+  // (always 0 until real active-battler-slot decoding exists - see
+  // docs/tasks/P05/P05-T010.md). It is reused here, not newly invented, and
+  // disclosed to the viewer rather than silently presented as certain.
+  const activePlayerIndex = Number.isInteger(state.battle?.activePlayerIndex) ? state.battle.activePlayerIndex : 0;
+  const activePlayer = party[activePlayerIndex] ?? null;
 
   return `
     <header class="topbar">
@@ -52,7 +58,7 @@ export function renderPokemonOverlay(state) {
 
       <section class="battle-section">
         <h2>Battle</h2>
-        ${opponent ? renderBattle(opponent, incoming) : '<p class="subtle empty-battle">Not currently in battle.</p>'}
+        ${opponent ? renderBattle(opponent, incoming, activePlayer, activePlayerIndex) : '<p class="subtle empty-battle">Not currently in battle.</p>'}
       </section>
     </main>
   `;
@@ -126,7 +132,7 @@ function renderMove(move) {
   `;
 }
 
-function renderBattle(opponent, incoming) {
+function renderBattle(opponent, incoming, activePlayer, activePlayerIndex) {
   const percent = hpPercent(opponent);
   const statusLabel = STATUS_LABEL[opponent.status] ?? opponent.status ?? "";
   const types = Array.isArray(opponent.types) ? opponent.types : [];
@@ -149,6 +155,7 @@ function renderBattle(opponent, incoming) {
       ${statusLabel ? `<div class="status-badge status-${opponent.status}">${statusLabel}</div>` : ""}
       ${moves.length ? `<ol class="moves">${moves.map(renderMove).join("")}</ol>` : '<p class="subtle">No observed moves.</p>'}
     </article>
+    ${renderStatComparison(activePlayer, activePlayerIndex, opponent)}
     <div class="incoming-damage">
       <h3>Projected Incoming Damage</h3>
       <div class="damage-list">
@@ -160,5 +167,91 @@ function renderBattle(opponent, incoming) {
         `).join("") || '<p class="subtle">No party data to project against.</p>'}
       </div>
     </div>
+  `;
+}
+
+// Stat rows shown in the comparison panel. `value` reads the numeric stat
+// used both for display and for the relative indicator; HP is handled
+// separately below because it is shown as "current/max" text rather than a
+// single number.
+const STAT_COMPARISON_ROWS = Object.freeze([
+  { label: "Level", value: (pokemon) => (Number.isInteger(pokemon?.level) ? pokemon.level : null) },
+  { label: "Attack", value: (pokemon) => pokemon?.stats?.atk ?? null },
+  { label: "Defense", value: (pokemon) => pokemon?.stats?.def ?? null },
+  { label: "Sp. Atk", value: (pokemon) => pokemon?.stats?.spa ?? null },
+  { label: "Sp. Def", value: (pokemon) => pokemon?.stats?.spd ?? null },
+  { label: "Speed", value: (pokemon) => pokemon?.stats?.spe ?? null },
+]);
+
+function statComparisonIndicator(playerValue, opponentValue) {
+  if (typeof playerValue !== "number" || typeof opponentValue !== "number") {
+    return { symbol: "&ndash;", class: "stat-unknown" };
+  }
+  if (playerValue > opponentValue) return { symbol: "&gt;", class: "stat-advantage" };
+  if (playerValue < opponentValue) return { symbol: "&lt;", class: "stat-disadvantage" };
+  return { symbol: "=", class: "stat-even" };
+}
+
+function renderStatComparisonRow(label, playerValue, opponentValue, { playerText, opponentText } = {}) {
+  const indicator = statComparisonIndicator(playerValue, opponentValue);
+  const playerDisplay = playerText ?? (typeof playerValue === "number" ? String(playerValue) : "&ndash;");
+  const opponentDisplay = opponentText ?? (typeof opponentValue === "number" ? String(opponentValue) : "&ndash;");
+  return `
+    <tr>
+      <th scope="row">${escapeHtml(label)}</th>
+      <td class="stat-value ${indicator.class === "stat-advantage" ? "stat-highlight" : ""}">${playerDisplay}</td>
+      <td class="stat-indicator ${indicator.class}">${indicator.symbol}</td>
+      <td class="stat-value ${indicator.class === "stat-disadvantage" ? "stat-highlight" : ""}">${opponentDisplay}</td>
+    </tr>
+  `;
+}
+
+// Collapsed by default (native <details>, no client-side script required)
+// so the comparison is available without permanently consuming dashboard
+// space. `activePlayer` comes from `battle.activePlayerIndex`, a
+// pre-existing mapping placeholder (always party slot 0 today) rather than
+// verified active-battler tracking - see docs/tasks/P05/P05-T010.md for why
+// that remains a follow-up rather than a guess at a new fixed memory
+// address this task cannot verify in this environment.
+function renderStatComparison(activePlayer, activePlayerIndex, opponent) {
+  if (!activePlayer) {
+    return `
+      <details class="stat-compare">
+        <summary>Compare Stats</summary>
+        <p class="subtle stat-compare-note">No battle-ready party member available to compare.</p>
+      </details>
+    `;
+  }
+
+  const rows = STAT_COMPARISON_ROWS.map((row) => renderStatComparisonRow(row.label, row.value(activePlayer), row.value(opponent))).join("");
+  const hpRow = renderStatComparisonRow(
+    "HP",
+    activePlayer.currentHp,
+    opponent.currentHp,
+    {
+      playerText: Number.isInteger(activePlayer.currentHp) && Number.isInteger(activePlayer.maxHp) ? `${activePlayer.currentHp}/${activePlayer.maxHp}` : "&ndash;",
+      opponentText: Number.isInteger(opponent.currentHp) && Number.isInteger(opponent.maxHp) ? `${opponent.currentHp}/${opponent.maxHp}` : "&ndash;",
+    },
+  );
+
+  return `
+    <details class="stat-compare">
+      <summary>Compare Stats</summary>
+      <p class="subtle stat-compare-note">Your Pokemon (party slot ${activePlayerIndex + 1})${activePlayerIndex === 0 ? " - active-battler tracking is not yet implemented, so this always shows slot 1" : ""} vs. ${escapeHtml(opponent.nickname || opponent.name || "the opponent")}.</p>
+      <table class="stat-compare-table">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col">${escapeHtml(activePlayer.nickname || activePlayer.name || "Yours")}</th>
+            <th scope="col"></th>
+            <th scope="col">${escapeHtml(opponent.nickname || opponent.name || "Opponent")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${hpRow}
+          ${rows}
+        </tbody>
+      </table>
+    </details>
   `;
 }

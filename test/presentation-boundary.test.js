@@ -121,3 +121,60 @@ test("Pokemon rendering escapes HTML-significant characters in nicknames and spe
   assert.doesNotMatch(html, /<script>alert/);
   assert.match(html, /&lt;script&gt;/);
 });
+
+test("battle stat comparison (P05-T010) is collapsed by default and shows a player/opponent side-by-side table while in battle", () => {
+  const state = readSampleState();
+  const html = renderPokemonOverlay(state);
+
+  assert.match(html, /<details class="stat-compare">/);
+  assert.doesNotMatch(html, /<details class="stat-compare" open/);
+  assert.match(html, /<summary>Compare Stats<\/summary>/);
+  // Sample state: player party[0] Swampert (atk 118) vs Absol opponent (atk 130) - opponent has the attack advantage.
+  assert.match(html, /Swampert/);
+  assert.match(html, /Absol/);
+  assert.match(html, /class="stat-indicator stat-disadvantage">&lt;/);
+});
+
+test("battle stat comparison marks the higher stat with a relative indicator in both directions", () => {
+  const state = readSampleState();
+  const html = renderPokemonOverlay(state);
+  // Sample state: player party[0] Swampert (def 101) vs Absol opponent (def 66) - player has the defense advantage.
+  assert.match(html, /class="stat-indicator stat-advantage">&gt;/);
+});
+
+test("battle stat comparison shows an unavailable marker rather than fabricating a value when a stat is missing", () => {
+  const state = readSampleState();
+  delete state.player.party[0].stats.atk;
+  const html = renderPokemonOverlay(state);
+
+  assert.match(html, /class="stat-indicator stat-unknown">&ndash;/);
+});
+
+test("battle stat comparison discloses that active-battler tracking is a placeholder", () => {
+  const state = readSampleState();
+  const html = renderPokemonOverlay(state);
+  assert.match(html, /active-battler tracking is not yet implemented/);
+});
+
+test("battle stat comparison does not render outside of battle", () => {
+  const state = readSampleState();
+  state.battle.opponent = null;
+  const html = renderPokemonOverlay(state);
+  assert.doesNotMatch(html, /stat-compare/);
+});
+
+test("battle stat comparison reports unavailable rather than throwing when no player Pokemon occupies the active slot", () => {
+  const state = readSampleState();
+  state.player.party = [];
+  const html = renderPokemonOverlay(state);
+  assert.match(html, /No battle-ready party member available to compare\./);
+  assert.doesNotMatch(html, /<table class="stat-compare-table">/);
+});
+
+test("battle stat comparison escapes HTML-significant nicknames in its table headers", () => {
+  const state = readSampleState();
+  state.player.party[0].nickname = '<img src=x onerror=alert(1)>';
+  const html = renderPokemonOverlay(state);
+  assert.doesNotMatch(html, /<img src=x onerror/);
+  assert.match(html, /&lt;img src=x onerror=alert\(1\)&gt;/);
+});

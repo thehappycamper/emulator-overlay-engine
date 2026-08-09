@@ -18,8 +18,8 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | `P02` | Domain Boundary | completed |
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
-| `P05` | Live Gameplay Source | active - `P05-T001`-`T006` completed; real mGBA end-to-end acceptance still required |
-| `P06` | Second Source / Domain Proof | active (provider-neutral BizHawk acquisition in review; real acceptance and `P05` gate remain open) |
+| `P05` | Live Gameplay Source | active - `P05-T001`-`T006`, `T009` completed; `T010` in review; `T011` scoped; real mGBA/BizHawk end-to-end acceptance still required |
+| `P06` | Second Source / Domain Proof | active (provider-neutral acquisition implemented and reviewed; real-ROM BizHawk acceptance and `P05` gate remain open) |
 | — | Later Product Tracks | coarse / not phased yet |
 
 ---
@@ -143,7 +143,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P05 — Live Gameplay Source
 
-**Status:** active. `P05-T001` through `P05-T006` are complete. The launcher now automates supported savestate loading while Lua script loading remains manual. `P05-T009` implements a full six-slot party/battle dashboard with resolved species/move/item/location names, pending independent review on `feat/P05-T009-emerald-live-dashboard`. The phase gate still requires real mGBA (and, per `P06`, BizHawk) end-to-end acceptance evidence against this richer pipeline. `P05` remains active and is not complete until the real live acceptance test is performed and recorded.
+**Status:** active. `P05-T001` through `P05-T006` and `P05-T009` are complete. The launcher now automates supported savestate loading while Lua script loading remains manual. `P05-T010` adds an expandable battle stat comparison panel on top of `P05-T009`'s data, pending independent review on `feat/P05-T010-battle-stat-comparison`. `P05-T011` (location encounter rates, bag Poke Ball inventory, dynamic catch-rate display) is scoped but not yet started. The phase gate still requires real mGBA (and, per `P06`, BizHawk) end-to-end acceptance evidence against this richer pipeline. `P05` remains active and is not complete until the real live acceptance test is performed and recorded.
 
 **Objective:** Implement the first live source integration — the Gen 3 mGBA adapter sketched in `adapters/gen3-mgba/README.md` and `docs/project/roadmap.md`'s "First Real Live Integration" — against the source-agnostic platform boundary clarified in `P01-T006`.
 
@@ -156,11 +156,13 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 - [`P05-T004`](../tasks/P05/P05-T004.md) - Existing-runtime mapping into canonical Pokemon state, explicit placeholders, Ajv target validation, and atomic `public/live-state.json` handoff. Completed (independent review APPROVE, merged to `main` at `f301d6b`); real mGBA end-to-end acceptance remains a separate, still-pending manual step.
 - [`P05-T005`](../tasks/P05/P05-T005.md) - Gitignored local Proof 1 configuration, path/setup validation, and Windows-friendly mGBA launch/manual handoff. Completed (independent review APPROVE, merged to `main` at `428324c`); no source, mapping, or emulator contract changes; real mGBA end-to-end acceptance remains a separate, still-pending manual step.
 - [`P05-T006`](../tasks/P05/P05-T006.md) - Automates savestate loading via mGBA's documented `--savestate` CLI flag, after confirming (via mgba-emu/mgba#3289) that script loading has no supported non-GUI path. Completed (independent review APPROVE, fast-forward merged at `aa5d97b`).
-- [`P05-T009`](../tasks/P05/P05-T009.md) - Full six-slot party/battle live dashboard: decodes all four Gen III encrypted substructs for every party slot (not one fixed slot), resolves species/move/item/location names and badges through a new game-owned reference-data layer, and redesigns the overlay presentation around it. Implemented and pushed to `feat/P05-T009-emerald-live-dashboard`; independent review and real mGBA/BizHawk end-to-end acceptance remain pending. The Lua port of the richer decode is untested (no Lua interpreter in this development environment) and is a named, disclosed risk for that acceptance session.
+- [`P05-T009`](../tasks/P05/P05-T009.md) - Full six-slot party/battle live dashboard: decodes all four Gen III encrypted substructs for every party slot (not one fixed slot), resolves species/move/item/location names and badges through a new game-owned reference-data layer, and redesigns the overlay presentation around it. Completed (independent review APPROVE, merged); the Lua port was exercised live against BizHawk with the real ROM as a connector smoke during review, though the full rich-dashboard acceptance session remains a separate follow-up.
+- [`P05-T010`](../tasks/P05/P05-T010.md) - Expandable, collapsed-by-default battle stat comparison panel (Attack/Defense/Sp. Atk/Sp. Def/Speed/HP/Level, relative indicators), built entirely from `P05-T009`'s already-decoded fields with no new acquisition/schema work. Investigated battle stat-stage and active-battler-slot decoding and deferred both - no verifiable fixed memory address for the relevant runtime battle-engine structures exists in this offline environment. Implemented and pushed to `feat/P05-T010-battle-stat-comparison`; independent review pending.
+- `P05-T011` - Location encounter rates and bag Poke Ball inventory with a dynamic, state-aware catch-rate display (accounting for current HP and status). Scoped but not yet started; split out from `P05-T010` due to substantially larger and different decoding scope (bag/inventory memory layout, wild encounter table data, Gen III catch-rate formula).
 
 Remaining roadmap deliverables will be scoped separately: real mGBA/BizHawk end-to-end acceptance against the richer pipeline.
 
-**Exit criteria:** Live party/opponent/seed/frame/bag/map data flows from mGBA through a source contract and mapping project into normalized state, rendered by the existing overlay. `P05-T001` supplies overlay refresh, `P05-T002` supplies acquisition, `P05-T003` supplies the source contract, `P05-T004` supplies initial mapping/normalized delivery, and `P05-T009` supplies full-party/battle/lookup-data mapping and presentation. Real end-to-end acceptance remains outstanding; seed/frame and full bag acquisition remain out of scope for this task and are not yet available.
+**Exit criteria:** Live party/opponent/seed/frame/bag/map data flows from mGBA through a source contract and mapping project into normalized state, rendered by the existing overlay. `P05-T001` supplies overlay refresh, `P05-T002` supplies acquisition, `P05-T003` supplies the source contract, `P05-T004` supplies initial mapping/normalized delivery, `P05-T009` supplies full-party/battle/lookup-data mapping and presentation, and `P05-T010` supplies the stat comparison panel. Real end-to-end acceptance remains outstanding; seed/frame, stat stages/active-battler tracking, and full bag acquisition remain out of scope so far and are not yet available.
 
 **Dependencies:** `P01`.
 

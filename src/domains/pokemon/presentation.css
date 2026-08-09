@@ -311,6 +311,71 @@ h3 {
   color: var(--muted);
 }
 
+.stat-compare {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 4px 12px;
+}
+
+.stat-compare summary {
+  cursor: pointer;
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: 700;
+  list-style: revert;
+}
+
+.stat-compare-note {
+  margin: 0 0 10px;
+  font-size: 11px;
+}
+
+.stat-compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.stat-compare-table th[scope="col"] {
+  text-align: center;
+  color: var(--muted);
+  font-weight: 700;
+  padding-bottom: 6px;
+}
+
+.stat-compare-table th[scope="row"] {
+  text-align: left;
+  color: var(--muted);
+  font-weight: 400;
+  padding: 4px 0;
+}
+
+.stat-compare-table td.stat-value {
+  text-align: center;
+  padding: 4px 6px;
+  white-space: nowrap;
+}
+
+.stat-compare-table td.stat-value.stat-highlight {
+  font-weight: 700;
+}
+
+.stat-compare-table td.stat-indicator {
+  text-align: center;
+  width: 20px;
+  color: var(--muted);
+}
+
+.stat-compare-table td.stat-indicator.stat-advantage {
+  color: var(--green);
+}
+
+.stat-compare-table td.stat-indicator.stat-disadvantage {
+  color: #d1453b;
+}
+
 @media (max-width: 1000px) {
   .dashboard {
     grid-template-columns: 1fr;
