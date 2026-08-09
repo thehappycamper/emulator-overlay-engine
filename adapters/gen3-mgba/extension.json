@@ -3,12 +3,13 @@
   "id": "pokemon.gen3.mgba.emerald-us-rev0-acquisition",
   "name": "Pokemon Emerald Rev 0 mGBA Source Provider",
   "type": "emulator",
-  "version": "0.2.0",
-  "description": "Read-only mGBA Lua provider for a named, versioned Pokemon Emerald Rev 0 source snapshot.",
+  "version": "0.3.0",
+  "description": "Read-only mGBA source provider plus declarative mapping into validated Pokemon state for Emerald Rev 0.",
   "entrypoints": {
     "docs": "README.md",
     "main": "emerald-acquisition.lua",
     "schema": "schemas/emerald-us-rev0-source.schema.json",
+    "mapping": "mappings/emerald-us-rev0-to-pokemon-overlay-state.mapping.json",
     "fixtures": "fixtures"
   },
   "compatibility": {
@@ -29,12 +30,17 @@
   },
   "provides": {
     "sourceSnapshots": true,
+    "normalizedStateMapping": true,
     "readOnly": true
   },
   "exports": {
     "sourceContract": {
       "id": "pokemon.emerald.us-rev0.mgba.acquisition",
       "version": "1.0.0"
+    },
+    "targetContract": {
+      "id": "pokemon.overlay-state",
+      "version": "0.1.0"
     }
   },
   "publicSafety": {

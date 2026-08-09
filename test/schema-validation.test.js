@@ -132,11 +132,17 @@ test("Pokemon state remains a direct payload for current consumers", () => {
   assert.equal("payload" in state, false);
 });
 
-test("mapping example satisfies the mapping project contract", () => {
-  assertValid(
-    "https://emulator-overlay-engine.local/schemas/mapping.schema.json",
-    join(repositoryRoot, "examples", "mapping-project", "mapping.example.json")
-  );
+test("all mapping projects satisfy the mapping project contract", async (t) => {
+  const files = [
+    join(repositoryRoot, "examples", "mapping-project", "mapping.example.json"),
+    ...findFiles(join(repositoryRoot, "adapters"), (path) => path.endsWith(".mapping.json")),
+  ].sort();
+
+  for (const file of files) {
+    await t.test(relative(repositoryRoot, file), () => {
+      assertValid("https://emulator-overlay-engine.local/schemas/mapping.schema.json", file);
+    });
+  }
 });
 
 test("Emerald acquisition source fixtures satisfy their adapter-owned contract", async (t) => {

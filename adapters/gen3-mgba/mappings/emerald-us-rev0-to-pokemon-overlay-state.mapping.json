@@ -1,0 +1,273 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "pokemon.emerald.us-rev0.mgba-to-overlay-state",
+  "name": "Pokemon Emerald US Rev 0 mGBA To Pokemon Overlay State",
+  "version": "1.0.0",
+  "description": "Maps the fixed-slot Emerald acquisition snapshot into the current Pokemon normalized overlay state, using documented placeholders for fields acquisition does not yet provide.",
+  "source": {
+    "id": "pokemon.emerald.us-rev0.mgba.acquisition",
+    "type": "acquisition-source-snapshot",
+    "version": "1.0.0",
+    "schema": "urn:source-contract:pokemon.emerald.us-rev0.mgba.acquisition:1.0.0",
+    "description": "Strict-fingerprint live values acquired from Pokemon Emerald US Rev 0 through mGBA."
+  },
+  "target": {
+    "id": "pokemon.overlay-state",
+    "type": "normalized-state",
+    "version": "0.1.0",
+    "schema": "https://emulator-overlay-engine.local/schemas/overlay-state.schema.json",
+    "description": "Pokemon-owned normalized state consumed by the current overlay presentation."
+  },
+  "fieldMappings": [
+    {
+      "sourcePath": "/__placeholder/schemaVersion",
+      "targetPath": "/schemaVersion",
+      "default": "0.1.0",
+      "description": "Literal target contract version; not acquired from the game."
+    },
+    {
+      "sourcePath": "/__placeholder/generation",
+      "targetPath": "/game/generation",
+      "default": 3,
+      "description": "Literal generation for the supported Emerald game configuration."
+    },
+    {
+      "sourcePath": "/game/title",
+      "targetPath": "/game/title",
+      "required": true
+    },
+    {
+      "sourcePath": "/__placeholder/adapter",
+      "targetPath": "/game/adapter",
+      "default": "mGBA Emerald US Rev 0",
+      "description": "Literal provider label for display and diagnostics."
+    },
+    {
+      "sourcePath": "/game/gameCode",
+      "targetPath": "/game/romId",
+      "required": true
+    },
+    {
+      "sourcePath": "/__placeholder/partyPokemon",
+      "targetPath": "/player/party/0",
+      "default": {
+        "speciesId": 0,
+        "name": "Species name unavailable",
+        "level": 1,
+        "currentHp": 0,
+        "maxHp": 1,
+        "types": ["unknown"],
+        "stats": { "hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0 },
+        "moves": []
+      },
+      "description": "Single fixed party slot with visible placeholders for unavailable species metadata, types, stats, and moves."
+    },
+    {
+      "sourcePath": "/party/first/speciesId",
+      "targetPath": "/player/party/0/speciesId"
+    },
+    {
+      "sourcePath": "/party/first/level",
+      "targetPath": "/player/party/0/level"
+    },
+    {
+      "sourcePath": "/party/first/currentHp",
+      "targetPath": "/player/party/0/currentHp"
+    },
+    {
+      "sourcePath": "/party/first/maxHp",
+      "targetPath": "/player/party/0/maxHp"
+    },
+    {
+      "sourcePath": "/__placeholder/activePlayerIndex",
+      "targetPath": "/battle/activePlayerIndex",
+      "default": 0,
+      "description": "Literal fixed player slot; active-slot acquisition is not implemented."
+    },
+    {
+      "sourcePath": "/battle/opponent/speciesId",
+      "targetPath": "/battle/opponent/speciesId"
+    },
+    {
+      "sourcePath": "/battle/opponent/level",
+      "targetPath": "/battle/opponent/level"
+    },
+    {
+      "sourcePath": "/battle/opponent/currentHp",
+      "targetPath": "/battle/opponent/currentHp"
+    },
+    {
+      "sourcePath": "/battle/opponent/maxHp",
+      "targetPath": "/battle/opponent/maxHp"
+    },
+    {
+      "sourcePath": "/__placeholder/locationName",
+      "targetPath": "/location/name",
+      "default": "Location name unavailable",
+      "description": "Literal placeholder until map-group/number lookup data is implemented."
+    },
+    {
+      "sourcePath": "/__placeholder/encounters",
+      "targetPath": "/location/encounters",
+      "default": [],
+      "description": "Literal empty list because encounter-table lookup is not implemented."
+    },
+    {
+      "sourcePath": "/__placeholder/balls",
+      "targetPath": "/bag/balls",
+      "default": [],
+      "description": "Literal empty list because bag acquisition is not implemented."
+    },
+    {
+      "sourcePath": "/__placeholder/tms",
+      "targetPath": "/bag/tms",
+      "default": [],
+      "description": "Literal empty list because bag acquisition is not implemented."
+    },
+    {
+      "sourcePath": "/contract/id",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/contractId",
+      "required": true
+    },
+    {
+      "sourcePath": "/contract/version",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/contractVersion",
+      "required": true
+    },
+    {
+      "sourcePath": "/game/revision",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/revision",
+      "required": true
+    },
+    {
+      "sourcePath": "/game/crc32",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/crc32",
+      "required": true
+    },
+    {
+      "sourcePath": "/party/count",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/partyCount",
+      "required": true
+    },
+    {
+      "sourcePath": "/battle/active",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/battleActive",
+      "required": true
+    },
+    {
+      "sourcePath": "/battle/typeFlags",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/battleTypeFlags",
+      "required": true
+    },
+    {
+      "sourcePath": "/location/mapGroup",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/location/mapGroup"
+    },
+    {
+      "sourcePath": "/location/mapNumber",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/location/mapNumber"
+    },
+    {
+      "sourcePath": "/location/x",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/location/x"
+    },
+    {
+      "sourcePath": "/location/y",
+      "targetPath": "/extensions/pokemon.emerald.us-rev0.mgba.acquisition/location/y"
+    }
+  ],
+  "valueMappings": [
+    {
+      "sourcePath": "/party/count",
+      "targetPath": "/player/party",
+      "entries": [{ "from": 0, "to": [] }],
+      "unmatched": "omit",
+      "description": "Remove the fixed placeholder slot when the source explicitly reports an empty party."
+    }
+  ],
+  "calculatedFields": [
+    {
+      "targetPath": "/battle/opponent/name",
+      "expression": {
+        "op": "if",
+        "condition": {
+          "op": "equal",
+          "left": { "op": "field", "path": "/battle/active" },
+          "right": { "op": "literal", "value": true }
+        },
+        "then": { "op": "literal", "value": "Species name unavailable" },
+        "else": { "op": "field", "path": "/battle/opponent/name" }
+      },
+      "description": "Visible species-name placeholder only while the fixed opponent slot is active."
+    },
+    {
+      "targetPath": "/battle/opponent/types",
+      "expression": {
+        "op": "if",
+        "condition": {
+          "op": "equal",
+          "left": { "op": "field", "path": "/battle/active" },
+          "right": { "op": "literal", "value": true }
+        },
+        "then": { "op": "literal", "value": ["unknown"] },
+        "else": { "op": "field", "path": "/battle/opponent/types" }
+      },
+      "description": "Visible type placeholder only while the fixed opponent slot is active."
+    },
+    {
+      "targetPath": "/battle/opponent/stats",
+      "expression": {
+        "op": "if",
+        "condition": {
+          "op": "equal",
+          "left": { "op": "field", "path": "/battle/active" },
+          "right": { "op": "literal", "value": true }
+        },
+        "then": {
+          "op": "literal",
+          "value": { "hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0 }
+        },
+        "else": { "op": "field", "path": "/battle/opponent/stats" }
+      },
+      "description": "Visible zero-value stat placeholders only while the fixed opponent slot is active."
+    },
+    {
+      "targetPath": "/battle/opponent/moves",
+      "expression": {
+        "op": "if",
+        "condition": {
+          "op": "equal",
+          "left": { "op": "field", "path": "/battle/active" },
+          "right": { "op": "literal", "value": true }
+        },
+        "then": { "op": "literal", "value": [] },
+        "else": { "op": "field", "path": "/battle/opponent/moves" }
+      },
+      "description": "Literal empty move list only while the fixed opponent slot is active."
+    }
+  ],
+  "validation": {
+    "requiredSourcePaths": [
+      "/contract/id",
+      "/contract/version",
+      "/game/gameCode",
+      "/game/title",
+      "/game/revision",
+      "/game/crc32",
+      "/party/count",
+      "/battle/active",
+      "/battle/typeFlags",
+      "/location"
+    ],
+    "requiredTargetPaths": [
+      "/schemaVersion",
+      "/game/generation",
+      "/game/title",
+      "/game/adapter",
+      "/player/party",
+      "/battle",
+      "/location/name",
+      "/bag"
+    ]
+  }
+}

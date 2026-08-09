@@ -1,6 +1,6 @@
 # Pokemon Emerald mGBA Source Provider
 
-This adapter reads a small, changing set of Pokemon Emerald values through mGBA and publishes the named source contract `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0`. It does not emit normalized Pokemon state; declarative mapping remains the next pipeline step.
+This adapter reads a small, changing set of Pokemon Emerald values through mGBA and publishes the named source contract `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0`. A checked-in declarative mapping and local runner transform that source into validated `pokemon.overlay-state@0.1.0` at `public/live-state.json`.
 
 ## Supported Baseline
 
@@ -36,6 +36,20 @@ The script is read-only with respect to emulator/game memory. It writes derived 
 
 The schema is adapter-owned because these are raw acquisition fields for one game/revision/provider, not platform or normalized Pokemon fields. Success snapshots contain no diagnostic status. `waiting-for-game`, `unsupported-rom`, and `invalid-memory` remain text-buffer diagnostics and cause the canonical snapshot to be absent.
 
+## Normalized-State Mapping
+
+`mappings/emerald-us-rev0-to-pokemon-overlay-state.mapping.json` is the canonical source-to-target mapping. `emerald-state-mapping.js` validates the source and mapping, calls the shared `applyMappingProject()` runtime, then validates the result against `src/domains/pokemon/schemas/overlay-state.schema.json` with Ajv.
+
+The current source has one fixed party record and one fixed opponent record. The mapping therefore emits at most party index `0` and one opponent. It uses explicit compatibility placeholders for required fields acquisition does not provide:
+
+- name: `Species name unavailable`;
+- types: `unknown`;
+- stats: zero values;
+- moves, bag balls, TMs, and encounters: empty arrays;
+- location name: `Location name unavailable`.
+
+These are not inferred gameplay values. Raw revision, CRC, party count, battle flags, and map identifiers/coordinates are retained under `extensions["pokemon.emerald.us-rev0.mgba.acquisition"]`.
+
 ## Live Fields
 
 The source snapshot currently reads:
@@ -61,7 +75,7 @@ $env:EMERALD_SOURCE_SNAPSHOT_PATH = (Resolve-Path var/snapshots).Path + "\emeral
 
 The path is local-only and ignored under `var/snapshots/`. The provider writes a sibling `.tmp` file, flushes and closes it, then renames it to the configured path. On Windows, replacement may briefly make the canonical path absent; it never exposes partially written JSON. The provider rewrites only when acquired values change. It removes the canonical snapshot when the game is absent, unsupported, or fails the implemented plausibility check.
 
-Do not configure the overlay to read this file. It is source data and must pass through the future declarative mapping task before becoming Pokemon normalized state.
+Do not configure the overlay to read this source file. Run `npm run live:emerald` to map it into validated `public/live-state.json`; the mapper writes a sibling temporary file and renames only after target validation and a complete write.
 
 ## Run The Provider
 
@@ -75,6 +89,53 @@ Do not configure the overlay to read this file. It is source data and must pass 
 8. Parse the file at `EMERALD_SOURCE_SNAPSHOT_PATH` and confirm its HP changed without restarting mGBA. Enter or leave a battle and confirm `battle.active` changes; move to another map and confirm at least one location identifier changes.
 
 An unsupported fingerprint should instead display `"status":"unsupported-rom"` with actual and expected identifiers.
+
+## First End-To-End Live Test
+
+Run all commands from the repository root. The mGBA process must inherit `EMERALD_SOURCE_SNAPSHOT_PATH`; setting it after mGBA starts has no effect.
+
+1. Install the locked Node dependencies and create the local snapshot directory:
+
+   ```powershell
+   npm ci
+   New-Item -ItemType Directory -Force var/snapshots
+   $sourcePath = (Resolve-Path var/snapshots).Path + "\emerald-us-rev0.source.json"
+   ```
+
+2. In the same terminal, set the source path and launch mGBA 0.10.3 using your local executable path:
+
+   ```powershell
+   $env:EMERALD_SOURCE_SNAPSHOT_PATH = $sourcePath
+   & "C:\path\to\mGBA.exe"
+   ```
+
+3. Load the supported Emerald Rev 0 ROM, open **Tools > Scripting...**, and load `adapters/gen3-mgba/emerald-acquisition.lua`. Confirm `$sourcePath` appears and contains contract version `1.0.0`.
+
+4. Open a second PowerShell terminal at the repository root and start the mapper with the exact same source path:
+
+   ```powershell
+   $env:EMERALD_SOURCE_SNAPSHOT_PATH = (Resolve-Path var/snapshots).Path + "\emerald-us-rev0.source.json"
+   $env:EOE_LIVE_STATE_PATH = (Join-Path (Get-Location) "public/live-state.json")
+   npm run live:emerald
+   ```
+
+5. Confirm the mapper reports `Mapped Emerald source snapshot` and that `public/live-state.json` parses. It should contain live species ID, level, current/max HP, battle state/opponent data, and raw location identifiers alongside the documented placeholders.
+
+6. Open a third terminal and start the overlay server:
+
+   ```powershell
+   npm start
+   ```
+
+7. Open `http://127.0.0.1:5173/?state=/public/live-state.json`. Confirm the party card shows the live level and HP with `Species name unavailable`, `unknown` type, zero stats, and no moves.
+
+8. Take damage or heal the first party Pokemon. Confirm the source snapshot, `public/live-state.json`, and rendered HP all change without restarting mGBA, mapper, or server.
+
+9. Enter and leave a battle. Confirm the fixed opponent appears and disappears. Change maps and confirm the raw values under `extensions.pokemon.emerald.us-rev0.mgba.acquisition.location` change; `location.name` remains the explicit placeholder.
+
+10. Stop the mapper and server with **Ctrl+C**. `public/live-state.json` and `var/snapshots/` are runtime files ignored by Git.
+
+For a source-fixture preflight without mGBA, set `EMERALD_SOURCE_SNAPSHOT_PATH` to `adapters/gen3-mgba/fixtures/emerald-us-rev0.source.json` and run `npm run live:emerald -- --once`.
 
 ## Source Snapshot Shape
 
@@ -103,7 +164,7 @@ The addresses are deliberately kept in this game/emulator adapter. They are not 
 
 ## Tests And Fixtures
 
-The fixtures contain synthetic numeric/derived values only. They contain no ROM, BIOS, save, savestate, or copied game bytes. `npm test` verifies fingerprint rejection, decoding, source-schema invariants, reader-to-contract output, unsupported-ROM refusal, adapter manifest/schema validation, and complete-file replacement behavior. It also pins Lua contract constants and write operations to the tested reference.
+The fixtures contain synthetic numeric/derived values only. They contain no ROM, BIOS, save, savestate, or copied game bytes. `npm test` verifies fingerprint rejection, decoding, source and mapping schemas, reader-to-contract output, target validation, renderer safety, unsupported-ROM refusal, and complete-file replacement behavior. It also pins Lua contract constants and write operations to the tested reference.
 
 ## Known Limitations
 
@@ -112,9 +173,10 @@ The fixtures contain synthetic numeric/derived values only. They contain no ROM,
 - The contract has no timestamp/freshness metadata; file modification time is local handoff metadata, not contract data.
 - The local file is a single-writer snapshot handoff, not a general transport or event stream.
 - Only the first party and first enemy-party records are read.
+- Required names, types, stats, moves, location name, bag, TM, and encounter fields are placeholders, not live values.
 - Species names, double-battle active slots, transient loading states, and broader corruption/plausibility checks are deferred.
 - The Lua script constructs the fixed schema shape but cannot run Ajv inside mGBA; tests validate the mirrored Node output and pin shared constants/handoff operations, but CI cannot execute mGBA's embedded Lua runtime.
 
 ## Recommended Next Task
 
-Define the declarative mapping project from this source contract into the Pokemon-owned normalized-state contract. The mapping must handle normalized fields not yet present in acquisition data explicitly rather than pretending source values exist. Keep normalized file delivery and end-to-end overlay integration in later reviewed tasks.
+Run and independently record the first real mGBA end-to-end smoke against this pipeline, then scope additional acquisition/mapping for the P05 fields that remain unavailable. Keep whole-party iteration and lookup datasets in separately reviewed tasks.

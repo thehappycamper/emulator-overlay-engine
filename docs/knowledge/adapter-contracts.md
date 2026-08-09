@@ -92,7 +92,7 @@ src/domains/pokemon/schemas/overlay-state.schema.json
 
 The first live implementation may write `public/live-state.json` for polling. A later transport may differ, but payload semantics should remain tied to the selected named target contract rather than acquisition mechanics.
 
-`P05-T003` turns the strict-fingerprint Emerald Rev 0 acquisition proof into a schema-validated source snapshot under `adapters/gen3-mgba/`. It uses an adapter-owned local replace-via-temporary-file handoff and remains pre-mapping. It is not normalized Pokemon state, must not be consumed directly by the overlay, and does not define a universal provider runtime or transport.
+`P05-T003` turns the strict-fingerprint Emerald Rev 0 acquisition proof into a schema-validated source snapshot under `adapters/gen3-mgba/`. `P05-T004` adds the checked-in mapping into `pokemon.overlay-state@0.1.0`, canonical Ajv target validation, and an atomic `public/live-state.json` handoff. The source snapshot still must not be consumed directly by the overlay, and the narrow local watcher does not define a universal provider runtime or transport.
 
 ## Fidelity, Provenance, And Confidence
 

@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "start": "node tools/dev-server.mjs",
+    "live:emerald": "node tools/emerald-live-state.mjs",
     "test": "node --test"
   },
   "engines": {

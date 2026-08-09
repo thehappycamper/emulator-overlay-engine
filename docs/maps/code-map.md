@@ -58,8 +58,11 @@
 | `adapters/gen3-mgba/emerald-us-rev0.js` | Pure/testable identity, Gen III Pokemon decoding, address, pointer, and acquisition logic. |
 | `adapters/gen3-mgba/emerald-source-contract.js` | Source contract descriptor and acquisition-to-snapshot builder. |
 | `adapters/gen3-mgba/validate-source-snapshot.js` | Ajv validation entry point for Emerald source snapshots. |
-| `adapters/gen3-mgba/write-source-snapshot.js` | Validated Node reference writer using complete-file replacement. |
+| `adapters/gen3-mgba/atomic-json-file.js` | Adapter-local complete-file JSON replacement shared by validated source and normalized-state writers. |
+| `adapters/gen3-mgba/write-source-snapshot.js` | Validated source snapshot writer using complete-file replacement. |
+| `adapters/gen3-mgba/emerald-state-mapping.js` | Loads/validates the Emerald mapping, invokes `applyMappingProject()`, validates canonical Pokemon state, and writes live state. |
 | `adapters/gen3-mgba/schemas/emerald-us-rev0-source.schema.json` | Canonical `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0` contract. |
+| `adapters/gen3-mgba/mappings/emerald-us-rev0-to-pokemon-overlay-state.mapping.json` | Fixed-slot declarative mapping into `pokemon.overlay-state@0.1.0` with documented placeholders. |
 | `adapters/gen3-mgba/extension.json` | Public extension manifest for the Emerald source provider. |
 | `adapters/gen3-mgba/fixtures/` | Synthetic acquisition/source fixtures; no ROM/save/game binaries. |
 | `extensions/README.md` | Extension model and rules. |
@@ -84,7 +87,9 @@
 | `test/live-state.test.js` | Live-state polling controller: render-on-change, no-overlap fetches, transient-failure/recovery, and status transitions. |
 | `test/mgba-emerald-acquisition.test.js` | Emerald fingerprint, Gen III encrypted-species/stat decoding, battle/location acquisition, pointer safety, and Lua-layout synchronization tests. |
 | `test/emerald-source-contract.test.js` | Emerald source validation, reader output, unsupported-ROM refusal, and atomic snapshot-handoff tests. |
+| `test/emerald-live-state-mapping.test.js` | Mapping contract, target validation, placeholder renderer safety, fixed-slot behavior, and atomic normalized-state handoff tests. |
 | `tools/dev-server.mjs` | Dependency-free local static server for overlay development. |
+| `tools/emerald-live-state.mjs` | Narrow local watcher from Emerald source snapshot through mapping/validation to `public/live-state.json`. |
 
 ## Documentation
 

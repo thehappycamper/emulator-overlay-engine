@@ -18,7 +18,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | `P02` | Domain Boundary | completed |
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
-| `P05` | Live Gameplay Source | active - `P05-T001`/`T002`/`T003` completed; mapping/integration remain |
+| `P05` | Live Gameplay Source | active - `P05-T001`/`T002`/`T003` completed; `P05-T004` mapping/live-state handoff is in review |
 | `P06` | Second Source / Domain Proof | planned |
 | — | Later Product Tracks | coarse / not phased yet |
 
@@ -143,7 +143,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P05 — Live Gameplay Source
 
-**Status:** active. `P05-T001` (domain-neutral overlay live-refresh polling), `P05-T002` (read-only Emerald/mGBA acquisition diagnostic), and `P05-T003` (named source contract and validated snapshot handoff, independent review APPROVE, merged at `235f91c`) are all complete. The phase gate still requires mapping, normalized-state delivery, and an integrated live path. `P05` is not complete.
+**Status:** active. `P05-T001` (overlay polling), `P05-T002` (Emerald acquisition), and `P05-T003` (named source contract/source handoff) are complete. `P05-T004` implements fixed-slot declarative mapping, canonical target validation, and normalized live-state delivery and is awaiting independent review. The phase gate still requires real end-to-end smoke evidence and broader party/opponent/seed/frame/bag/map coverage. `P05` is not complete.
 
 **Objective:** Implement the first live source integration — the Gen 3 mGBA adapter sketched in `adapters/gen3-mgba/README.md` and `docs/project/roadmap.md`'s "First Real Live Integration" — against the source-agnostic platform boundary clarified in `P01-T006`.
 
@@ -153,10 +153,11 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 - [`P05-T001`](../tasks/P05/P05-T001.md) — Overlay live-state consumption: turn the one-shot overlay load into a polling refresh loop tolerant of a missing/invalid/partially-written state file. Completed after independent review and merge; independent of mGBA acquisition.
 - [`P05-T002`](../tasks/P05/P05-T002.md) — English retail Emerald Rev 0 acquisition proof through mGBA Lua, with strict fingerprint detection and developer diagnostic output. Completed (independent review APPROVE, merged to `main` at `3bdfd49`); intentionally stops before a source contract or normalized export.
 - [`P05-T003`](../tasks/P05/P05-T003.md) - Named/versioned Emerald acquisition source contract, schema validation, public-safe fixture, and replace-via-temporary-file snapshot handoff. Completed (independent review APPROVE, merged to `main` at `235f91c`).
+- [`P05-T004`](../tasks/P05/P05-T004.md) - Existing-runtime mapping into canonical Pokemon state, explicit placeholders, Ajv target validation, and atomic `public/live-state.json` handoff. Implemented; awaiting independent review.
 
-Remaining roadmap deliverables will be scoped separately: declarative mapping into Pokemon state, normalized-state delivery, and end-to-end fixtures/tests.
+Remaining roadmap deliverables will be scoped separately: real mGBA end-to-end acceptance and broader acquisition/mapping for phase-gate fields not yet available.
 
-**Exit criteria:** Live party/opponent/seed/frame/bag/map data flows from mGBA through a source contract and mapping project into normalized state, rendered by the existing overlay. `P05-T001` supplies overlay refresh, `P05-T002` supplies acquisition, and `P05-T003` supplies the initial source contract/handoff; mapping, broader field acquisition, normalized delivery, and integration remain outstanding.
+**Exit criteria:** Live party/opponent/seed/frame/bag/map data flows from mGBA through a source contract and mapping project into normalized state, rendered by the existing overlay. `P05-T001` supplies overlay refresh, `P05-T002` supplies acquisition, `P05-T003` supplies the source contract, and `P05-T004` supplies initial fixed-slot mapping/normalized delivery. Broader field acquisition and real end-to-end acceptance remain outstanding.
 
 **Dependencies:** `P01`.
 
