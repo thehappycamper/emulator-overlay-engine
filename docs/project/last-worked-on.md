@@ -4,11 +4,11 @@ This is a short pointer, not the project history. For full history, see `docs/ta
 
 ## Current status
 
-- **Active phases:** `P05` — Live Gameplay Source remains open for real mGBA/BizHawk acceptance against the now much richer acquisition/mapping/presentation. `P06` has provider-neutral Emerald acquisition implemented and reviewed (`P06-T002`, merged), but the real-ROM BizHawk acceptance session remains. This does not waive the `P05` gate or complete the second-source proof. `P04` remains planned and unstarted. See [implementation plan](implementation-plan.md).
+- **Active phases:** `P04` — Event Routing And Actions has `P04-T001` in independent review, while `P05` remains open for real mGBA/BizHawk acceptance and `P06` remains open for real-ROM BizHawk acceptance. See [implementation plan](implementation-plan.md).
 - **Completed phases:** `P03` — Semantic Event Foundation closed with `P03-T001`'s merge (independent review: round 1 REQUEST CHANGES, round 2 APPROVE).
-- **Current review task:** none open as of this session's end.
+- **Current review task:** [`P04-T001`](../tasks/P04/P04-T001.md) — declarative semantic-event rules and validated action requests.
 - **Last completed task:** [`P03-T001` — Provider-neutral semantic event derivation layer](../tasks/P03/P03-T001.md) (2026-08-09, independent review round 2 APPROVE, fast-forward merged, closes `P03`). [`P05-T012`](../tasks/P05/P05-T012.md), [`P05-T007`](../tasks/P05/P05-T007.md), [`P05-T011`](../tasks/P05/P05-T011.md), [`P05-T010`](../tasks/P05/P05-T010.md), [`P05-T009`](../tasks/P05/P05-T009.md), [`P05-T001`](../tasks/P05/P05-T001.md) through [`P05-T006`](../tasks/P05/P05-T006.md), and [`P06-T002`](../tasks/P06/P06-T002.md) are also completed.
-- **Next steps:** run and record real mGBA and BizHawk end-to-end acceptance tests against the richer `P05` pipeline (full party, resolved names, badges, location, stat comparison, encounter rates, live catch odds); begin `P04` (event routing/subscriptions/actions) whenever prioritized, building on `P03-T001`'s event contract. `P05` remains active.
+- **Next steps:** independently review `P04-T001`, then define the capability-gated action-provider follow-up; separately run and record real mGBA and BizHawk end-to-end acceptance tests for `P05`/`P06`.
 
 ## Most recent session (2026-08-09)
 

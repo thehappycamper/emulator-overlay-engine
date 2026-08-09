@@ -68,9 +68,9 @@ The browser bootstrap and presentation dispatcher remain domain-neutral. Source 
 
 Interprets changes between previous and current normalized domain state and emits meaningful domain events. Consumers should not need emulator addresses or source-specific bit semantics. No event contract or detector runtime exists yet.
 
-6. Rules, Subscriptions, And Actions (Future)
+6. Rules, Subscriptions, And Actions
 
-Rules and subscribers consume semantic events. The internal engine should own game semantics, routing, permissions, session policy, provider-capability checks, and native action execution. Actions represent requested outcomes through future providers such as overlay, audio, streaming, webhook, WebSocket, MQTT, IPC, or hardware bridges. External workflow systems may consume events or request authorized actions through generic integration surfaces, but do not replace the internal engine. No event router, action-provider contract, or inbound Action API exists yet.
+The implemented P04-T001 slice evaluates declarative rules against one validated semantic event and emits validated, request-only action envelopes. Its first harmless request is `overlay.notification`; it does not execute effects. The internal engine should own game semantics, routing, permissions, session policy, provider-capability checks, and native action execution. Future actions may use providers such as overlay, audio, streaming, webhook, WebSocket, MQTT, IPC, or hardware bridges. External workflow systems may consume events or request authorized actions through generic integration surfaces, but do not replace the internal engine. Event routing/subscriptions, action-provider contracts, capability checks, and executors remain future work.
 
 7. Experiences
 

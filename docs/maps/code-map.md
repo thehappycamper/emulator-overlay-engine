@@ -46,6 +46,11 @@
 | `src/events/derive.js` | Domain-neutral semantic event derivation primitive: compares two normalized-state snapshots via caller-supplied detectors, stamps sequence/timestamp/provenance, validates each event. |
 | `src/events/validate.js` | Ajv2020 strict-mode validation and fail-closed `EventValidationError` for the event envelope schema. |
 | `src/events/schemas/event-envelope.schema.json` | Generic, domain-neutral semantic event envelope contract (type, sequence, detectedAt, subject, previous, current, provenance). |
+| `src/rules/evaluate.js` | Domain-neutral declarative rule evaluator: event-type matching, bounded JSON-Pointer predicates, and request-only action construction. |
+| `src/rules/validate.js` | Fail-closed Ajv validation for declarative rule definitions. |
+| `src/rules/schemas/rule.schema.json` | Initial declarative rule shape. |
+| `src/actions/validate.js` | Fail-closed Ajv validation for action-request envelopes and their triggering event. |
+| `src/actions/schemas/action-request.schema.json` | Domain-neutral action-request envelope; it describes effects and does not execute them. |
 
 ## Public Overlay Assets
 
@@ -78,6 +83,7 @@
 | `examples/extensions/` | Example extension manifests and README templates. |
 | `examples/templates/` | Example shareable template manifests and README files. |
 | `examples/mapping-project/` | Executable, schema-validated fusion mapping example. |
+| `examples/rules/` | Public-safe declarative rule example for a Pokemon event notification; it contains no executable behavior. |
 | `templates/README.md` | Location and rules for reviewed shareable templates. |
 | `data/README.md` | Placeholder and policy for future data extensions. |
 | `rulesets/README.md` | Placeholder and policy for future challenge scoring rulesets. |

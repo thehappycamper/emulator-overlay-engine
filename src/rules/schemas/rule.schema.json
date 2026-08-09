@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emulator-overlay-engine.local/schemas/rule.schema.json",
+  "title": "Declarative Semantic Event Rule",
+  "description": "Domain-neutral rule definition evaluated against a validated semantic event.",
+  "type": "object",
+  "required": ["id", "enabled", "eventType", "predicates", "actions"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9._-]*$" },
+    "enabled": { "type": "boolean" },
+    "eventType": { "type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)*$" },
+    "predicates": { "type": "array", "items": { "$ref": "#/$defs/predicate" } },
+    "actions": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/action" } }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "predicate": {
+      "type": "object",
+      "required": ["path", "op"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1, "pattern": "^/(?:[^/~]|~[01])+(?:/(?:[^/~]|~[01])*)*$" },
+        "op": { "enum": ["equals", "notEquals", "exists", "notExists", "greaterThan", "lessThan"] },
+        "value": {}
+      },
+      "allOf": [{ "if": { "properties": { "op": { "enum": ["equals", "notEquals", "greaterThan", "lessThan"] } }, "required": ["op"] }, "then": { "properties": { "value": {} }, "required": ["value"] } }],
+      "additionalProperties": false
+    },
+    "action": {
+      "type": "object",
+      "required": ["actionType", "payload"],
+      "properties": {
+        "actionType": { "type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)*$" },
+        "payload": { "type": "object" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

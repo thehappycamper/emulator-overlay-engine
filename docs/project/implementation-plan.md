@@ -17,7 +17,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | `P01` | Platform Mapping Foundation | completed |
 | `P02` | Domain Boundary | completed |
 | `P03` | Semantic Event Foundation | completed |
-| `P04` | Event Routing And Actions | planned |
+| `P04` | Event Routing And Actions | active - `P04-T001` in review |
 | `P05` | Live Gameplay Source | active - `P05-T001`-`T006`, `T009`, `T010`, `T011` completed; real mGBA/BizHawk end-to-end acceptance still required |
 | `P06` | Second Source / Domain Proof | active (provider-neutral acquisition implemented and reviewed; real-ROM BizHawk acceptance and `P05` gate remain open) |
 | — | Later Product Tracks | coarse / not phased yet |
@@ -126,15 +126,16 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P04 — Event Routing And Actions
 
-**Status:** planned
+**Status:** active. `P04-T001` proves declarative event-to-action-request evaluation; independent review is pending.
 
 **Objective:** Prove event subscriptions/routing and a minimal action contract (e.g. an event triggering an overlay update or a single action-provider example) without building broad integrations (no OBS/MQTT/hardware integrations yet — those are later product tracks).
 
 **Entry conditions:** `P03` complete.
 
-**Major tasks:** Not yet broken into task records.
+**Major tasks:**
+- [`P04-T001`](../tasks/P04/P04-T001.md) — Declarative semantic-event rules producing validated action requests. In review.
 
-**Exit criteria:** A minimal, provable path from a detected event to a subscriber-triggered action exists, with a documented action-provider contract narrow enough to extend later without a breaking change.
+**Exit criteria:** A minimal, provable path from a detected event to a validated declarative rule result and action request exists. Action execution/provider capability work remains a later task and is not implied by `P04-T001`.
 
 **Dependencies:** `P03`.
 

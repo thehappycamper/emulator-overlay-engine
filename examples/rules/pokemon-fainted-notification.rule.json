@@ -1,0 +1,14 @@
+{
+  "id": "pokemon-fainted-notification",
+  "enabled": true,
+  "eventType": "pokemon.fainted",
+  "predicates": [],
+  "actions": [
+    {
+      "actionType": "overlay.notification",
+      "payload": {
+        "message": "A Pokemon fainted"
+      }
+    }
+  ]
+}

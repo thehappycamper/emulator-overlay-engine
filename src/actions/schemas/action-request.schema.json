@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emulator-overlay-engine.local/schemas/action-request.schema.json",
+  "title": "Semantic Event Action Request",
+  "description": "Validated description of an effect requested by a rule. It is not execution and carries no provider capability or transport assumptions.",
+  "type": "object",
+  "required": ["actionType", "sequence", "correlationId", "ruleId", "triggeringEvent", "payload"],
+  "properties": {
+    "actionType": { "type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)*$" },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "correlationId": { "type": "string", "minLength": 1 },
+    "ruleId": { "type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9._-]*$" },
+    "triggeringEvent": { "$ref": "https://emulator-overlay-engine.local/schemas/event-envelope.schema.json" },
+    "payload": { "type": "object" }
+  },
+  "additionalProperties": false
+}

@@ -29,6 +29,7 @@ Status labels:
 | Safe calculated expressions | mvp | Whitelisted JSON AST with no arbitrary JavaScript execution |
 | Executable mapping pipeline | mvp | Direct fields, ID/value maps, calculated fields, and validation hooks |
 | Repository schema validation | mvp | `npm test` validates extension, template, mapping, and normalized-state examples |
+| Declarative event rules and action requests | active | `P04-T001` validates domain-neutral rules and emits request-only `overlay.notification` envelopes; independent review pending |
 
 ## Planned And Future Features
 
