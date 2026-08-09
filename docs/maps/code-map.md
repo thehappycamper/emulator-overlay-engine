@@ -49,8 +49,11 @@
 | `src/rules/evaluate.js` | Domain-neutral declarative rule evaluator: event-type matching, bounded JSON-Pointer predicates, and request-only action construction. |
 | `src/rules/validate.js` | Fail-closed Ajv validation for declarative rule definitions. |
 | `src/rules/schemas/rule.schema.json` | Initial declarative rule shape. |
-| `src/actions/validate.js` | Fail-closed Ajv validation for action-request envelopes and their triggering event. |
+| `src/actions/validate.js` | Fail-closed Ajv validation for action-request envelopes, their triggering event, and action-execution results. |
 | `src/actions/schemas/action-request.schema.json` | Domain-neutral action-request envelope; it describes effects and does not execute them. |
+| `src/actions/schemas/action-result.schema.json` | Structured, always-produced outcome of one action-execution attempt (executed/duplicate/rejected/failed). |
+| `src/actions/execute.js` | Capability-gated action executor: fail-closed supported/capability/authorization/payload pipeline, deterministic ordered batch execution, explicit replay/duplicate handling. Never imports the rules evaluator. |
+| `src/actions/providers/overlay-notification.js`, `system-log.js`, `index.js` | Harmless local action providers proving the executor architecture (console-line sinks by default, no real I/O). |
 
 ## Public Overlay Assets
 
@@ -93,6 +96,8 @@
 | Path | Purpose |
 | --- | --- |
 | `test/engine.test.js` | Node tests for type, damage, projection, and capture calculators. |
+| `test/rules-actions.test.js` | Declarative rule schema/evaluation and action-request tests: predicates, ordering, malformed input, immutability, platform-neutrality, and a real P03 event integration. |
+| `test/action-executor.test.js` | Capability-gated action executor tests: fail-closed pipeline stages, deterministic batch ordering, replay/duplicate semantics, provider-exception handling, and platform-neutrality. |
 | `test/domain-boundary.test.js` | Pokemon package resolution, behavior, unknown-domain, and compatibility tests. |
 | `test/events-derive.test.js` | Domain-neutral event envelope validation and `deriveEvents` primitive tests (stamping, sequencing, fail-closed validation, detector-list guards). |
 | `test/pokemon-events.test.js` | Pokemon semantic event detector tests: transitions, deduplication, simultaneous changes, battle entry/exit, party reorder/change, identity-heuristic limitations, provider-neutrality. |

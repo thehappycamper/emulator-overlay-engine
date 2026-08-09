@@ -17,7 +17,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | `P01` | Platform Mapping Foundation | completed |
 | `P02` | Domain Boundary | completed |
 | `P03` | Semantic Event Foundation | completed |
-| `P04` | Event Routing And Actions | active - `P04-T001` completed (independent review APPROVE, merged) |
+| `P04` | Event Routing And Actions | active - `P04-T001` completed (independent review APPROVE, merged); `P04-T002` in review |
 | `P05` | Live Gameplay Source | active - `P05-T001`-`T007`, `T009`-`T012` completed; `T013` in review; real mGBA/BizHawk end-to-end acceptance still required |
 | `P06` | Second Source / Domain Proof | active (provider-neutral acquisition implemented and reviewed; real-ROM BizHawk acceptance and `P05` gate remain open) |
 | — | Later Product Tracks | coarse / not phased yet |
@@ -126,7 +126,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P04 — Event Routing And Actions
 
-**Status:** active. `P04-T001` proves declarative event-to-action-request evaluation; independent review verdict APPROVE, fast-forward merged.
+**Status:** active. `P04-T001` proves declarative event-to-action-request evaluation, completed (independent review APPROVE, fast-forward merged at `7d507a2`). `P04-T002` adds the capability-gated action executor and two harmless local action providers on top of it; implemented and pushed for independent review. Phase does not close until `P04-T002` is independently reviewed and merged.
 
 **Objective:** Prove event subscriptions/routing and a minimal action contract (e.g. an event triggering an overlay update or a single action-provider example) without building broad integrations (no OBS/MQTT/hardware integrations yet — those are later product tracks).
 
@@ -134,8 +134,9 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 **Major tasks:**
 - [`P04-T001`](../tasks/P04/P04-T001.md) — Declarative semantic-event rules producing validated action requests. Completed (independent review APPROVE, fast-forward merged at `7d507a2`).
+- [`P04-T002`](../tasks/P04/P04-T002.md) — Capability-gated action executor: a fail-closed supported/capability/authorization/payload pipeline turning a validated action request into a real (but harmless) local effect via `overlay.notification`/`system.log` proof providers, with explicit replay/duplicate semantics. Implemented, pushed to `feat/P04-T002-capability-gated-action-executor`, awaiting independent review. See [ADR 0027](../decisions/0027-capability-gated-action-executor.md).
 
-**Exit criteria:** A minimal, provable path from a detected event to a validated declarative rule result and action request exists. Action execution/provider capability work remains a later task and is not implied by `P04-T001`.
+**Exit criteria:** A minimal, provable path from a detected event to a validated declarative rule result and action request exists (met by `P04-T001`). A capability-gated executor turns at least one such request into a real, harmless local effect, failing closed on every unsupported/unauthorized/invalid case (met by `P04-T002`, pending independent review). Broad action-provider ecosystem integrations remain out of scope for this phase.
 
 **Dependencies:** `P03`.
 
