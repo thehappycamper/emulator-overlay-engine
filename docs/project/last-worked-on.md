@@ -5,13 +5,13 @@ This is a short pointer, not the project history. For full history, see `docs/ta
 ## Current status
 
 - **Active phase:** `P05` — Live Gameplay Source (active); `P02` — Domain Boundary is completed; `P03`/`P04` remain unstarted (not required for `P05` to proceed). See [implementation plan](implementation-plan.md).
-- **Active task:** [`P05-T001` — Overlay live-state consumption](../tasks/P05/P05-T001.md), implemented on `feat/P05-T001-overlay-live-refresh` and awaiting independent review. Deliberately independent of the separate, concurrent mGBA-acquisition work also planned under `P05`.
-- **Last completed task:** [`P02-T006` — Migrate Pokemon presentation ownership](../tasks/P02/P02-T006.md) (2026-08-08, independent review APPROVE, merged at `3170a9f`). This closed `P02`.
+- **Active task:** `P05-T002` — Emerald/mGBA acquisition proof, implemented on a separate review branch and awaiting independent review; it is not yet part of `main`.
+- **Last completed task:** [`P05-T001` — Overlay live-state consumption](../tasks/P05/P05-T001.md) (2026-08-08, independent review APPROVE, fast-forward merged at `d0d22c1`).
 - **Next planned phase:** `P03` — Semantic Event Foundation. Not yet started; proceeding independently of `P05`.
 
 ## Most recent session (2026-08-08)
 
-`P05-T001` replaces the overlay's one-shot state load with a small dependency-injectable polling controller (`src/overlay/live-state.js`): it fetches on a conservative interval (default 1s, configurable via `data-poll-interval-ms`), never overlaps fetches, re-renders only when fetched state actually changes, and tolerates a missing/invalid/partially-written state file by keeping the last good render and reporting a `live`/`stale`/`error` status instead of crashing. `src/overlay/app.js` now owns a small status-badge element outside the domain's content container, so diagnostic status stays a platform/host concern rather than leaking into Pokemon's `presentation.js`. Verified with unit tests against injected fakes and an end-to-end smoke run against the real dev server with a changing/truncated fixture file. This is the overlay-side half of the `P05` live-integration gap identified in `P02-T006`'s readiness audit; mGBA acquisition, the source contract, and the mapping project remain separately scoped and unstarted by this task.
+`P05-T001` replaced the overlay's one-shot state load with a small dependency-injectable polling controller (`src/overlay/live-state.js`): it fetches on a conservative interval (default 1s, configurable via `data-poll-interval-ms`), never overlaps fetches, re-renders only when fetched state changes, and tolerates missing, invalid, or partially-written state by retaining the last good render and reporting `live`/`stale`/`error`. Independent review reproduced truncated-file recovery against the real dev server, confirmed default sample-state rendering, returned APPROVE with no blocking findings, and merged the branch after 89/89 tests passed. P05 remains active; acquisition, source-contract, mapping, and integrated live-delivery work remain.
 
 `P02-T006` (prior session) moved Pokemon markup, state interpretation, calculator-backed projections, and styles into the Pokemon package, closing `P02` — Domain Boundary.
 
