@@ -48,7 +48,7 @@ These are the intended next architecture slices. Each requires separate approval
 
 ### Live Gen 3 mGBA Export
 
-Status: live integration active. `P05-T002` proved acquisition, `P05-T003` defines/emits the source contract, and `P05-T004` implements fixed-slot mapping plus validated atomic normalized-state delivery. Real mGBA end-to-end smoke and richer fields remain.
+Status: live integration active. `P05-T002` proved acquisition, `P05-T003` defines/emits the source contract, `P05-T004` completed fixed-slot mapping plus validated atomic normalized-state delivery, and `P05-T005` is adding the gitignored local setup/launcher workflow. Real mGBA end-to-end smoke and richer fields remain.
 
 Goal:
 
@@ -58,7 +58,8 @@ Deliverables:
 
 - `adapters/gen3-mgba` Lua exporter.
 - Named/versioned adapter-owned acquisition source contract and safe local snapshot handoff (`P05-T003`, completed).
-- Declarative fixed-slot mapping, canonical target validation, and atomic `public/live-state.json` handoff (`P05-T004`, implemented and in review).
+- Declarative fixed-slot mapping, canonical target validation, and atomic `public/live-state.json` handoff (`P05-T004`, completed).
+- Local `.env.local` setup and Windows-friendly mGBA launcher (`P05-T005`, in review).
 - Overlay option for `live-state.json` with continuous refresh (`P05-T001`, completed: the overlay polls its state source, re-renders on change, and tolerates a missing/invalid/partial file — see [`docs/tasks/P05/P05-T001.md`](../tasks/P05/P05-T001.md)).
 - Documentation for emulator setup.
 - Tests for exported sample fixtures.

@@ -39,9 +39,9 @@ The Emerald mGBA provider writes an acquisition source snapshot, not overlay sta
 
 ## Local Configuration
 
-Copy `.env.example` to `.env` for machine-specific paths such as emulator executables, script directories, save folders, and future live state output paths.
+For the Emerald Proof 1 workflow, copy `.env.local.example` to `.env.local`, fill in local mGBA/ROM paths, then run `npm run proof:emerald`. The launcher validates the setup, creates local snapshot directories, starts mGBA with the configured ROM, and prints the remaining manual Lua/savestate and mapper/server steps.
 
-Do not commit `.env`.
+`.env.local` and `.env` are ignored. Never commit either file, ROMs, saves, savestates, BIOS files, or machine-specific paths. See [local configuration](docs/project/configuration.md).
 
 ## Architecture Direction
 

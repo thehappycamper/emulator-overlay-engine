@@ -7,6 +7,7 @@
 | `AGENTS.md` | Required operating guide for coding agents. |
 | `CONTRIBUTING.md` | Public contribution flow and documentation expectations. |
 | `.env.example` | Public-safe template for local machine configuration. |
+| `.env.local.example` | Fake-path template for the local Emerald Proof 1 launcher; real `.env.local` is ignored. |
 | `README.md` | Public project overview and local usage. |
 | `LICENSE` | MIT license for public use and contribution. |
 | `SECURITY.md` | Public repository safety guidance. |
@@ -88,8 +89,11 @@
 | `test/mgba-emerald-acquisition.test.js` | Emerald fingerprint, Gen III encrypted-species/stat decoding, battle/location acquisition, pointer safety, and Lua-layout synchronization tests. |
 | `test/emerald-source-contract.test.js` | Emerald source validation, reader output, unsupported-ROM refusal, and atomic snapshot-handoff tests. |
 | `test/emerald-live-state-mapping.test.js` | Mapping contract, target validation, placeholder renderer safety, fixed-slot behavior, and atomic normalized-state handoff tests. |
+| `test/emerald-proof-config.test.js` | Local env parsing, required path/numeric validation, output-directory setup, and mGBA child environment tests. |
 | `tools/dev-server.mjs` | Dependency-free local static server for overlay development. |
 | `tools/emerald-live-state.mjs` | Narrow local watcher from Emerald source snapshot through mapping/validation to `public/live-state.json`. |
+| `tools/emerald-proof-config.mjs` | Pure local config parser/resolver plus Proof 1 path validation and launch-environment construction. |
+| `tools/launch-emerald-proof.mjs` | Windows-friendly `npm run proof:emerald` launcher and manual workflow handoff. |
 
 ## Documentation
 
@@ -105,7 +109,7 @@
 | `docs/project/repository-boundaries.md` | Canonical public core / private hosted-services architecture boundary. |
 | `docs/project/features.md` | Feature inventory and status. |
 | `docs/project/emulators.md` | Emulator compatibility matrix. |
-| `docs/project/configuration.md` | Local `.env` configuration policy and variable index. |
+| `docs/project/configuration.md` | Local `.env.local`/`.env` policy, variable index, and Emerald Proof launcher workflow. |
 | `docs/project/community-extensions.md` | Extension contribution and review policy. |
 | `docs/project/commercial-model.md` | MIT license and future commercial services/template marketplace notes. |
 | `docs/project/roadmap.md` | Phased delivery plan. |

@@ -63,6 +63,21 @@ The source snapshot currently reads:
 
 Species values are Gen III internal species IDs. Name-table lookup is intentionally deferred.
 
+## Proof 1 Launcher
+
+The repository includes a Windows-friendly setup launcher so machine paths do not need to be re-entered across terminals or committed to Git:
+
+```powershell
+Copy-Item .env.local.example .env.local
+# Edit .env.local with local mGBA and legally obtained ROM paths.
+npm run proof:emerald -- --check
+npm run proof:emerald
+```
+
+The launcher validates the mGBA executable, ROM, optional savestate, output paths, poll interval, and port. It creates the source/live-state parent directories and launches mGBA with the ROM while exporting `EMERALD_SOURCE_SNAPSHOT_PATH` to the child process. It then prints the exact Lua, mapper, server, and browser steps for the configured paths.
+
+Close any existing mGBA instance before launching so the process that loads the script inherits the environment. Savestate loading and **Tools > Scripting... > Load script** remain manual because the supported workflow does not rely on fragile GUI automation or an assumed savestate/script CLI. `.env.local` is ignored; `.env.local.example` contains fake paths only.
+
 ## Configure The Snapshot
 
 Set `EMERALD_SOURCE_SNAPSHOT_PATH` in the process environment **before starting mGBA**. mGBA does not load this repository's `.env` file itself. Use an absolute path and create its parent directory first. For example, from the repository root in PowerShell:
@@ -92,42 +107,31 @@ An unsupported fingerprint should instead display `"status":"unsupported-rom"` w
 
 ## First End-To-End Live Test
 
-Run all commands from the repository root. The mGBA process must inherit `EMERALD_SOURCE_SNAPSHOT_PATH`; setting it after mGBA starts has no effect.
+The preferred workflow is `npm run proof:emerald`; the launcher prints commands containing the configured paths. Run all commands from the repository root. The mGBA process must inherit `EMERALD_SOURCE_SNAPSHOT_PATH`; setting it after mGBA starts has no effect.
 
-1. Install the locked Node dependencies and create the local snapshot directory:
+1. Install dependencies, create the local config, fill in its fake paths, and validate it:
 
    ```powershell
    npm ci
-   New-Item -ItemType Directory -Force var/snapshots
-   $sourcePath = (Resolve-Path var/snapshots).Path + "\emerald-us-rev0.source.json"
+   Copy-Item .env.local.example .env.local
+   npm run proof:emerald -- --check
    ```
 
-2. In the same terminal, set the source path and launch mGBA 0.10.3 using your local executable path:
+2. Close existing mGBA instances, then launch the configured mGBA 0.10.3 and Emerald ROM:
 
    ```powershell
-   $env:EMERALD_SOURCE_SNAPSHOT_PATH = $sourcePath
-   & "C:\path\to\mGBA.exe"
+   npm run proof:emerald
    ```
 
-3. Load the supported Emerald Rev 0 ROM, open **Tools > Scripting...**, and load `adapters/gen3-mgba/emerald-acquisition.lua`. Confirm `$sourcePath` appears and contains contract version `1.0.0`.
+3. If configured, load the savestate path printed by the launcher through mGBA's UI. Open **Tools > Scripting...**, load `adapters/gen3-mgba/emerald-acquisition.lua`, and confirm the configured source snapshot appears with contract version `1.0.0`.
 
-4. Open a second PowerShell terminal at the repository root and start the mapper with the exact same source path:
-
-   ```powershell
-   $env:EMERALD_SOURCE_SNAPSHOT_PATH = (Resolve-Path var/snapshots).Path + "\emerald-us-rev0.source.json"
-   $env:EOE_LIVE_STATE_PATH = (Join-Path (Get-Location) "public/live-state.json")
-   npm run live:emerald
-   ```
+4. Open a second PowerShell terminal at the repository root and run the environment assignments and `npm run live:emerald` command printed by the launcher.
 
 5. Confirm the mapper reports `Mapped Emerald source snapshot` and that `public/live-state.json` parses. It should contain live species ID, level, current/max HP, battle state/opponent data, and raw location identifiers alongside the documented placeholders.
 
-6. Open a third terminal and start the overlay server:
+6. Open a third terminal and run the printed `PORT` assignment and `npm start` command.
 
-   ```powershell
-   npm start
-   ```
-
-7. Open `http://127.0.0.1:5173/?state=/public/live-state.json`. Confirm the party card shows the live level and HP with `Species name unavailable`, `unknown` type, zero stats, and no moves.
+7. Open the URL printed by the launcher. Confirm the party card shows the live level and HP with `Species name unavailable`, `unknown` type, zero stats, and no moves.
 
 8. Take damage or heal the first party Pokemon. Confirm the source snapshot, `public/live-state.json`, and rendered HP all change without restarting mGBA, mapper, or server.
 
@@ -176,6 +180,7 @@ The fixtures contain synthetic numeric/derived values only. They contain no ROM,
 - Required names, types, stats, moves, location name, bag, TM, and encounter fields are placeholders, not live values.
 - Species names, double-battle active slots, transient loading states, and broader corruption/plausibility checks are deferred.
 - The Lua script constructs the fixed schema shape but cannot run Ajv inside mGBA; tests validate the mirrored Node output and pin shared constants/handoff operations, but CI cannot execute mGBA's embedded Lua runtime.
+- The launcher validates paths and process setup but cannot verify the mGBA version, ROM fingerprint, Lua runtime, or live memory until the script runs. It deliberately does not automate mGBA GUI actions.
 
 ## Recommended Next Task
 

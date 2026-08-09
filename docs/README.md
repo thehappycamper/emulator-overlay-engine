@@ -14,7 +14,7 @@ This directory is the human and agent knowledge base for Emulator Overlay Engine
 - `project/roadmap.md` - planned delivery slices.
 - `project/features.md` - feature inventory and status.
 - `project/emulators.md` - emulator compatibility and adapter notes.
-- `project/configuration.md` - local `.env` configuration policy.
+- `project/configuration.md` - local `.env.local`/`.env` configuration policy and Emerald Proof 1 launcher.
 - `project/community-extensions.md` - public extension contribution and review policy.
 - `project/commercial-model.md` - MIT repository model and possible future paid services/template marketplace.
 - `maps/code-map.md` - repository file map and module ownership.

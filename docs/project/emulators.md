@@ -6,7 +6,7 @@ The engine is source-agnostic; an emulator is one source-provider type, not a pl
 
 | Emulator | Status | Notes |
 | --- | --- | --- |
-| mGBA 0.10.3 | active live integration | `adapters/gen3-mgba/emerald-acquisition.lua` emits strict-fingerprint `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0`; `npm run live:emerald` maps it into validated `pokemon.overlay-state@0.1.0` and atomically writes `public/live-state.json`. Richer fields and real end-to-end smoke evidence remain outstanding. |
+| mGBA 0.10.3 | active live integration | `adapters/gen3-mgba/emerald-acquisition.lua` emits strict-fingerprint `pokemon.emerald.us-rev0.mgba.acquisition@1.0.0`; `npm run live:emerald` maps it into validated `pokemon.overlay-state@0.1.0` and atomically writes `public/live-state.json`. `npm run proof:emerald` validates local paths, prepares directories, and launches the configured ROM. Richer fields and real end-to-end smoke evidence remain outstanding. |
 | VBA-RR | planned extension | Has Lua support and can draw overlays directly. Good fallback for classic Lua overlays. |
 | VisualBoyAdvance-M | unknown | Standalone executable detected locally. Lua support depends on build and configuration. |
 | BizHawk | candidate | Good future option for multi-system tooling and Lua support, not currently scaffolded. |
@@ -24,7 +24,7 @@ An emulator adapter should:
 
 ## First Adapter Target
 
-First live target: Gen 3 mGBA export. `P05-T002` proved acquisition for mGBA 0.10.3 and English retail Pokemon Emerald Rev 0 (`AGB-BPEE`, CRC32 `1F1C08FB`); `P05-T003` defines the named source contract; `P05-T004` maps it into validated Pokemon state and the existing overlay file handoff.
+First live target: Gen 3 mGBA export. `P05-T002` proved acquisition for mGBA 0.10.3 and English retail Pokemon Emerald Rev 0 (`AGB-BPEE`, CRC32 `1F1C08FB`); `P05-T003` defines the named source contract; `P05-T004` maps it into validated Pokemon state and the existing overlay file handoff; `P05-T005` adds the local-only setup/launch workflow without changing emulator compatibility.
 
 Reason:
 
