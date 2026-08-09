@@ -68,6 +68,7 @@
 | `adapters/bizhawk/proof-connector.lua` | Thin BizHawk 2.11.1 provider with strict identity and System Bus/direct EWRAM-IWRAM read verification. |
 | `adapters/bizhawk/gba-memory-domains.js` | Pure/testable reference for BizHawk GBA System Bus-to-direct-WRAM translation and domain dimensions. |
 | `adapters/{gen3-mgba,bizhawk}/extension.json` | Provider manifests exporting the shared Emerald acquisition contract. |
+| `adapters/bizhawk/memory-explorer-connector.lua`, `adapters/gen3-mgba/memory-explorer-connector.lua` | Developer-only (P05-T008), read-only raw-memory diagnostic connectors, separate from the production providers; no game semantics. |
 | `extensions/README.md` | Extension model and rules. |
 | `examples/extensions/` | Example extension manifests and README templates. |
 | `examples/templates/` | Example shareable template manifests and README files. |
@@ -101,6 +102,11 @@
 | `tools/bizhawk-proof-config.mjs` | BizHawk Proof 2 local path validation, supported identity expectations, and CLI/environment construction. |
 | `tools/launch-bizhawk-proof.mjs` | Windows-friendly `npm run proof:bizhawk` launcher; auto-loads ROM, optional savestate, and Lua connector. |
 | `test/bizhawk-proof-config.test.js` | BizHawk local config, fail-before-launch, CLI argument, shared-module environment, and memory-domain boundary regression tests. |
+| `tools/emerald-memory-explorer-lib.mjs` | Pure hex/signed-value/diff logic for the developer-only memory explorer (P05-T008); shared by the browser UI and Node tests. |
+| `tools/emerald-memory-explorer-server.mjs` | Read-only local HTTP server (no POST/PUT/DELETE route) serving the explorer UI and proxying raw-watch/source/state JSON files. |
+| `tools/launch-emerald-memory-explorer.mjs` | Generates the explorer's watch list from `EMERALD_US_REV0.addresses` and launches BizHawk/mGBA with the diagnostic connector. |
+| `public/emerald-memory-explorer/` | Developer-only explorer UI: raw watches, provider-neutral Emerald source, and normalized Pokemon state in three separate panels. |
+| `test/emerald-memory-explorer-lib.test.js`, `test/emerald-memory-explorer-server.test.js`, `test/launch-emerald-memory-explorer.test.js` | Explorer hex/diff logic, read-only-server (including a no-mutation-surface test), and launcher/watch-generation tests. |
 
 ## Documentation
 

@@ -156,8 +156,9 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 - [`P05-T004`](../tasks/P05/P05-T004.md) - Existing-runtime mapping into canonical Pokemon state, explicit placeholders, Ajv target validation, and atomic `public/live-state.json` handoff. Completed (independent review APPROVE, merged to `main` at `f301d6b`); real mGBA end-to-end acceptance remains a separate, still-pending manual step.
 - [`P05-T005`](../tasks/P05/P05-T005.md) - Gitignored local Proof 1 configuration, path/setup validation, and Windows-friendly mGBA launch/manual handoff. Completed (independent review APPROVE, merged to `main` at `428324c`); no source, mapping, or emulator contract changes; real mGBA end-to-end acceptance remains a separate, still-pending manual step.
 - [`P05-T006`](../tasks/P05/P05-T006.md) - Automates savestate loading via mGBA's documented `--savestate` CLI flag, after confirming (via mgba-emu/mgba#3289) that script loading has no supported non-GUI path. Completed (independent review APPROVE, fast-forward merged at `aa5d97b`).
+- [`P05-T008`](../tasks/P05/P05-T008.md) - Developer-only, read-only Emerald live memory/state explorer tool. Implemented; awaiting independent review. Non-gating dev tooling, not a phase-gate deliverable itself.
 
-Remaining roadmap deliverables will be scoped separately: real mGBA end-to-end acceptance and broader acquisition/mapping for phase-gate fields not yet available.
+Remaining roadmap deliverables will be scoped separately: real mGBA end-to-end acceptance and broader acquisition/mapping for phase-gate fields not yet available (see `P05-T009`, planned next).
 
 **Exit criteria:** Live party/opponent/seed/frame/bag/map data flows from mGBA through a source contract and mapping project into normalized state, rendered by the existing overlay. `P05-T001` supplies overlay refresh, `P05-T002` supplies acquisition, `P05-T003` supplies the source contract, and `P05-T004` supplies initial fixed-slot mapping/normalized delivery. Broader field acquisition and real end-to-end acceptance remain outstanding.
 

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Emerald Memory Explorer (developer tool)</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Emerald Memory Explorer</h1>
+      <p class="subtle">
+        Developer-only, read-only diagnostic tool (P05-T008). Never writes to emulator memory.
+        Compares three architecturally separate layers: raw watched memory, the
+        provider-neutral Emerald acquisition source, and Pokemon-normalized state.
+      </p>
+      <div class="controls">
+        <button id="refresh-now">Refresh now</button>
+        <label><input type="checkbox" id="auto-refresh" checked /> Auto-refresh (1s)</label>
+        <span id="status" class="subtle"></span>
+      </div>
+    </header>
+
+    <main>
+      <section id="panel-watches">
+        <h2>1. Raw watched memory</h2>
+        <p class="subtle">From the explorer connector's own diagnostic file. No decoding, no game semantics.</p>
+        <div id="identity" class="subtle"></div>
+        <table id="watches-table">
+          <thead>
+            <tr>
+              <th>Label</th><th>Address</th>
+              <th>u8</th><th>s8</th>
+              <th>u16</th><th>s16</th>
+              <th>u32</th><th>s32</th>
+              <th>Label as...</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <details id="scan-details">
+          <summary>Bounded scan (if configured)</summary>
+          <pre id="scan-output"></pre>
+        </details>
+      </section>
+
+      <section id="panel-source">
+        <h2>2. Provider-neutral Emerald source snapshot</h2>
+        <p class="subtle">
+          <code>pokemon.emerald.us-rev0.acquisition@1.0.0</code> - already-decoded party/battle/location
+          fields as written by the production mGBA or BizHawk connector, if it is also running.
+        </p>
+        <pre id="source-output">Not available (production connector not running or has not written a snapshot yet).</pre>
+      </section>
+
+      <section id="panel-state">
+        <h2>3. Pokemon normalized overlay state</h2>
+        <p class="subtle">
+          <code>public/live-state.json</code> - the final mapped/validated state the overlay renders.
+          Requires <code>npm run live:emerald</code> to also be running.
+        </p>
+        <pre id="state-output">Not available (npm run live:emerald is not running or has not written state yet).</pre>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
