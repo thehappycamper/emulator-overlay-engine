@@ -18,7 +18,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | `P02` | Domain Boundary | completed |
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
-| `P05` | Live Gameplay Source | active - `P05-T001`-`T006`, `T009`, `T010` completed; `T011` (encounter rates/catch odds) in review; real mGBA/BizHawk end-to-end acceptance still required |
+| `P05` | Live Gameplay Source | active - `P05-T001`-`T006`, `T009`, `T010`, `T011` completed; real mGBA/BizHawk end-to-end acceptance still required |
 | `P06` | Second Source / Domain Proof | active (provider-neutral acquisition implemented and reviewed; real-ROM BizHawk acceptance and `P05` gate remain open) |
 | — | Later Product Tracks | coarse / not phased yet |
 
@@ -143,7 +143,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P05 — Live Gameplay Source
 
-**Status:** active. `P05-T001` through `P05-T006`, `P05-T009`, and `P05-T010` are complete. The launcher now automates supported savestate loading while Lua script loading remains manual. `P05-T011` (location encounter rates and live Poke Ball catch odds, on `feat/P05-T011-encounter-rates-and-catch-odds`) is pending independent review. The phase gate still requires real mGBA (and, per `P06`, BizHawk) end-to-end acceptance evidence against this richer pipeline. `P05` remains active and is not complete until the real live acceptance test is performed and recorded.
+**Status:** active. `P05-T001` through `P05-T006`, `P05-T009`, `P05-T010`, and `P05-T011` are complete. The launcher now automates supported savestate loading while Lua script loading remains manual. The phase gate still requires real mGBA (and, per `P06`, BizHawk) end-to-end acceptance evidence against this richer pipeline. `P05` remains active and is not complete until the real live acceptance test is performed and recorded.
 
 **Objective:** Implement the first live source integration — the Gen 3 mGBA adapter sketched in `adapters/gen3-mgba/README.md` and `docs/project/roadmap.md`'s "First Real Live Integration" — against the source-agnostic platform boundary clarified in `P01-T006`.
 
@@ -158,7 +158,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 - [`P05-T006`](../tasks/P05/P05-T006.md) - Automates savestate loading via mGBA's documented `--savestate` CLI flag, after confirming (via mgba-emu/mgba#3289) that script loading has no supported non-GUI path. Completed (independent review APPROVE, fast-forward merged at `aa5d97b`).
 - [`P05-T009`](../tasks/P05/P05-T009.md) - Full six-slot party/battle live dashboard: decodes all four Gen III encrypted substructs for every party slot (not one fixed slot), resolves species/move/item/location names and badges through a new game-owned reference-data layer, and redesigns the overlay presentation around it. Completed (independent review APPROVE, merged); the Lua port was exercised live against BizHawk with the real ROM as a connector smoke during review, though the full rich-dashboard acceptance session remains a separate follow-up.
 - [`P05-T010`](../tasks/P05/P05-T010.md) - Expandable, collapsed-by-default battle stat comparison panel (Attack/Defense/Sp. Atk/Sp. Def/Speed/HP/Level, relative indicators), built entirely from `P05-T009`'s already-decoded fields with no new acquisition/schema work. Investigated battle stat-stage and active-battler-slot decoding and deferred both - no verifiable fixed memory address for the relevant runtime battle-engine structures exists in this offline environment. Completed (independent review APPROVE, merged).
-- [`P05-T011`](../tasks/P05/P05-T011.md) - Location wild encounter rates and a live, state-aware Poke Ball catch-odds panel, using a real Gen III catch-rate formula transcribed from `pret/pokeemerald`'s own source. Implemented and pushed to `feat/P05-T011-encounter-rates-and-catch-odds`; independent review pending. Ball types whose real multiplier depends on undecoded state (Dive/Repeat/Timer/Safari Ball) are marked unavailable rather than guessed.
+- [`P05-T011`](../tasks/P05/P05-T011.md) - Location wild encounter rates and a live, state-aware Poke Ball catch-odds panel, using a real Gen III catch-rate formula transcribed from `pret/pokeemerald`'s own source. Completed (independent review APPROVE, merged). Ball types whose real multiplier depends on undecoded state (Dive/Repeat/Timer/Safari Ball) are marked unavailable rather than guessed.
 
 Remaining roadmap deliverables will be scoped separately: real mGBA/BizHawk end-to-end acceptance against the richer pipeline.
 
