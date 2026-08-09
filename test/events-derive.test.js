@@ -22,6 +22,8 @@ test("assertValidEvent accepts a well-formed envelope and rejects a malformed on
 
   assert.throws(() => assertValidEvent(validEnvelope({ type: "" })), EventValidationError);
   assert.throws(() => assertValidEvent(validEnvelope({ type: "Not-Lowercase" })), EventValidationError);
+  assert.throws(() => assertValidEvent(validEnvelope({ detectedAt: "not-a-date" })), EventValidationError);
+  assert.equal(assertValidEvent(validEnvelope({ detectedAt: "2026-08-09T00:00:00.000Z" })), true);
   assert.throws(() => assertValidEvent({ ...validEnvelope(), extra: "not allowed" }), EventValidationError);
   assert.throws(() => {
     const event = validEnvelope();

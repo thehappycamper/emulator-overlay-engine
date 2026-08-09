@@ -21,14 +21,15 @@
 // the strongest signal actually available today, but is NOT a guaranteed-
 // unique identity: two distinct individual Pokemon of the same species
 // sharing the same nickname (e.g. two un-nicknamed "WURMPLE") are
-// indistinguishable by this key, and an evolution (species change) breaks
-// the match entirely, read as "old individual left, new individual
-// arrived" rather than "the same individual changed species." `party[0]`
-// is never treated as a permanent identity by itself - slot position is
-// only ever a tiebreaker used to preserve original relative order when
-// multiple party members share the same fallback key, never the primary
-// signal. If a provider ever populates `pid`, matching upgrades to that
-// strong identity automatically, with no detector code changes required.
+// indistinguishable by this key. Ambiguous fallback keys are deliberately
+// non-comparable: per-Pokemon HP/status/faint transitions are suppressed
+// rather than risk attributing one individual's change to another. An
+// evolution (species change) breaks a unique fallback match entirely, read
+// as "old individual left, new individual arrived" rather than "the same
+// individual changed species." `party[0]` is never treated as a permanent
+// identity by itself. If a provider ever populates `pid`, matching upgrades
+// to that strong identity automatically, with no detector code changes
+// required.
 
 import { deriveEvents } from "../../events/derive.js";
 
@@ -47,18 +48,35 @@ export function pokemonIdentityKey(pokemon) {
 // Matches two party arrays by identity, not by array index, so a simple
 // reorder (the same individuals in a different slot order) is recognized
 // as the same individuals - not read as everyone being removed and
-// different Pokemon being added. Ambiguous cases (more than one party
-// member sharing the same fallback key) are resolved best-effort by
-// consuming same-key previous entries in their original relative order as
-// same-key current entries are encountered; this is a disclosed
-// approximation, not a guarantee, for exactly the reason described above.
+// different Pokemon being added. Ambiguous fallback matches are retained
+// for party-delta reporting, but marked `ambiguous` and excluded from all
+// per-Pokemon transition comparisons. This avoids FIFO pairing from
+// fabricating damage/healing/status changes when identity cannot be proven.
 export function matchPartyMembers(previousParty = [], currentParty = []) {
   const previousBuckets = new Map();
+  const previousCounts = new Map();
+  const currentCounts = new Map();
   previousParty.forEach((pokemon, index) => {
     const key = pokemonIdentityKey(pokemon);
+    previousCounts.set(key, (previousCounts.get(key) ?? 0) + 1);
     if (!previousBuckets.has(key)) previousBuckets.set(key, []);
     previousBuckets.get(key).push({ pokemon, index });
   });
+  currentParty.forEach((pokemon) => {
+    const key = pokemonIdentityKey(pokemon);
+    currentCounts.set(key, (currentCounts.get(key) ?? 0) + 1);
+  });
+  const ambiguousFallbackKeys = new Set();
+  for (const [key, count] of previousCounts) {
+    if (key.startsWith("heuristic:") && (count > 1 || (currentCounts.get(key) ?? 0) > 1)) {
+      ambiguousFallbackKeys.add(key);
+    }
+  }
+  for (const [key, count] of currentCounts) {
+    if (key.startsWith("heuristic:") && (count > 1 || (previousCounts.get(key) ?? 0) > 1)) {
+      ambiguousFallbackKeys.add(key);
+    }
+  }
 
   const matched = [];
   const added = [];
@@ -68,7 +86,14 @@ export function matchPartyMembers(previousParty = [], currentParty = []) {
     const bucket = previousBuckets.get(key);
     if (bucket && bucket.length > 0) {
       const { pokemon: previousPokemon, index: previousIndex } = bucket.shift();
-      matched.push({ key, previous: previousPokemon, current: pokemon, previousIndex, currentIndex });
+      matched.push({
+        key,
+        ambiguous: ambiguousFallbackKeys.has(key),
+        previous: previousPokemon,
+        current: pokemon,
+        previousIndex,
+        currentIndex,
+      });
     } else {
       added.push({ key, current: pokemon, currentIndex });
     }
@@ -77,7 +102,7 @@ export function matchPartyMembers(previousParty = [], currentParty = []) {
   const removed = [];
   for (const [key, bucket] of previousBuckets) {
     for (const { pokemon, index } of bucket) {
-      removed.push({ key, previous: pokemon, previousIndex: index });
+      removed.push({ key, ambiguous: ambiguousFallbackKeys.has(key), previous: pokemon, previousIndex: index });
     }
   }
 
@@ -109,7 +134,8 @@ function collectTrackedPokemonPairs(previousState, currentState) {
   const previousParty = previousState.player?.party ?? [];
   const currentParty = currentState.player?.party ?? [];
   const { matched } = matchPartyMembers(previousParty, currentParty);
-  for (const { previous, current, currentIndex } of matched) {
+  for (const { previous, current, currentIndex, ambiguous } of matched) {
+    if (ambiguous) continue;
     pairs.push({ subjectKind: "party", slot: currentIndex, previous, current });
   }
 

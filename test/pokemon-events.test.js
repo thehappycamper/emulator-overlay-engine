@@ -242,7 +242,7 @@ test("pokemonIdentityKey prefers a real pid over the species+nickname heuristic 
   assert.equal(pokemonIdentityKey(pokemon({ pid: "" })), pokemonIdentityKey(pokemon()));
 });
 
-test("matchPartyMembers documents its real identity limitation: two individuals sharing species+nickname are matched best-effort by relative order, not guaranteed correctly", () => {
+test("matchPartyMembers marks duplicate fallback identities as ambiguous and non-comparable", () => {
   const firstIndividual = pokemon({ speciesId: 290, nickname: "WURMPLE", currentHp: 5 });
   const secondIndividual = pokemon({ speciesId: 290, nickname: "WURMPLE", currentHp: 25 });
   const { matched, added, removed } = matchPartyMembers([firstIndividual, secondIndividual], [firstIndividual, secondIndividual]);
@@ -252,6 +252,27 @@ test("matchPartyMembers documents its real identity limitation: two individuals 
   // Both share the identical fallback key - this is the disclosed
   // ambiguity, not a claim of guaranteed-correct individual tracking.
   assert.equal(matchPartyMembers([firstIndividual], [firstIndividual]).matched[0].key, matchPartyMembers([secondIndividual], [secondIndividual]).matched[0].key);
+  assert.equal(matchPartyMembers([firstIndividual, secondIndividual], [firstIndividual, secondIndividual]).matched.every((entry) => entry.ambiguous), true);
+});
+
+test("ambiguous fallback identities suppress per-Pokemon transitions during reorder and independent HP changes", () => {
+  const previous = state({
+    party: [pokemon({ nickname: "DUP", currentHp: 5 }), pokemon({ nickname: "DUP", currentHp: 25 })],
+  });
+  const current = state({
+    party: [pokemon({ nickname: "DUP", currentHp: 25 }), pokemon({ nickname: "DUP", currentHp: 5 })],
+  });
+  const events = detectPokemonEvents(previous, current);
+  assert.deepEqual(events.filter((event) => event.type.startsWith("pokemon.")), []);
+});
+
+test("ambiguous fallback replacement suppresses transitions rather than comparing unrelated individuals", () => {
+  const previous = state({
+    party: [pokemon({ nickname: "DUP", currentHp: 0 }), pokemon({ nickname: "DUP", currentHp: 30 })],
+  });
+  const current = state({ party: [pokemon({ nickname: "DUP", currentHp: 30 })] });
+  const events = detectPokemonEvents(previous, current);
+  assert.deepEqual(events.filter((event) => event.type.startsWith("pokemon.")), []);
 });
 
 test("an evolution (species change) is read as the old individual leaving and a new one arriving, a disclosed limitation of the fallback identity key", () => {
