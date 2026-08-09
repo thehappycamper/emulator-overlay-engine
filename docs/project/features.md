@@ -34,6 +34,7 @@ Status labels:
 | Feature | Status | Notes |
 | --- | --- | --- |
 | Live party panel | planned | Needs emulator extension export |
+| Emerald Rev 0 mGBA acquisition diagnostic | active | Read-only Lua proof reads strict-fingerprint game identity, first-party species/level/HP, battle/opponent, and map fields; source contract and normalized export remain deferred |
 | IV/EV display | planned | Existing local Gen 3 Lua script can supply this |
 | Current moves and PP | planned | Existing local Gen 3 Lua script can supply this |
 | Learnset upcoming moves | planned | Needs data extension tables |

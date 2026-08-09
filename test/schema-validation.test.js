@@ -52,8 +52,11 @@ function assertValid(schemaId, file) {
   );
 }
 
-test("all extension examples satisfy the extension manifest contract", async (t) => {
-  const files = findFiles(join(repositoryRoot, "examples", "extensions"), (path) => path.endsWith("extension.json"));
+test("all extension examples and adapters satisfy the extension manifest contract", async (t) => {
+  const files = [
+    ...findFiles(join(repositoryRoot, "examples", "extensions"), (path) => path.endsWith("extension.json")),
+    ...findFiles(join(repositoryRoot, "adapters"), (path) => path.endsWith("extension.json")),
+  ].sort();
   assert.ok(files.length > 0);
 
   for (const file of files) {

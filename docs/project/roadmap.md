@@ -48,6 +48,8 @@ These are the intended next architecture slices. Each requires separate approval
 
 ### Live Gen 3 mGBA Export
 
+Status: acquisition proof active. `P05-T002` reads a strict-fingerprint Emerald Rev 0 session into an mGBA text-buffer diagnostic; it does not yet emit a source contract or normalized state.
+
 Goal:
 
 - Export party, active opponent, seed/frame, bag balls/TMs, and map ID from mGBA Lua into normalized JSON.

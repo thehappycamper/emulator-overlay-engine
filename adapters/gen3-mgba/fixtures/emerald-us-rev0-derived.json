@@ -1,0 +1,64 @@
+{
+  "description": "Synthetic, decoded-value fixture for the Emerald Rev 0 acquisition proof. Contains no ROM, save, or copied game bytes.",
+  "identity": {
+    "gameCode": "AGB-BPEE",
+    "title": "POKEMON EMER",
+    "revision": 0,
+    "crc32": "1F1C08FB"
+  },
+  "memory": {
+    "read8": {
+      "0x020244e9": 1,
+      "0x02024540": 15,
+      "0x02024798": 18,
+      "0x02030004": 0,
+      "0x02030005": 16,
+      "0x030026f9": 2
+    },
+    "read16": {
+      "0x02024542": 31,
+      "0x02024544": 35,
+      "0x0202479a": 40,
+      "0x0202479c": 44,
+      "0x02030000": 23,
+      "0x02030002": 14
+    },
+    "read32": {
+      "0x02022fec": 0,
+      "0x020244ec": 25,
+      "0x020244f0": 305419896,
+      "0x0202450c": 305420131,
+      "0x02024744": 6,
+      "0x02024748": 2864434397,
+      "0x02024770": 2864434654,
+      "0x03005d8c": 33751040
+    }
+  },
+  "expected": {
+    "party": {
+      "count": 1,
+      "first": {
+        "speciesId": 258,
+        "level": 15,
+        "currentHp": 31,
+        "maxHp": 35
+      }
+    },
+    "battle": {
+      "active": true,
+      "typeFlags": 0,
+      "opponent": {
+        "speciesId": 261,
+        "level": 18,
+        "currentHp": 40,
+        "maxHp": 44
+      }
+    },
+    "location": {
+      "mapGroup": 0,
+      "mapNumber": 16,
+      "x": 23,
+      "y": 14
+    }
+  }
+}

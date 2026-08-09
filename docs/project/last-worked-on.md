@@ -4,14 +4,15 @@ This is a short pointer, not the project history. For full history, see `docs/ta
 
 ## Current status
 
-- **Active phase:** `P03` — Semantic Event Foundation is now entry-gated and unstarted; `P02` — Domain Boundary is completed. See [implementation plan](implementation-plan.md).
+- **Active phase:** `P05` — Live Gameplay Source. `P03` and `P04` remain planned and unstarted; phase numbering and dependencies are unchanged. See [implementation plan](implementation-plan.md).
 - **Last completed task:** [`P02-T006` — Migrate Pokemon presentation ownership](../tasks/P02/P02-T006.md) (2026-08-08, independent review APPROVE, merged at `3170a9f`). This closed `P02`.
 - **P02 closure:** all exit criteria are met and independently re-verified post-merge (79/79 tests; shared platform code, including `src/overlay/`, confirmed free of Pokemon-specific assumptions).
-- **Next planned phase:** `P03` — Semantic Event Foundation. Not yet started; no active task recorded.
+- **Active task:** [`P05-T002` — Prove Emerald Rev 0 acquisition through mGBA](../tasks/P05/P05-T002.md), implemented on its task branch and awaiting independent review.
+- **Next P05 step:** define the named/versioned Emerald source contract and adapt the proven reader to emit validated source snapshots. Mapping, normalized export, and overlay polling remain later tasks.
 
 ## Most recent session (2026-08-08)
 
-`P02-T006` moved Pokemon markup, state interpretation, calculator-backed projections, and styles into the Pokemon package. The browser host (`src/overlay/{app,host}.js`) now dispatches presentation generically through a domain descriptor's `presentation` capability, and extension slot identifiers no longer hardcode `party` or other Pokemon concepts while preserving legacy values for compatibility. Independent review returned APPROVE with no blocking findings; the branch fast-forward merged cleanly since it was a direct descendant of `main`. This satisfied `P02`'s final exit criterion (presentation/rendering code moved under the domain boundary), so `P02` — Domain Boundary is now completed. The task also records the concrete gaps remaining for a future live Emerald/mGBA source-to-mapping vertical slice (`P05`), to be separately scoped.
+`P05-T002` added the first repository-owned mGBA Lua acquisition proof for English retail Pokemon Emerald Rev 0. It strictly checks game code, title, header revision, and CRC32 before reading live party HP/species, battle/opponent, and map fields into a developer diagnostic. Pure JavaScript decoding and synthetic derived fixtures provide CI coverage; no source contract, mapping, normalized export, transport, or overlay polling was added.
 
 For the prior session (governance/branding/task-system establishment, Session Referee product vision, and `P01-T007`'s merge that closed `P01`), see `docs/tasks/P01/P01-T007.md`, `docs/tasks/P01/P01-T008.md`, and `docs/tasks/P01/P01-T009.md`.
 
