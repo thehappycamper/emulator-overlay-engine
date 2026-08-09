@@ -8,9 +8,15 @@ import {
 } from "./libretro-abi.mjs";
 import { describeMemoryRegions, readMemory, readValue } from "./memory.mjs";
 import { assertRequest, errorPayload, ProviderError, PROTOCOL_VERSION } from "./protocol.mjs";
+import { createSerialQueue } from "./request-queue.mjs";
 
 let runtime = null;
-let closing = false;
+// Set synchronously the instant a shutdown request is *received* (before
+// it is even enqueued) - not once it finishes executing. Shutdown itself
+// still waits its turn in the queue behind any already-arrived work, but
+// nothing arriving after it can ever be queued behind it or race its
+// teardown of `runtime`.
+let shuttingDown = false;
 
 function send(message) { process.stdout.write(`${JSON.stringify(message)}\n`); }
 
@@ -119,27 +125,66 @@ async function handle(request) {
       for (let index = 0; index < frames; index += 1) runtime.core.retro_run();
       return { framesExecuted: frames };
     }
-    case "shutdown": {
-      const result = cleanup();
-      closing = true;
-      return result;
-    }
+    case "shutdown": return cleanup();
     default: throw new ProviderError("UNKNOWN_OPERATION", `Unknown operation ${request.op}`);
+  }
+}
+
+// Every request runs through this single serial queue so exactly one
+// request's full handle()+response cycle is ever in flight at a time:
+// readline's "line" event does not itself wait for a previous async
+// listener to finish before firing the next one, so without this an
+// `initialize` immediately followed by `run` could interleave and let
+// `run` observe pre-initialization state. A request that throws still
+// always sends its own response and never blocks or corrupts the next
+// request - see createSerialQueue()'s own contract.
+const queue = createSerialQueue();
+
+// Runs exactly one already-parsed (possibly null, on JSON-parse failure)
+// request and always sends exactly one response line - the outcome
+// (success or structured error) never propagates as a queue-breaking
+// rejection, so the queue keeps working correctly after any ordinary
+// request-level failure.
+async function processOne(request) {
+  try {
+    const result = await handle(request);
+    send({ id: request.id, ok: true, result });
+    if (request?.op === "shutdown") {
+      // Nothing else can be mid-flight or queued behind shutdown by the
+      // time this runs - shuttingDown blocked the door the moment the
+      // shutdown line was received, before it was even enqueued - so it
+      // is safe to exit once this response has been written.
+      setImmediate(() => process.exit(0));
+    }
+  } catch (error) {
+    send({ id: request?.id ?? null, ok: false, error: errorPayload(error) });
   }
 }
 
 send({ event: "ready", protocolVersion: PROTOCOL_VERSION });
 const input = createInterface({ input: process.stdin, crlfDelay: Infinity });
-input.on("line", async (line) => {
-  if (closing) return;
-  let request;
-  try { request = JSON.parse(line); }
-  catch { send({ id: null, ok: false, error: errorPayload(new ProviderError("MALFORMED_REQUEST", "Request is not valid JSON")) }); return; }
-  try {
-    const result = await handle(request);
-    send({ id: request.id, ok: true, result });
-    if (request.op === "shutdown") setImmediate(() => process.exit(0));
-  } catch (error) {
-    send({ id: request?.id ?? null, ok: false, error: errorPayload(error) });
+input.on("line", (line) => {
+  let request = null;
+  try { request = JSON.parse(line); } catch { /* surfaced as MALFORMED_REQUEST by assertRequest inside handle() */ }
+
+  if (shuttingDown) {
+    // A request arriving after shutdown was received must never execute
+    // against torn-down runtime state. Reject it immediately and
+    // deterministically - not silently, and not left for the parent's own
+    // request timeout to eventually notice - without touching the queue
+    // at all, since shutdown is already the last thing it will ever run.
+    const id = request && typeof request === "object" && typeof request.id === "string" ? request.id : null;
+    send({
+      id,
+      ok: false,
+      error: errorPayload(new ProviderError("PROVIDER_SHUTTING_DOWN", "Provider is shutting down and cannot accept further requests")),
+    });
+    return;
   }
+
+  if (request && typeof request === "object" && request.op === "shutdown") {
+    shuttingDown = true;
+  }
+
+  queue.enqueue(() => processOne(request));
 });

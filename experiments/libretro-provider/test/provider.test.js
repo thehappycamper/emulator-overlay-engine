@@ -41,7 +41,16 @@ test("parent request rejects when child crashes and remains usable", async () =>
 });
 
 test("timeout is surfaced for an unresponsive child", async () => {
-  const client = new LibretroProviderClient({ childPath: fixture, timeoutMs: 250, spawnImpl: (exe, args, options) => spawn(exe, [...args, "hang"], options) });
+  // timeoutMs covers both real child-process startup (spawn + readiness
+  // announcement) and the subsequent request hang - 250ms was observed to
+  // occasionally report STARTUP_TIMEOUT instead of the intended per-request
+  // TIMEOUT purely from real OS process-spawn latency under concurrent
+  // load (reproduced even by adding one unrelated, non-process-spawning
+  // test file elsewhere in the suite - a pure scheduling artifact, not a
+  // client/provider behavior issue). A larger, still-fast budget removes
+  // that false-negative risk without changing what this test verifies.
+  const client = new LibretroProviderClient({ childPath: fixture, timeoutMs: 1500, spawnImpl: (exe, args, options) => spawn(exe, [...args, "hang"], options) });
+  await client.start();
   await assert.rejects(() => client.request("run"), (error) => error.code === "TIMEOUT");
   await stop(client.child);
 });
