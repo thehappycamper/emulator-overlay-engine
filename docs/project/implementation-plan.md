@@ -17,8 +17,8 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | `P01` | Platform Mapping Foundation | completed |
 | `P02` | Domain Boundary | completed |
 | `P03` | Semantic Event Foundation | completed |
-| `P04` | Event Routing And Actions | active - `P04-T001` in review |
-| `P05` | Live Gameplay Source | active - `P05-T001`-`T006`, `T009`, `T010`, `T011` completed; real mGBA/BizHawk end-to-end acceptance still required |
+| `P04` | Event Routing And Actions | active - `P04-T001` completed (independent review APPROVE, merged) |
+| `P05` | Live Gameplay Source | active - `P05-T001`-`T007`, `T009`-`T012` completed; `T013` in review; real mGBA/BizHawk end-to-end acceptance still required |
 | `P06` | Second Source / Domain Proof | active (provider-neutral acquisition implemented and reviewed; real-ROM BizHawk acceptance and `P05` gate remain open) |
 | — | Later Product Tracks | coarse / not phased yet |
 
@@ -126,14 +126,14 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P04 — Event Routing And Actions
 
-**Status:** active. `P04-T001` proves declarative event-to-action-request evaluation; independent review is pending.
+**Status:** active. `P04-T001` proves declarative event-to-action-request evaluation; independent review verdict APPROVE, fast-forward merged.
 
 **Objective:** Prove event subscriptions/routing and a minimal action contract (e.g. an event triggering an overlay update or a single action-provider example) without building broad integrations (no OBS/MQTT/hardware integrations yet — those are later product tracks).
 
 **Entry conditions:** `P03` complete.
 
 **Major tasks:**
-- [`P04-T001`](../tasks/P04/P04-T001.md) — Declarative semantic-event rules producing validated action requests. In review.
+- [`P04-T001`](../tasks/P04/P04-T001.md) — Declarative semantic-event rules producing validated action requests. Completed (independent review APPROVE, fast-forward merged at `7d507a2`).
 
 **Exit criteria:** A minimal, provable path from a detected event to a validated declarative rule result and action request exists. Action execution/provider capability work remains a later task and is not implied by `P04-T001`.
 
@@ -145,7 +145,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P05 — Live Gameplay Source
 
-**Status:** active. `P05-T001` through `P05-T007`, `P05-T009`, `P05-T010`, and `P05-T011` are complete. The launcher now automates supported savestate loading while Lua script loading remains manual. `P05-T012` replaces the three-terminal BizHawk proof workflow with a single `npm run proof:emerald:bizhawk` session command, on top of a new reusable, emulator-agnostic orchestration primitive; pending independent review. The phase gate still requires real mGBA (and, per `P06`, BizHawk) end-to-end acceptance evidence against this richer pipeline - `P05-T012` reduces operator friction on that path, it does not close it. `P05` remains active and is not complete until the real live acceptance test is performed and recorded.
+**Status:** active. `P05-T001` through `P05-T007`, and `P05-T009` through `P05-T012` are complete. The launcher now automates supported savestate loading while Lua script loading remains manual. `P05-T012` replaced the three-terminal BizHawk proof workflow with a single `npm run proof:emerald:bizhawk` session command on a reusable, emulator-agnostic orchestration primitive. `P05-T013` is the first isolated child-process Libretro provider prototype and is awaiting independent review. The phase gate still requires real mGBA (and, per `P06`, BizHawk) end-to-end acceptance evidence against this richer pipeline - neither `P05-T012` nor `P05-T013` closes it. `P05` remains active and is not complete until the real live acceptance test is performed and recorded.
 
 **Objective:** Implement the first live source integration — the Gen 3 mGBA adapter sketched in `adapters/gen3-mgba/README.md` and `docs/project/roadmap.md`'s "First Real Live Integration" — against the source-agnostic platform boundary clarified in `P01-T006`.
 
@@ -162,7 +162,8 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 - [`P05-T009`](../tasks/P05/P05-T009.md) - Full six-slot party/battle live dashboard: decodes all four Gen III encrypted substructs for every party slot (not one fixed slot), resolves species/move/item/location names and badges through a new game-owned reference-data layer, and redesigns the overlay presentation around it. Completed (independent review APPROVE, merged); the Lua port was exercised live against BizHawk with the real ROM as a connector smoke during review, though the full rich-dashboard acceptance session remains a separate follow-up.
 - [`P05-T010`](../tasks/P05/P05-T010.md) - Expandable, collapsed-by-default battle stat comparison panel (Attack/Defense/Sp. Atk/Sp. Def/Speed/HP/Level, relative indicators), built entirely from `P05-T009`'s already-decoded fields with no new acquisition/schema work. Investigated battle stat-stage and active-battler-slot decoding and deferred both - no verifiable fixed memory address for the relevant runtime battle-engine structures exists in this offline environment. Completed (independent review APPROVE, merged).
 - [`P05-T011`](../tasks/P05/P05-T011.md) - Location wild encounter rates and a live, state-aware Poke Ball catch-odds panel, using a real Gen III catch-rate formula transcribed from `pret/pokeemerald`'s own source. Completed (independent review APPROVE, merged). Ball types whose real multiplier depends on undecoded state (Dive/Repeat/Timer/Safari Ball) are marked unavailable rather than guessed.
-- [`P05-T012`](../tasks/P05/P05-T012.md) - Unified `npm run proof:emerald:bizhawk` local proof-session orchestrator, replacing three manually coordinated terminals with one command, on a new reusable and emulator-agnostic `tools/proof-session.mjs` primitive intended to also serve a future mGBA/Libretro equivalent. Reuses the existing BizHawk config/launch/mapper/server logic unmodified. Implemented and pushed to `feat/P05-T012-proof-session-orchestrator`; independent review pending.
+- [`P05-T012`](../tasks/P05/P05-T012.md) - Unified `npm run proof:emerald:bizhawk` local proof-session orchestrator, replacing three manually coordinated terminals with one command, on a new reusable and emulator-agnostic `tools/proof-session.mjs` primitive intended to also serve a future mGBA/Libretro equivalent. Reuses the existing BizHawk config/launch/mapper/server logic unmodified. Completed (independent review APPROVE, fast-forward merged).
+- [`P05-T013`](../tasks/P05/P05-T013.md) - Isolated Libretro provider prototype: native cores run in a child process behind a versioned local JSON-lines IPC boundary for lifecycle, identity, capabilities, memory regions, bounded reads, frame execution, structured errors, and shutdown. Implemented and awaiting independent review; no Pokemon semantics or production frontend behavior.
 
 Remaining roadmap deliverables will be scoped separately: real mGBA/BizHawk end-to-end acceptance against the richer pipeline.
 
