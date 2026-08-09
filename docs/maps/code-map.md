@@ -25,10 +25,11 @@
 | --- | --- |
 | `src/platform/domain-registry.js` | Domain-neutral immutable registry for explicitly composed domain packages. |
 | `src/domains/index.js` | Application composition root that registers the currently supported domains. |
-| `src/domains/pokemon/index.js` | Pokemon domain descriptor, named state-contract metadata, calculator surface, and presentation capability. |
+| `src/domains/pokemon/index.js` | Pokemon domain descriptor, named state-contract metadata, calculator surface, presentation capability, and semantic-event capability. |
 | `src/domains/pokemon/type-chart.js` | Pokemon type effectiveness lookup and multiplier calculation. |
 | `src/domains/pokemon/damage.js` | Pokemon damage range and projected switch-in damage calculations. |
 | `src/domains/pokemon/capture.js` | Pokemon capture chance and bag ball chance calculations. |
+| `src/domains/pokemon/events.js` | Pokemon-owned semantic event detectors (battle/HP/status/party/location/badge transitions) and the party-slot/opponent identity strategy; reads only canonical Pokemon state. |
 | `src/domains/pokemon/presentation.js` | Pokemon-owned six-slot team/battle dashboard rendering (plus wild-encounter and, during a wild battle, Poke Ball catch-odds panels) and calculator-backed presentation projections. |
 | `src/domains/pokemon/presentation.css` | Pokemon-owned overlay layout and component styles. |
 | `src/domains/pokemon/schemas/overlay-state.schema.json` | Canonical Pokemon normalized-state contract. |
@@ -42,6 +43,9 @@
 | `src/schemas/extension.schema.json` | Public extension manifest contract. |
 | `src/schemas/template.schema.json` | Public template manifest contract. |
 | `src/schemas/mapping.schema.json` | Domain-neutral mapping-project and expression AST contract. |
+| `src/events/derive.js` | Domain-neutral semantic event derivation primitive: compares two normalized-state snapshots via caller-supplied detectors, stamps sequence/timestamp/provenance, validates each event. |
+| `src/events/validate.js` | Ajv2020 strict-mode validation and fail-closed `EventValidationError` for the event envelope schema. |
+| `src/events/schemas/event-envelope.schema.json` | Generic, domain-neutral semantic event envelope contract (type, sequence, detectedAt, subject, previous, current, provenance). |
 
 ## Public Overlay Assets
 
@@ -84,6 +88,8 @@
 | --- | --- |
 | `test/engine.test.js` | Node tests for type, damage, projection, and capture calculators. |
 | `test/domain-boundary.test.js` | Pokemon package resolution, behavior, unknown-domain, and compatibility tests. |
+| `test/events-derive.test.js` | Domain-neutral event envelope validation and `deriveEvents` primitive tests (stamping, sequencing, fail-closed validation, detector-list guards). |
+| `test/pokemon-events.test.js` | Pokemon semantic event detector tests: transitions, deduplication, simultaneous changes, battle entry/exit, party reorder/change, identity-heuristic limitations, provider-neutrality. |
 | `test/presentation-boundary.test.js` | Generic presentation dispatch and Pokemon static-rendering regression coverage. |
 | `test/platform-domain-registry.test.js` | Platform-only proof that no domain implementation is registered implicitly. |
 | `test/expressions.test.js` | Safe expression behavior and negative security tests. |

@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emulator-overlay-engine.local/schemas/event-envelope.schema.json",
+  "title": "Emulator Overlay Engine Semantic Event Envelope",
+  "description": "Domain-neutral shape for a semantic event derived from consecutive normalized-state snapshots (ADR 0013). A domain package (e.g. src/domains/pokemon) owns the interpretation that produces events in this shape; this schema owns only the shape itself and knows nothing about any specific domain.",
+  "type": "object",
+  "required": ["type", "sequence", "detectedAt", "provenance"],
+  "properties": {
+    "type": {
+      "description": "Dotted semantic event type, owned and namespaced by the producing domain (e.g. \"pokemon.fainted\"). Not enumerated here - domains may add event types without a platform schema change.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)*$"
+    },
+    "sequence": {
+      "description": "Monotonically increasing integer assigned at detection time, unique within one session's sequencer. Guarantees a stable total order even when multiple events share the same detectedAt value (e.g. several events detected from the same snapshot pair).",
+      "type": "integer",
+      "minimum": 1
+    },
+    "detectedAt": {
+      "description": "ISO 8601 timestamp assigned at detection time. This is wall-clock detection time, not necessarily in-game time - it has no defined relationship to any emulator frame counter.",
+      "type": "string",
+      "minLength": 1
+    },
+    "subject": {
+      "description": "Reference to the entity this event is about, where a single entity applies (e.g. a specific party Pokemon). Null for events that are not about one specific entity (e.g. a party-membership change). Domain-defined shape.",
+      "oneOf": [{ "type": "object" }, { "type": "null" }]
+    },
+    "previous": {
+      "description": "Relevant previous value(s) this event's transition is from, where applicable. Domain-defined shape. Null when there is no meaningful prior value (e.g. a value that newly became available).",
+      "oneOf": [{ "type": "object" }, { "type": "null" }]
+    },
+    "current": {
+      "description": "Relevant current value(s) this event's transition is to, where applicable. Domain-defined shape. Null when there is no meaningful current value (e.g. a value that stopped being available).",
+      "oneOf": [{ "type": "object" }, { "type": "null" }]
+    },
+    "provenance": {
+      "description": "Where this event's semantic interpretation came from.",
+      "type": "object",
+      "required": ["domain", "detector"],
+      "properties": {
+        "domain": {
+          "description": "The domain package id that produced this event (e.g. \"pokemon\").",
+          "type": "string",
+          "minLength": 1
+        },
+        "detector": {
+          "description": "The specific detector within that domain that produced this event. Often equal to `type`, but kept distinct since one detector may emit more than one event type (e.g. the HP detector emits hp.changed and, conditionally, damaged/healed).",
+          "type": "string",
+          "minLength": 1
+        },
+        "game": {
+          "description": "Optional game/provider identity the source state carried, for cross-checking which game session this event came from. Not required - not every normalized state includes it.",
+          "type": ["object", "null"]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
