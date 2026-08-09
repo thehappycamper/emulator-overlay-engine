@@ -18,7 +18,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | `P02` | Domain Boundary | completed |
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
-| `P05` | Live Gameplay Source | active — `P05-T001` overlay polling and `P05-T002` acquisition proof are implemented on separate review branches; source contract/mapping integration remain |
+| `P05` | Live Gameplay Source | active — `P05-T002` acquisition proof merged; `P05-T001` overlay polling awaiting review; source contract/mapping integration remain |
 | `P06` | Second Source / Domain Proof | planned |
 | — | Later Product Tracks | coarse / not phased yet |
 
@@ -143,7 +143,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P05 — Live Gameplay Source
 
-**Status:** active. `P05-T001` implements domain-neutral overlay polling on a separate review branch, while `P05-T002` implements the first read-only Emerald/mGBA acquisition diagnostic and is awaiting independent review. Neither branch satisfies the full phase gate: a named source contract, mapping, and normalized-state delivery remain.
+**Status:** active. `P05-T002` (first read-only Emerald/mGBA acquisition diagnostic) is complete on `main` at `3bdfd49`, independently reviewed APPROVE. `P05-T001` (domain-neutral overlay live-state polling) remains on a separate review branch, awaiting independent review. Neither task satisfies the full phase gate: a named source contract, mapping, and normalized-state delivery remain unstarted. `P05` is not complete.
 
 **Objective:** Implement the first live source integration — the Gen 3 mGBA adapter sketched in `adapters/gen3-mgba/README.md` and `docs/project/roadmap.md`'s "First Real Live Integration" — against the source-agnostic platform boundary clarified in `P01-T006`.
 
@@ -151,8 +151,8 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 **Major tasks:**
 
-- `P05-T001` — Domain-neutral overlay live-state polling. Implemented on a concurrent review branch and intentionally independent from emulator acquisition.
-- [`P05-T002`](../tasks/P05/P05-T002.md) — English retail Emerald Rev 0 acquisition proof through mGBA Lua, with strict fingerprint detection and developer diagnostic output. Implemented for review; intentionally stops before a source contract or normalized export.
+- `P05-T001` — Domain-neutral overlay live-state polling. Implemented on a separate review branch, awaiting independent review, and intentionally independent from emulator acquisition.
+- [`P05-T002`](../tasks/P05/P05-T002.md) — English retail Emerald Rev 0 acquisition proof through mGBA Lua, with strict fingerprint detection and developer diagnostic output. Completed (independent review APPROVE, merged to `main` at `3bdfd49`); intentionally stops before a source contract or normalized export.
 
 Remaining roadmap deliverables will be scoped as separate tasks: a named/versioned source contract, mapping into Pokemon state, a safe live transport/handoff, emulator setup documentation, and end-to-end fixtures/tests.
 
