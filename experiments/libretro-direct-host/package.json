@@ -1,0 +1,14 @@
+{
+  "name": "eoe-libretro-direct-host-spike",
+  "version": "0.0.0",
+  "private": true,
+  "description": "P05-T007 feasibility spike: direct-host the mGBA libretro core without RetroArch/Lua/GUI automation. Not part of the main package; not wired into root npm scripts.",
+  "type": "module",
+  "scripts": {
+    "spike": "node host.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "koffi": "^3.1.4"
+  }
+}
