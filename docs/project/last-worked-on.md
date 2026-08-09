@@ -5,7 +5,7 @@ This is a short pointer, not the project history. For full history, see `docs/ta
 ## Current status
 
 - **Active phase:** `P05` — Live Gameplay Source. `P03` and `P04` remain planned and unstarted; phase numbering and dependencies are unchanged. See [implementation plan](implementation-plan.md).
-- **Active task:** [`P05-T005` — Add Emerald Proof 1 local configuration and launcher](../tasks/P05/P05-T005.md), implemented on `feat/P05-T005-emerald-local-launcher` and awaiting independent review.
+- **Active task:** [`P05-T005` — Add Emerald Proof 1 local configuration and launcher](../tasks/P05/P05-T005.md), implemented at `e200a08` on `feat/P05-T005-emerald-local-launcher` and awaiting independent review.
 - **Last completed task:** [`P05-T004` — Map Emerald acquisition into Pokemon live state](../tasks/P05/P05-T004.md) (2026-08-08, independent review APPROVE, merged at `f301d6b`). [`P05-T001`](../tasks/P05/P05-T001.md), [`P05-T002`](../tasks/P05/P05-T002.md), and [`P05-T003`](../tasks/P05/P05-T003.md) are also completed.
 - **Next P05 step:** independently review `P05-T005`, then run and record the first real mGBA end-to-end acceptance test using the simplified launcher workflow. Broader phase-gate acquisition/mapping (whole party, moves/bag, seed/frame, species/map lookup data) remains after that smoke. `P05` remains active.
 
