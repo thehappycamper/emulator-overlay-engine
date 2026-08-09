@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   descriptorMatches,
   findDescriptorForAddress,
+  matchDescriptorForAddress,
   readAddress,
   translateAddressToBufferOffset,
 } from "../address-translate.mjs";
@@ -55,13 +56,71 @@ test("descriptorMatches rejects an address whose select-matched offset exceeds l
   assert.equal(descriptorMatches(EWRAM_DESCRIPTOR, 0x02ffffff), false);
 });
 
-test("findDescriptorForAddress picks the correct region and ignores descriptors with no backing pointer", () => {
+test("findDescriptorForAddress picks the correct region and returns null when nothing matches at all", () => {
   assert.equal(findDescriptorForAddress(DESCRIPTORS, 0x020244ec), EWRAM_DESCRIPTOR);
   assert.equal(findDescriptorForAddress(DESCRIPTORS, 0x030026f9), IWRAM_DESCRIPTOR);
   assert.equal(findDescriptorForAddress(DESCRIPTORS, 0x08000000), null);
+});
 
+test("findDescriptorForAddress rejects (does not return null) when the only matching descriptor has no backing pointer", () => {
+  // This is deliberately different from "nothing matches" (which returns
+  // null, see the test above): a descriptor with ptr: null actively claims
+  // the address per libretro.h precedence, it just has no accessible
+  // memory there. Silently treating this the same as "no descriptor covers
+  // this address at all" would hide a real inaccessibility signal from the
+  // caller.
   const unbacked = { ...EWRAM_DESCRIPTOR, ptr: null };
-  assert.equal(findDescriptorForAddress([unbacked], 0x02000000), null);
+  assert.throws(
+    () => findDescriptorForAddress([unbacked], 0x02000000),
+    /no backing pointer/,
+  );
+});
+
+test("first-descriptor-claims precedence: an inaccessible first match blocks a later, accessible, overlapping descriptor", () => {
+  // Two descriptors both cover 0x02000000: the first has no backing
+  // pointer, the second (listed later in the array) does. Per libretro.h,
+  // "If multiple memory descriptors can claim a particular byte, the first
+  // one defined in the retro_memory_descriptor array applies" - so the
+  // inaccessible first descriptor wins the claim, and the second,
+  // accessible descriptor must never be consulted, even though it also
+  // covers this exact address and could otherwise satisfy the read.
+  const inaccessibleFirst = { ...EWRAM_DESCRIPTOR, ptr: null };
+  const accessibleSecond = { ...EWRAM_DESCRIPTOR, ptr: "would-be-readable" };
+  const overlapping = Object.freeze([inaccessibleFirst, accessibleSecond]);
+
+  assert.throws(
+    () => findDescriptorForAddress(overlapping, 0x02000000),
+    /no backing pointer/,
+  );
+  assert.throws(
+    () => readAddress(overlapping, 0x02000000, { readBuffer: () => 0 }),
+    /no backing pointer/,
+  );
+
+  // matchDescriptorForAddress itself must report the first (inaccessible)
+  // descriptor as the match, not silently skip to the second.
+  const match = matchDescriptorForAddress(overlapping, 0x02000000);
+  assert.equal(match.descriptor, inaccessibleFirst);
+});
+
+test("first-descriptor-claims precedence: an accessible first match wins over a later, also-matching, overlapping descriptor", () => {
+  // The positive counterpart of the test above: when the first-listed
+  // matching descriptor IS accessible, it must be the one used, even
+  // though a later descriptor also covers the same address (with a
+  // different offset base, proving the second one was never consulted).
+  const first = { ...EWRAM_DESCRIPTOR, ptr: "first-buffer", offset: 0 };
+  const second = { ...EWRAM_DESCRIPTOR, ptr: "second-buffer", offset: 0x9999 };
+  const overlapping = Object.freeze([first, second]);
+
+  assert.equal(findDescriptorForAddress(overlapping, 0x02000000), first);
+  const reads = [];
+  readAddress(overlapping, 0x02000000, {
+    readBuffer: (descriptor, offset) => {
+      reads.push({ ptr: descriptor.ptr, offset });
+      return 1;
+    },
+  });
+  assert.deepEqual(reads, [{ ptr: "first-buffer", offset: 0 }]);
 });
 
 test("translateAddressToBufferOffset resolves our existing Emerald address constants against the real EWRAM descriptor shape", () => {
@@ -146,6 +205,22 @@ test("a select match whose collapsed offset exceeds len is rejected, not silentl
   // wrapping or clamping.
   const descriptor = { ptr: "fake", offset: 0, start: 0, select: 0x80, disconnect: 0x8, len: 0x10 };
   assert.equal(descriptorMatches(descriptor, 0x48), false);
+});
+
+test("out-of-scope: a len:0 (borderless) descriptor never matches, even when select/start otherwise would cover the address", () => {
+  // Documented, disclosed limitation (see the module-level comment): this
+  // GBA spike does not implement libretro.h's "len: 0 means bounded only by
+  // select/disconnect" borderless-descriptor case. Real mGBA GBA
+  // descriptors always specify a concrete len, so this is not a gap for
+  // this spike's actual target, but it is worth pinning the behavior
+  // explicitly rather than leaving it as an unstated side effect: with
+  // select=0x80 and start=0, address 0x00 would satisfy the select match,
+  // but len=0 means the unsigned "reduced < len" bounds check can never be
+  // true, so the descriptor never matches, for any address.
+  const borderless = { ptr: "fake", offset: 0, start: 0, select: 0x80, disconnect: 0, len: 0 };
+  assert.equal(descriptorMatches(borderless, 0x00), false);
+  assert.equal(descriptorMatches(borderless, 0x01), false);
+  assert.equal(findDescriptorForAddress([borderless], 0x00), null);
 });
 
 test("translateAddressToBufferOffset rejects an address outside the descriptor's range", () => {

@@ -36,6 +36,19 @@
 // non-zero there means EWRAM/IWRAM addresses go through the non-zero-select
 // branch below, not the naive flat-range branch a `select: 0` assumption
 // would suggest.
+//
+// Out of scope for this GBA spike: libretro.h documents `len: 0` as meaning
+// "bounded only by select/disconnect" (an intentionally borderless
+// descriptor, used in its own SNES example only as a NULL-ptr sentinel to
+// report the overall address-space size). `resolveOffsetWithinDescriptor`'s
+// `select !== 0` branch checks `reduced < len`, so a `len: 0` descriptor can
+// never satisfy that comparison (nothing is less than 0 for the unsigned
+// values in play here) and therefore can never produce a match - this is
+// the same behavior RetroArch's own `rc_libretro_memory_get_descriptor`
+// reference has for `len: 0`, not a gap introduced by this module. Real GBA
+// descriptors (mGBA's own registration, confirmed above) always specify a
+// concrete `len`, so this spike does not need, and does not implement,
+// meaningful support for borderless `len: 0` descriptors.
 
 function collapseDisconnectBits(address, disconnectMask) {
   // Removes each set bit of `disconnectMask` from `address` and shifts the
@@ -91,13 +104,56 @@ export function descriptorMatches(descriptor, address) {
   return resolveOffsetWithinDescriptor(descriptor, address) !== null;
 }
 
-export function findDescriptorForAddress(descriptors, address) {
+// Finds the descriptor that "claims" `address`, honoring libretro.h's
+// documented first-descriptor precedence exactly: "If multiple memory
+// descriptors can claim a particular byte, the first one defined in the
+// retro_memory_descriptor array applies." This is evaluated purely by
+// start/select/disconnect/len match - `ptr` (whether the descriptor is
+// actually backed by accessible memory) is NOT part of the matching
+// criteria and must not affect which descriptor wins. A NULL `ptr` is
+// libretro.h's documented way to say "no accessible memory at this
+// address," not "skip this descriptor and keep looking" - RetroArch's own
+// reference implementation (rc_libretro_memory_get_descriptor) matches
+// this way too: it returns whichever descriptor matches first regardless of
+// `ptr`, and leaves ptr-nullness handling to the caller.
+//
+// Returns `{ descriptor, offset }` for the first matching descriptor
+// (whether or not it has a backing pointer), or `null` if no descriptor in
+// the array matches `address` at all.
+export function matchDescriptorForAddress(descriptors, address) {
   for (const descriptor of descriptors) {
-    if (descriptor.ptr && resolveOffsetWithinDescriptor(descriptor, address) !== null) {
-      return descriptor;
+    const offset = resolveOffsetWithinDescriptor(descriptor, address);
+    if (offset !== null) {
+      return { descriptor, offset };
     }
   }
   return null;
+}
+
+function rejectInaccessibleMatch(match, address) {
+  throw new RangeError(
+    `Address 0x${address.toString(16)} is claimed by memory descriptor addrspace=` +
+      `${match.descriptor.addrspace ?? "(none)"} start=0x${match.descriptor.start.toString(16)}, ` +
+      `which has no backing pointer (ptr is null/absent). Per Libretro first-descriptor-claims ` +
+      `precedence this address is inaccessible; refusing to fall through to a later, possibly ` +
+      `accessible descriptor that also happens to cover this address.`,
+  );
+}
+
+// Returns the descriptor that claims `address`, or `null` if none does.
+// Throws if the first (and therefore only relevant, per precedence)
+// claiming descriptor has no backing pointer - see matchDescriptorForAddress
+// above and rejectInaccessibleMatch's message for why this must not
+// silently fall through to a later descriptor instead.
+export function findDescriptorForAddress(descriptors, address) {
+  const match = matchDescriptorForAddress(descriptors, address);
+  if (!match) {
+    return null;
+  }
+  if (!match.descriptor.ptr) {
+    rejectInaccessibleMatch(match, address);
+  }
+  return match.descriptor;
 }
 
 export function translateAddressToBufferOffset(descriptor, address) {
@@ -112,12 +168,12 @@ export function translateAddressToBufferOffset(descriptor, address) {
 }
 
 export function readAddress(descriptors, address, { readBuffer }) {
-  for (const descriptor of descriptors) {
-    if (!descriptor.ptr) continue;
-    const offset = resolveOffsetWithinDescriptor(descriptor, address);
-    if (offset !== null) {
-      return readBuffer(descriptor, offset);
-    }
+  const match = matchDescriptorForAddress(descriptors, address);
+  if (!match) {
+    throw new RangeError(`No published memory descriptor covers address 0x${address.toString(16)}`);
   }
-  throw new RangeError(`No published memory descriptor covers address 0x${address.toString(16)}`);
+  if (!match.descriptor.ptr) {
+    rejectInaccessibleMatch(match, address);
+  }
+  return readBuffer(match.descriptor, match.offset);
 }

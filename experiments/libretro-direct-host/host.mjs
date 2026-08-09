@@ -14,13 +14,17 @@
 // limitations" in the task record).
 //
 // This file always prints a "=== SPIKE REPORT (JSON) ===" block exactly
-// once, via a single top-level try/finally, whether the run stops early
-// (ROM rejected), succeeds, or throws. The report's `cleanup` section
-// records whether retro_deinit() and koffi.unregister() were actually
-// attempted and whether they reported success - see README.md's "Process
-// exit and koffi callback cleanup" section for a disclosed, environment-
-// specific caveat found while adding this cleanup: this spike cannot
-// promise a clean process exit code even when every step above succeeds.
+// once, via a single top-level try/finally that wraps every ABI call from
+// retro_api_version() onward - including callback registration - so a
+// failure at any point (a version mismatch, a registration failure, a
+// thrown error mid-run) always runs the same deterministic cleanup and
+// always reports what was actually attempted, never just what was hoped
+// for. The report's `callbackInvocationCounts` are real counters
+// incremented inside each callback body, not an assumption: they are the
+// evidence for which callbacks native code actually invoked, not a claim
+// made without checking. See README.md's "Process exit and koffi callback
+// cleanup" section for a disclosed, environment-specific caveat about
+// process-exit behavior found while adding this cleanup.
 
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -93,8 +97,10 @@ async function main() {
   const report = {
     apiVersion: null,
     seenEnvironmentCommands: [],
+    callbackInvocationCounts: null,
     memoryMap: null,
     loadGameResult: null,
+    retroRunInvoked: false,
     cleanup: {
       retroInitReached: false,
       gameLoadedSuccessfully: false,
@@ -108,64 +114,102 @@ async function main() {
 
   const core = loadLibretroCore(config.LIBRETRO_CORE_PATH);
 
-  // Required by the task: call and validate retro_api_version() before
-  // anything else. libretro.h pins RETRO_API_VERSION at 1 and has never
-  // changed it; a mismatch would indicate an incompatible/unusual core, so
-  // this is reported prominently but does not hard-abort the spike - the
-  // point here is to observe and record reality, not to gate on it.
-  const apiVersion = core.retro_api_version();
-  report.apiVersion = { actual: apiVersion, expected: RETRO_API_VERSION, matches: apiVersion === RETRO_API_VERSION };
-  console.log(
-    `retro_api_version() = ${apiVersion} (expected ${RETRO_API_VERSION}; ` +
-      `${report.apiVersion.matches ? "matches" : "MISMATCH - proceeding anyway for observation, but a real integration must treat this as a hard compatibility gate"})`,
-  );
-
-  const info = {};
-  core.retro_get_system_info(info);
-  report.systemInfo = info;
-  console.log("System info:", info);
-
-  let latestMemoryMap = [];
-
-  function environmentCallback(cmd, data) {
-    report.seenEnvironmentCommands.push(cmd);
-    if (cmd === RETRO_ENVIRONMENT_SET_MEMORY_MAPS) {
-      latestMemoryMap = decodeMemoryMap(data);
-      report.memoryMap = latestMemoryMap.map(bytesToHex);
-      console.log("Received SET_MEMORY_MAPS with", latestMemoryMap.length, "descriptor(s):");
-      console.log(JSON.stringify(report.memoryMap, null, 2));
-      return true;
-    }
-    return false; // decline everything else - see README for why this is safe
-  }
-
-  // Every koffi.register() call here is paired with a koffi.unregister()
-  // attempt in the finally block below, tracked via this array. See
-  // README.md for what was empirically observed about this cleanup path in
-  // this environment.
+  // Tracked outside the try block so the finally below can always see
+  // exactly which callbacks were successfully registered so far, even if a
+  // later registration call (or any other ABI call) throws before
+  // registration finishes.
   const registeredCallbacks = [];
-  function registerCallback(fn, protoType) {
-    const ptr = koffi.register(fn, koffi.pointer(protoType));
-    registeredCallbacks.push(ptr);
-    report.cleanup.callbacksRegistered += 1;
-    return ptr;
-  }
-
-  const envPtr = registerCallback(environmentCallback, RetroEnvironmentCB);
-  const videoPtr = registerCallback(() => {}, RetroVideoRefreshCB);
-  const audioPtr = registerCallback(() => {}, RetroAudioSampleCB);
-  const audioBatchPtr = registerCallback((_data, frames) => frames, RetroAudioSampleBatchCB);
-  const pollPtr = registerCallback(() => {}, RetroInputPollCB);
-  const statePtr = registerCallback(() => 0, RetroInputStateCB);
-
-  core.retro_set_environment(envPtr);
-  core.retro_set_video_refresh(videoPtr);
-  core.retro_set_audio_sample(audioPtr);
-  core.retro_set_audio_sample_batch(audioBatchPtr);
-  core.retro_set_input_poll(pollPtr);
-  core.retro_set_input_state(statePtr);
 
   try {
+    // Required by the task: retro_api_version() is the very first ABI call
+    // after loading the core, and a mismatch fails closed immediately -
+    // before retro_get_system_info(), before any callback registration,
+    // before any retro_set_* call. libretro.h pins RETRO_API_VERSION at 1
+    // and has never changed it; a core reporting anything else is not a
+    // core this spike (or a real integration) can safely assume ABI
+    // compatibility with.
+    const apiVersion = core.retro_api_version();
+    report.apiVersion = { actual: apiVersion, expected: RETRO_API_VERSION, matches: apiVersion === RETRO_API_VERSION };
+    if (!report.apiVersion.matches) {
+      throw new Error(
+        `retro_api_version() mismatch: core reports ${apiVersion}, expected ${RETRO_API_VERSION}. ` +
+          "Refusing to make any further ABI calls or register any callbacks against a core whose " +
+          "API version was not confirmed compatible first.",
+      );
+    }
+    console.log(`retro_api_version() = ${apiVersion} (matches expected ${RETRO_API_VERSION})`);
+
+    const info = {};
+    core.retro_get_system_info(info);
+    report.systemInfo = info;
+    console.log("System info:", info);
+
+    let latestMemoryMap = [];
+
+    // Real counters incremented from inside each callback body - this is
+    // the actual evidence for which callbacks native code invoked, printed
+    // in the final report, not merely asserted in prose after the fact.
+    const invocationCounts = {
+      environment: 0,
+      videoRefresh: 0,
+      audioSample: 0,
+      audioSampleBatch: 0,
+      inputPoll: 0,
+      inputState: 0,
+    };
+    report.callbackInvocationCounts = invocationCounts;
+
+    function environmentCallback(cmd, data) {
+      invocationCounts.environment += 1;
+      report.seenEnvironmentCommands.push(cmd);
+      if (cmd === RETRO_ENVIRONMENT_SET_MEMORY_MAPS) {
+        latestMemoryMap = decodeMemoryMap(data);
+        report.memoryMap = latestMemoryMap.map(bytesToHex);
+        console.log("Received SET_MEMORY_MAPS with", latestMemoryMap.length, "descriptor(s):");
+        console.log(JSON.stringify(report.memoryMap, null, 2));
+        return true;
+      }
+      return false; // decline everything else - see README for why this is safe
+    }
+
+    // Every koffi.register() call here is tracked in registeredCallbacks
+    // immediately upon success, so the finally block below can unregister
+    // exactly what was actually registered - including a run that fails
+    // partway through this very sequence (e.g. the 4th of 6 registrations
+    // throwing) - not just a run that reaches retro_init() successfully.
+    function registerCallback(fn, protoType) {
+      const ptr = koffi.register(fn, koffi.pointer(protoType));
+      registeredCallbacks.push(ptr);
+      report.cleanup.callbacksRegistered += 1;
+      return ptr;
+    }
+
+    const envPtr = registerCallback(environmentCallback, RetroEnvironmentCB);
+    const videoPtr = registerCallback(() => {
+      invocationCounts.videoRefresh += 1;
+    }, RetroVideoRefreshCB);
+    const audioPtr = registerCallback(() => {
+      invocationCounts.audioSample += 1;
+    }, RetroAudioSampleCB);
+    const audioBatchPtr = registerCallback((_data, frames) => {
+      invocationCounts.audioSampleBatch += 1;
+      return frames;
+    }, RetroAudioSampleBatchCB);
+    const pollPtr = registerCallback(() => {
+      invocationCounts.inputPoll += 1;
+    }, RetroInputPollCB);
+    const statePtr = registerCallback(() => {
+      invocationCounts.inputState += 1;
+      return 0;
+    }, RetroInputStateCB);
+
+    core.retro_set_environment(envPtr);
+    core.retro_set_video_refresh(videoPtr);
+    core.retro_set_audio_sample(audioPtr);
+    core.retro_set_audio_sample_batch(audioBatchPtr);
+    core.retro_set_input_poll(pollPtr);
+    core.retro_set_input_state(statePtr);
+
     core.retro_init();
     report.cleanup.retroInitReached = true;
     console.log("retro_init() completed. Environment commands seen so far:", report.seenEnvironmentCommands.length);
@@ -185,9 +229,13 @@ async function main() {
 
     if (!loaded) {
       console.log(
-        "Core rejected the ROM. This is where this spike's empirical verification stops in an\n" +
-          "environment without an operator-supplied, legally obtained Emerald ROM. See the task\n" +
-          "record for what was verified before this point and why.",
+        "Core rejected the ROM. retro_run() was never called, SET_MEMORY_MAPS was never received\n" +
+          "(the core only publishes it after a successful retro_load_game), and no emulated-memory\n" +
+          "read was attempted - see callbackInvocationCounts in the printed report below for the\n" +
+          "actual per-callback invocation counts proving this, not just this message's say-so. This\n" +
+          "is where this spike's empirical verification stops in an environment without an operator-\n" +
+          "supplied, legally obtained Emerald ROM. See the task record for what was verified before\n" +
+          "this point and why.",
       );
       return;
     }
@@ -195,6 +243,7 @@ async function main() {
 
     const frameCount = 120;
     console.log(`Running ${frameCount} frames...`);
+    report.retroRunInvoked = true;
     const startedAt = process.hrtime.bigint();
     for (let i = 0; i < frameCount; i += 1) {
       core.retro_run();
@@ -232,8 +281,11 @@ async function main() {
     }
   } finally {
     // Deterministic cleanup, always attempted regardless of how the try
-    // block above exited (early return on ROM rejection, normal
-    // completion, or a thrown error). Each step is independently
+    // block above exited: an early api-version-mismatch throw (zero
+    // callbacks registered), a throw partway through registration (some
+    // callbacks registered), the early return on ROM rejection (all
+    // callbacks registered, retro_init reached, no game loaded), normal
+    // completion, or any other thrown error. Each step is independently
     // try/caught so a failure in one does not skip the others, and every
     // outcome is recorded in the report rather than silently swallowed.
     if (report.cleanup.gameLoadedSuccessfully) {
@@ -256,11 +308,12 @@ async function main() {
 
     // See README.md: koffi.unregister() is the documented, correct call to
     // release a callback slot, and is attempted here for every callback
-    // this run registered. Whether it prevents the process-exit crash
-    // documented in the README is empirically inconclusive in this
-    // environment - the attempt itself is still correct practice (avoids
-    // leaking callback slots in a longer-lived host) and is recorded
-    // either way.
+    // this run actually registered - registeredCallbacks reflects exactly
+    // that, however far the try block above got. Whether it prevents the
+    // process-exit crash documented in the README is empirically
+    // inconclusive in this environment - the attempt itself is still
+    // correct practice (avoids leaking callback slots in a longer-lived
+    // host) and is recorded either way.
     for (const ptr of registeredCallbacks) {
       try {
         koffi.unregister(ptr);
