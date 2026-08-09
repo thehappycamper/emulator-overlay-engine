@@ -61,10 +61,17 @@ Implements only the libretro callback plumbing required for `retro_init` /
   libretro ABI requires these to be registered before `retro_init()` (cores
   may call `retro_set_environment`'s callback, which can query things like
   pixel format, before or during init) — mGBA's core did not fail or block
-  when they were declined/no-op'd during this spike's testing. If a future
-  iteration finds a specific core requires real frame data to proceed past
-  a certain point, that would be documented here and in the task record;
-  this spike found no such requirement for reaching `retro_run()`.
+  while declining/no-op'ing them on the way to `retro_init()` during this
+  spike's testing. The host does not require real video/audio/input
+  handling by design; those callbacks currently use minimal/no-op
+  implementations. This has not yet been validated through `retro_run()`,
+  because no valid ROM was loaded during the recorded spike runs -
+  `retro_run()` was never invoked here, so whether a core tolerates no-op
+  video/audio/input across the full frame-execution path remains open for
+  the real-ROM acceptance session, not something this spike found or ruled
+  out. If a future iteration finds a specific core requires real frame data
+  to proceed past a certain point, that would be documented here and in the
+  task record.
 - **Environment callback:** only handles `RETRO_ENVIRONMENT_SET_MEMORY_MAPS`;
   every other command (pixel format, input descriptors, log interface,
   variables, VFS interface, etc.) is declined by returning `false`, which is
@@ -128,9 +135,13 @@ byte-patching one into the other) would be exactly the kind of hack this
 task was told not to build. The deterministic-state question is therefore
 still open; the smallest safe next step would be for the libretro core
 itself to produce its own state file (via `retro_serialize`) after manual
-play, then reload that — not to reuse mGBA's own `.ss0`. This spike instead
-reads memory immediately after a fixed number of `retro_run()` calls from
-power-on, which is deterministic but not a specific in-game situation.
+play, then reload that — not to reuse mGBA's own `.ss0`. This spike's design
+instead calls for reading memory immediately after a fixed number of
+`retro_run()` calls from power-on - deterministic but not a specific
+in-game situation. That step was never reached in the recorded runs in this
+environment (no valid ROM was available, so `retro_load_game()` never
+succeeded and `retro_run()` was never invoked); it remains part of the plan
+for the real-ROM acceptance session, not something already executed.
 
 ## API version gate, callback lifecycle, and cleanup
 
