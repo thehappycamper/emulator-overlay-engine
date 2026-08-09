@@ -25,6 +25,10 @@ export const MOVES_TABLE = Object.freeze(loadJson("moves.json"));
 export const ITEMS_TABLE = Object.freeze(loadJson("items.json"));
 export const LOCATIONS_TABLE = Object.freeze(loadJson("locations.json"));
 export const CHARMAP_TABLE = Object.freeze(loadJson("charmap.json"));
+// Wild encounter table (P05-T011) and Poke Ball catch-multiplier reference
+// (P05-T011) - see that task's Implementation Notes for exact source lines.
+export const ENCOUNTERS_TABLE = Object.freeze(loadJson("encounters.json"));
+export const BALLS_TABLE = Object.freeze(loadJson("balls.json"));
 
 export function lookupSpecies(speciesId) {
   return SPECIES_TABLE[speciesId] ?? null;
@@ -41,6 +45,18 @@ export function lookupItem(itemId) {
 
 export function lookupLocation(mapGroup, mapNumber) {
   return LOCATIONS_TABLE[`${mapGroup}:${mapNumber}`] ?? null;
+}
+
+// Wild encounter slots for one map, or null if this map has no standard
+// (grass/surf/rock-smash/fishing) wild encounter table - e.g. towns,
+// buildings, and other maps with no wild Pokemon. Never fabricated: comes
+// directly from pret/pokeemerald's own src/data/wild_encounters.json.
+export function lookupEncounters(mapGroup, mapNumber) {
+  return ENCOUNTERS_TABLE[`${mapGroup}:${mapNumber}`] ?? null;
+}
+
+export function lookupBallInfo(itemId) {
+  return BALLS_TABLE[itemId] ?? null;
 }
 
 const STRING_TERMINATOR_BYTE = 0xff;
@@ -147,4 +163,72 @@ export function expProgress(growthRate, level, exp) {
     expForNextLevel: span,
     percent: Math.round((into / span) * 1000) / 10,
   });
+}
+
+// Resolves a ball's catch-rate multiplier for the current opponent, or null
+// when the ball's real bonus depends on state this project does not decode
+// (see the BALLS_TABLE "unavailable" entries' `reason`). Never guesses a
+// value for those; the caller must treat null as "not shown", not "no
+// bonus". Confirmed against pret/pokeemerald's real Cmd_handleballthrow
+// (src/battle_script_commands.c) - see docs/tasks/P05/P05-T011.md.
+export function resolveBallMultiplier(ballInfo, { opponentTypes, opponentLevel } = {}) {
+  if (!ballInfo) return null;
+  switch (ballInfo.kind) {
+    case "guaranteed":
+      return { guaranteed: true };
+    case "static":
+      return { multiplier: ballInfo.multiplier };
+    case "type-conditional": {
+      const matches = Array.isArray(opponentTypes) && opponentTypes.some((type) => ballInfo.matchTypes.includes(type));
+      return { multiplier: matches ? ballInfo.multiplierIfMatch : ballInfo.multiplierOtherwise };
+    }
+    case "level-conditional": {
+      // Nest Ball (Cmd_handleballthrow): 40 - level, floored at 10, only below level 40.
+      if (!Number.isInteger(opponentLevel)) return null;
+      if (opponentLevel >= 40) return { multiplier: 10 };
+      return { multiplier: Math.max(10, 40 - opponentLevel) };
+    }
+    default:
+      return null; // "unavailable" - depends on undecoded state
+  }
+}
+
+// Real Gen III catch-probability formula, transcribed field-for-field from
+// pret/pokeemerald's Cmd_handleballthrow (src/battle_script_commands.c):
+// odds = floor(catchRate * ballMultiplier / 10) * (3*maxHp - 2*currentHp) / (3*maxHp)
+// doubled for sleep/freeze, x1.5 for poison/burn/paralysis/badly-poisoned;
+// odds > 254 is a guaranteed catch, otherwise the probability of surviving
+// all four of the game's shake checks is computed from the same integer
+// double-square-root step the game itself performs (mirrored here with
+// Math.sqrt/Math.floor rather than the game's integer Sqrt() twice - a
+// disclosed floating-point re-implementation of the identical formula, not
+// a different one; values in this range have no meaningful precision loss
+// versus IEEE-754 doubles). Returns a probability in [0, 1], or null if a
+// required input is missing/unusable - never a fabricated number.
+export function calculateCatchChance({ catchRate, ballMultiplier, maxHp, currentHp, status }) {
+  if (!Number.isInteger(catchRate) || catchRate < 0) return null;
+  if (!ballMultiplier) return null;
+  if (ballMultiplier.guaranteed) return 1;
+  if (!Number.isInteger(ballMultiplier.multiplier)) return null;
+  if (!Number.isInteger(maxHp) || maxHp <= 0 || !Number.isInteger(currentHp) || currentHp < 0) return null;
+
+  let odds = Math.floor((catchRate * ballMultiplier.multiplier) / 10);
+  odds = Math.floor((odds * (maxHp * 3 - currentHp * 2)) / (3 * maxHp));
+
+  if (status === "asleep" || status === "frozen") odds *= 2;
+  if (status === "poisoned" || status === "burned" || status === "paralyzed" || status === "badly-poisoned") {
+    odds = Math.floor((odds * 15) / 10);
+  }
+
+  if (odds > 254) return 1;
+  if (odds <= 0) return 0;
+
+  const innerQuotient = Math.floor(16711680 / odds);
+  const firstSqrt = Math.floor(Math.sqrt(innerQuotient));
+  const b = Math.floor(Math.sqrt(firstSqrt));
+  if (b <= 0) return 1;
+
+  const shakeThreshold = Math.min(65535, Math.floor(1048560 / b));
+  const shakeProbability = shakeThreshold / 65536;
+  return Math.min(1, shakeProbability ** 4);
 }

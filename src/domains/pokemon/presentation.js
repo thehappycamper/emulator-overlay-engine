@@ -38,6 +38,12 @@ export function renderPokemonOverlay(state) {
   // disclosed to the viewer rather than silently presented as certain.
   const activePlayerIndex = Number.isInteger(state.battle?.activePlayerIndex) ? state.battle.activePlayerIndex : 0;
   const activePlayer = party[activePlayerIndex] ?? null;
+  // Requires an explicit `false`, not just "not true" - an unknown/absent
+  // trainerBattle value must never be treated as "known wild", since
+  // showing ball-throw odds during an actual trainer battle would be
+  // actively misleading (balls cannot be thrown there at all).
+  const isWildBattle = Boolean(opponent) && state.battle?.trainerBattle === false;
+  const balls = state.bag?.balls ?? null;
 
   return `
     <header class="topbar">
@@ -47,6 +53,8 @@ export function renderPokemonOverlay(state) {
       </div>
       ${renderBadges(badges)}
     </header>
+
+    ${renderEncounters(state.location?.encounters ?? null)}
 
     <main class="dashboard">
       <section class="team-section">
@@ -59,8 +67,83 @@ export function renderPokemonOverlay(state) {
       <section class="battle-section">
         <h2>Battle</h2>
         ${opponent ? renderBattle(opponent, incoming, activePlayer, activePlayerIndex) : '<p class="subtle empty-battle">Not currently in battle.</p>'}
+        ${isWildBattle ? renderBallsPanel(balls) : ""}
       </section>
     </main>
+  `;
+}
+
+// Collapsed by default, same rationale as the stat/ball panels below: useful
+// reference, not something that should permanently consume dashboard space.
+// `encounters` comes straight from the acquisition layer's wild-encounter
+// lookup (pret/pokeemerald's own data) - never fabricated for locations
+// with no standard wild encounters (towns, buildings), which render a
+// clear "no wild encounters" message instead of an empty table.
+function renderEncounters(encounters) {
+  if (!Array.isArray(encounters) || encounters.length === 0) {
+    return `
+      <details class="encounters-panel">
+        <summary>Wild Encounters Here</summary>
+        <p class="subtle">No wild encounters at this location.</p>
+      </details>
+    `;
+  }
+
+  const rows = encounters
+    .map((encounter) => `
+      <tr>
+        <td>${escapeHtml(encounter.name ?? `Species #${encounter.speciesId}`)}</td>
+        <td class="subtle">${escapeHtml(encounter.method)}</td>
+        <td class="subtle">Lv ${escapeHtml(encounter.minLevel)}${encounter.maxLevel !== encounter.minLevel ? `&ndash;${escapeHtml(encounter.maxLevel)}` : ""}</td>
+        <td class="subtle">${(encounter.rate * 100).toFixed(1)}%</td>
+      </tr>
+    `)
+    .join("");
+
+  return `
+    <details class="encounters-panel">
+      <summary>Wild Encounters Here (${encounters.length})</summary>
+      <table class="encounters-table">
+        <tbody>${rows}</tbody>
+      </table>
+    </details>
+  `;
+}
+
+// Only rendered during an active wild (non-trainer) battle - ball-throwing
+// has no meaning in a trainer battle. `catchChance` is a pre-computed
+// number (or null) from the acquisition layer; this function only formats
+// it, it does not compute Emerald's catch formula itself - see
+// docs/tasks/P05/P05-T011.md's architecture notes on why that boundary
+// matters.
+function renderBallsPanel(balls) {
+  if (!Array.isArray(balls) || balls.length === 0) {
+    return `
+      <details class="balls-panel">
+        <summary>Poke Balls</summary>
+        <p class="subtle">No Poke Balls in the bag.</p>
+      </details>
+    `;
+  }
+
+  const rows = balls
+    .map((ball) => `
+      <tr>
+        <td>${escapeHtml(ball.name ?? `Item #${ball.id}`)}</td>
+        <td class="subtle">&times;${escapeHtml(ball.quantity)}</td>
+        <td class="ball-chance">${typeof ball.catchChance === "number" ? `${(ball.catchChance * 100).toFixed(1)}%` : "unavailable"}</td>
+      </tr>
+    `)
+    .join("");
+
+  return `
+    <details class="balls-panel">
+      <summary>Poke Balls</summary>
+      <table class="balls-table">
+        <thead><tr><th></th><th></th><th>Catch Odds</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </details>
   `;
 }
 

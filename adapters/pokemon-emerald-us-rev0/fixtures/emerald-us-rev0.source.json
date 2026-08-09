@@ -44,6 +44,7 @@
           "expForNextLevel": 500,
           "percent": 50
         },
+        "catchRate": 45,
         "stats": {
           "atk": 20,
           "def": 18,
@@ -103,6 +104,7 @@
           "expForNextLevel": 182,
           "percent": 49.5
         },
+        "catchRate": 45,
         "stats": {
           "atk": 12,
           "def": 12,
@@ -152,6 +154,7 @@
         "expForNextLevel": 500,
         "percent": 50
       },
+      "catchRate": 45,
       "stats": {
         "atk": 20,
         "def": 18,
@@ -194,6 +197,7 @@
   "battle": {
     "active": true,
     "typeFlags": 0,
+    "trainerBattle": false,
     "opponent": {
       "speciesId": 6,
       "name": "CHARIZARD",
@@ -215,6 +219,7 @@
         "expForNextLevel": 777,
         "percent": 0
       },
+      "catchRate": 45,
       "stats": {
         "atk": 20,
         "def": 20,
@@ -249,7 +254,105 @@
     "mapNumber": 16,
     "name": "Route 101",
     "x": 23,
-    "y": 14
+    "y": 14,
+    "encounters": [
+      {
+        "method": "grass",
+        "speciesId": 290,
+        "name": "WURMPLE",
+        "minLevel": 2,
+        "maxLevel": 2,
+        "rate": 0.2
+      },
+      {
+        "method": "grass",
+        "speciesId": 286,
+        "name": "POOCHYENA",
+        "minLevel": 2,
+        "maxLevel": 2,
+        "rate": 0.2
+      },
+      {
+        "method": "grass",
+        "speciesId": 290,
+        "name": "WURMPLE",
+        "minLevel": 2,
+        "maxLevel": 2,
+        "rate": 0.1
+      },
+      {
+        "method": "grass",
+        "speciesId": 290,
+        "name": "WURMPLE",
+        "minLevel": 3,
+        "maxLevel": 3,
+        "rate": 0.1
+      },
+      {
+        "method": "grass",
+        "speciesId": 286,
+        "name": "POOCHYENA",
+        "minLevel": 3,
+        "maxLevel": 3,
+        "rate": 0.1
+      },
+      {
+        "method": "grass",
+        "speciesId": 286,
+        "name": "POOCHYENA",
+        "minLevel": 3,
+        "maxLevel": 3,
+        "rate": 0.1
+      },
+      {
+        "method": "grass",
+        "speciesId": 290,
+        "name": "WURMPLE",
+        "minLevel": 3,
+        "maxLevel": 3,
+        "rate": 0.05
+      },
+      {
+        "method": "grass",
+        "speciesId": 286,
+        "name": "POOCHYENA",
+        "minLevel": 3,
+        "maxLevel": 3,
+        "rate": 0.05
+      },
+      {
+        "method": "grass",
+        "speciesId": 288,
+        "name": "ZIGZAGOON",
+        "minLevel": 2,
+        "maxLevel": 2,
+        "rate": 0.04
+      },
+      {
+        "method": "grass",
+        "speciesId": 288,
+        "name": "ZIGZAGOON",
+        "minLevel": 2,
+        "maxLevel": 2,
+        "rate": 0.04
+      },
+      {
+        "method": "grass",
+        "speciesId": 288,
+        "name": "ZIGZAGOON",
+        "minLevel": 3,
+        "maxLevel": 3,
+        "rate": 0.01
+      },
+      {
+        "method": "grass",
+        "speciesId": 288,
+        "name": "ZIGZAGOON",
+        "minLevel": 3,
+        "maxLevel": 3,
+        "rate": 0.01
+      }
+    ]
   },
   "badges": [
     true,
@@ -260,5 +363,27 @@
     false,
     false,
     false
-  ]
+  ],
+  "bag": {
+    "balls": [
+      {
+        "id": 4,
+        "name": "Poke Ball",
+        "quantity": 8,
+        "catchChance": 0.07095453202060753
+      },
+      {
+        "id": 3,
+        "name": "Great Ball",
+        "quantity": 3,
+        "catchChance": 0.10660922591856825
+      },
+      {
+        "id": 2,
+        "name": "Ultra Ball",
+        "quantity": 1,
+        "catchChance": 0.1434003102418715
+      }
+    ]
+  }
 }

@@ -71,7 +71,39 @@
       "0x020247a4": 10,
       "0x020247a6": 10,
       "0x02030000": 23,
-      "0x02030002": 14
+      "0x02030002": 14,
+      "0x02030650": 0,
+      "0x02030652": 0,
+      "0x02030654": 0,
+      "0x02030656": 0,
+      "0x02030658": 4,
+      "0x0203065a": 8,
+      "0x0203065c": 3,
+      "0x0203065e": 3,
+      "0x02030660": 2,
+      "0x02030662": 1,
+      "0x02030664": 0,
+      "0x02030666": 0,
+      "0x02030668": 0,
+      "0x0203066a": 0,
+      "0x0203066c": 0,
+      "0x0203066e": 0,
+      "0x02030670": 0,
+      "0x02030672": 0,
+      "0x02030674": 0,
+      "0x02030676": 0,
+      "0x02030678": 0,
+      "0x0203067a": 0,
+      "0x0203067c": 0,
+      "0x0203067e": 0,
+      "0x02030680": 0,
+      "0x02030682": 0,
+      "0x02030684": 0,
+      "0x02030686": 0,
+      "0x02030688": 0,
+      "0x0203068a": 0,
+      "0x0203068c": 0,
+      "0x0203068e": 0
     },
     "read32": {
       "0x020244ec": 12345,
@@ -168,7 +200,8 @@
               "currentPp": 35,
               "maxPp": 48
             }
-          ]
+          ],
+          "catchRate": 45
         },
         {
           "speciesId": 1,
@@ -217,7 +250,8 @@
               "currentPp": 35,
               "maxPp": 35
             }
-          ]
+          ],
+          "catchRate": 45
         }
       ],
       "first": {
@@ -276,7 +310,8 @@
             "currentPp": 35,
             "maxPp": 48
           }
-        ]
+        ],
+        "catchRate": 45
       }
     },
     "battle": {
@@ -329,15 +364,115 @@
             "currentPp": 40,
             "maxPp": 40
           }
-        ]
-      }
+        ],
+        "catchRate": 45
+      },
+      "trainerBattle": false
     },
     "location": {
       "mapGroup": 0,
       "mapNumber": 16,
       "name": "Route 101",
       "x": 23,
-      "y": 14
+      "y": 14,
+      "encounters": [
+        {
+          "method": "grass",
+          "speciesId": 290,
+          "name": "WURMPLE",
+          "minLevel": 2,
+          "maxLevel": 2,
+          "rate": 0.2
+        },
+        {
+          "method": "grass",
+          "speciesId": 286,
+          "name": "POOCHYENA",
+          "minLevel": 2,
+          "maxLevel": 2,
+          "rate": 0.2
+        },
+        {
+          "method": "grass",
+          "speciesId": 290,
+          "name": "WURMPLE",
+          "minLevel": 2,
+          "maxLevel": 2,
+          "rate": 0.1
+        },
+        {
+          "method": "grass",
+          "speciesId": 290,
+          "name": "WURMPLE",
+          "minLevel": 3,
+          "maxLevel": 3,
+          "rate": 0.1
+        },
+        {
+          "method": "grass",
+          "speciesId": 286,
+          "name": "POOCHYENA",
+          "minLevel": 3,
+          "maxLevel": 3,
+          "rate": 0.1
+        },
+        {
+          "method": "grass",
+          "speciesId": 286,
+          "name": "POOCHYENA",
+          "minLevel": 3,
+          "maxLevel": 3,
+          "rate": 0.1
+        },
+        {
+          "method": "grass",
+          "speciesId": 290,
+          "name": "WURMPLE",
+          "minLevel": 3,
+          "maxLevel": 3,
+          "rate": 0.05
+        },
+        {
+          "method": "grass",
+          "speciesId": 286,
+          "name": "POOCHYENA",
+          "minLevel": 3,
+          "maxLevel": 3,
+          "rate": 0.05
+        },
+        {
+          "method": "grass",
+          "speciesId": 288,
+          "name": "ZIGZAGOON",
+          "minLevel": 2,
+          "maxLevel": 2,
+          "rate": 0.04
+        },
+        {
+          "method": "grass",
+          "speciesId": 288,
+          "name": "ZIGZAGOON",
+          "minLevel": 2,
+          "maxLevel": 2,
+          "rate": 0.04
+        },
+        {
+          "method": "grass",
+          "speciesId": 288,
+          "name": "ZIGZAGOON",
+          "minLevel": 3,
+          "maxLevel": 3,
+          "rate": 0.01
+        },
+        {
+          "method": "grass",
+          "speciesId": 288,
+          "name": "ZIGZAGOON",
+          "minLevel": 3,
+          "maxLevel": 3,
+          "rate": 0.01
+        }
+      ]
     },
     "badges": [
       true,
@@ -348,6 +483,28 @@
       false,
       false,
       false
-    ]
+    ],
+    "bag": {
+      "balls": [
+        {
+          "id": 4,
+          "name": "Poke Ball",
+          "quantity": 8,
+          "catchChance": 0.07095453202060753
+        },
+        {
+          "id": 3,
+          "name": "Great Ball",
+          "quantity": 3,
+          "catchChance": 0.10660922591856825
+        },
+        {
+          "id": 2,
+          "name": "Ultra Ball",
+          "quantity": 1,
+          "catchChance": 0.1434003102418715
+        }
+      ]
+    }
   }
 }

@@ -97,7 +97,11 @@ test("resolved species/move/item/location names render as real values, not place
   assert.equal(partyPokemon.moves[0].name, "TACKLE");
   assert.equal(opponent.name, "CHARIZARD");
   assert.equal(state.location.name, "Route 101");
-  assert.deepEqual(state.bag, {});
+  assert.deepEqual(state.bag, { balls: [
+    { id: 4, name: "Poke Ball", quantity: 8, catchChance: 0.07095453202060753 },
+    { id: 3, name: "Great Ball", quantity: 3, catchChance: 0.10660922591856825 },
+    { id: 2, name: "Ultra Ball", quantity: 1, catchChance: 0.1434003102418715 },
+  ] });
 
   const html = renderPokemonOverlay(state);
   assert.match(html, /POKEMON EMER/);
@@ -110,9 +114,10 @@ test("resolved species/move/item/location names render as real values, not place
 test("fixed source slots collapse safely (empty party, no battle, unreadable location/badges)", async () => {
   const source = await readJson(sourceFixtureUrl);
   source.party = { count: 0, slots: [], first: null };
-  source.battle = { active: false, typeFlags: 0, opponent: null };
+  source.battle = { active: false, typeFlags: 0, trainerBattle: false, opponent: null };
   source.location = null;
   source.badges = null;
+  source.bag = null;
 
   const state = mapEmeraldSourceSnapshot(source);
   assert.deepEqual(state.player.party, []);

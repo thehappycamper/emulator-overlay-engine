@@ -1,14 +1,24 @@
 import {
+  calculateCatchChance,
   calculateMaxPp,
   decodeGen3Text,
   decodeStatusCondition,
   deriveGender,
   expProgress,
+  lookupBallInfo,
+  lookupEncounters,
   lookupItem,
   lookupLocation,
   lookupMove,
   lookupSpecies,
+  resolveBallMultiplier,
 } from "./reference-data.js";
+
+// BATTLE_TYPE_TRAINER (include/constants/battle.h: `#define
+// BATTLE_TYPE_TRAINER (1 << 3)`) - the single bit within `typeFlags` that
+// distinguishes a trainer battle from a wild encounter. Ball-throwing/catch
+// odds are only meaningful for wild encounters.
+const BATTLE_TYPE_TRAINER = 1 << 3;
 
 // Substructure order tables for personality % 24 (all four types).
 // GROWTH_SUBSTRUCT_INDEX was already reviewed/proven correct in P05-T004.
@@ -115,6 +125,16 @@ export const EMERALD_US_REV0 = Object.freeze({
     badge1ByteOffset: 268,
     badge1Bit: 7,
     badges2Through8ByteOffset: 269,
+    // struct SaveBlock1's `bagPocket_PokeBalls` field starts at byte offset
+    // 0x650 (confirmed directly from pret/pokeemerald's include/global.h,
+    // which annotates this field's exact byte offset the same way it does
+    // `flags`); the next field, `bagPocket_TMHM`, starts at 0x690, so the
+    // Poke Ball pocket holds (0x690-0x650)/4 = 16 four-byte ItemSlot
+    // entries (struct ItemSlot { u16 itemId; u16 quantity; }; confirmed in
+    // the same header).
+    pokeBallsOffset: 0x650,
+    pokeBallsSlotCount: 16,
+    pokeBallsSlotSize: 4,
   }),
 });
 
@@ -272,6 +292,7 @@ export function decodeGen3Pokemon(reader, address) {
     itemId: heldItemId || null,
     exp: experience,
     expProgress: speciesInfo?.growthRate ? expProgress(speciesInfo.growthRate, level, experience) : null,
+    catchRate: speciesInfo?.catchRate ?? null,
     stats: Object.freeze({
       atk: readUnsigned(reader, "read16", address + layout.attackOffset, 0xffff),
       def: readUnsigned(reader, "read16", address + layout.defenseOffset, 0xffff),
@@ -300,6 +321,37 @@ function readBadges(reader, saveBlock1Address) {
   return Object.freeze(badges.map(Boolean));
 }
 
+// `wildOpponent` is only passed for an active, non-trainer battle - catch
+// odds are only meaningful (and only computed) against a wild Pokemon.
+// `catchChance` is a pure computation from already-decoded values (the same
+// kind of derived field as `expProgress`/`status`), so it belongs here in
+// the game-owned acquisition layer, not in presentation - see
+// docs/tasks/P05/P05-T011.md's architecture notes.
+function readBag(reader, saveBlock1Address, wildOpponent) {
+  const layout = EMERALD_US_REV0.saveBlock1;
+  const balls = [];
+  for (let slot = 0; slot < layout.pokeBallsSlotCount; slot += 1) {
+    const slotAddress = saveBlock1Address + layout.pokeBallsOffset + slot * layout.pokeBallsSlotSize;
+    const itemId = readUnsigned(reader, "read16", slotAddress, 0xffff);
+    const quantity = readUnsigned(reader, "read16", slotAddress + 2, 0xffff);
+    if (itemId === 0) continue; // empty slot
+    const ballInfo = lookupBallInfo(itemId);
+    let catchChance = null;
+    if (wildOpponent && ballInfo) {
+      const multiplier = resolveBallMultiplier(ballInfo, { opponentTypes: wildOpponent.types, opponentLevel: wildOpponent.level });
+      catchChance = calculateCatchChance({
+        catchRate: wildOpponent.catchRate,
+        ballMultiplier: multiplier,
+        maxHp: wildOpponent.maxHp,
+        currentHp: wildOpponent.currentHp,
+        status: wildOpponent.status,
+      });
+    }
+    balls.push(Object.freeze({ id: itemId, name: ballInfo?.name ?? lookupItem(itemId), quantity, catchChance }));
+  }
+  return Object.freeze({ balls: Object.freeze(balls) });
+}
+
 export function readEmeraldAcquisition(reader) {
   requireReader(reader);
   const { addresses, saveBlock1, pokemon } = EMERALD_US_REV0;
@@ -323,6 +375,11 @@ export function readEmeraldAcquisition(reader) {
     saveBlock1Address >= saveBlock1.ewramStart &&
     saveBlock1Address + saveBlock1.mapNumberOffset < saveBlock1.ewramEnd;
 
+  const typeFlags = readUnsigned(reader, "read32", addresses.battleTypeFlags, 0xffffffff);
+  const trainerBattle = (typeFlags & BATTLE_TYPE_TRAINER) !== 0;
+  const opponent = battleActive ? decodeGen3Pokemon(reader, addresses.enemyParty) : null;
+  const wildOpponent = battleActive && !trainerBattle ? opponent : null;
+
   return Object.freeze({
     party: Object.freeze({
       count: partyCount,
@@ -333,8 +390,9 @@ export function readEmeraldAcquisition(reader) {
     }),
     battle: Object.freeze({
       active: battleActive,
-      typeFlags: readUnsigned(reader, "read32", addresses.battleTypeFlags, 0xffffffff),
-      opponent: battleActive ? decodeGen3Pokemon(reader, addresses.enemyParty) : null,
+      typeFlags,
+      trainerBattle,
+      opponent,
     }),
     location: locationReadable
       ? (() => {
@@ -346,9 +404,11 @@ export function readEmeraldAcquisition(reader) {
             name: lookupLocation(mapGroup, mapNumber),
             x: signed16(readUnsigned(reader, "read16", saveBlock1Address + saveBlock1.positionXOffset, 0xffff)),
             y: signed16(readUnsigned(reader, "read16", saveBlock1Address + saveBlock1.positionYOffset, 0xffff)),
+            encounters: lookupEncounters(mapGroup, mapNumber),
           });
         })()
       : null,
     badges: saveBlock1Readable ? readBadges(reader, saveBlock1Address) : null,
+    bag: saveBlock1Readable ? readBag(reader, saveBlock1Address, wildOpponent) : null,
   });
 }

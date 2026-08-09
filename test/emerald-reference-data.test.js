@@ -2,22 +2,27 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  calculateCatchChance,
   calculateMaxPp,
   decodeGen3Text,
   decodeStatusCondition,
   deriveGender,
   expForLevel,
   expProgress,
+  lookupBallInfo,
+  lookupEncounters,
   lookupItem,
   lookupLocation,
   lookupMove,
   lookupSpecies,
+  resolveBallMultiplier,
 } from "../adapters/pokemon-emerald-us-rev0/reference-data.js";
 
 test("lookupSpecies resolves real, source-verified species by internal ID", () => {
-  assert.deepEqual(lookupSpecies(1), { name: "BULBASAUR", types: ["Grass", "Poison"], growthRate: "medium-slow", genderRatio: 31 });
+  assert.deepEqual(lookupSpecies(1), { name: "BULBASAUR", types: ["Grass", "Poison"], growthRate: "medium-slow", genderRatio: 31, catchRate: 45 });
   assert.equal(lookupSpecies(280).name, "TORCHIC");
   assert.deepEqual(lookupSpecies(280).types, ["Fire"]);
+  assert.equal(lookupSpecies(280).catchRate, 45);
   assert.equal(lookupSpecies(999999), null);
 });
 
@@ -111,4 +116,80 @@ test("expProgress never fabricates progress past level 100 and clamps within [0,
   // Exp already past the next level's threshold clamps to 100%, not >100%.
   const pastThreshold = expProgress("medium-fast", 10, 999999);
   assert.equal(pastThreshold.percent, 100);
+});
+
+test("lookupEncounters resolves the real Route 101 wild encounter table and returns null for locations with none", () => {
+  const route101 = lookupEncounters(0, 16);
+  assert.ok(Array.isArray(route101));
+  assert.ok(route101.some((e) => e.name === "WURMPLE" && e.method === "grass"));
+  assert.equal(lookupEncounters(255, 255), null);
+});
+
+test("lookupBallInfo resolves the real Poke Ball reference table", () => {
+  assert.deepEqual(lookupBallInfo(1), { name: "Master Ball", kind: "guaranteed" });
+  assert.equal(lookupBallInfo(4).kind, "static");
+  assert.equal(lookupBallInfo(4).multiplier, 10);
+  assert.equal(lookupBallInfo(999999), null);
+});
+
+test("resolveBallMultiplier: static balls always return their fixed multiplier", () => {
+  assert.deepEqual(resolveBallMultiplier(lookupBallInfo(4), {}), { multiplier: 10 }); // Poke Ball
+  assert.deepEqual(resolveBallMultiplier(lookupBallInfo(2), {}), { multiplier: 20 }); // Ultra Ball
+  assert.deepEqual(resolveBallMultiplier(lookupBallInfo(1), {}), { guaranteed: true }); // Master Ball
+});
+
+test("resolveBallMultiplier: Net Ball bonus applies only for Water/Bug-type opponents", () => {
+  const netBall = lookupBallInfo(6);
+  assert.deepEqual(resolveBallMultiplier(netBall, { opponentTypes: ["Water"] }), { multiplier: 30 });
+  assert.deepEqual(resolveBallMultiplier(netBall, { opponentTypes: ["Bug", "Poison"] }), { multiplier: 30 });
+  assert.deepEqual(resolveBallMultiplier(netBall, { opponentTypes: ["Fire"] }), { multiplier: 10 });
+});
+
+test("resolveBallMultiplier: Nest Ball scales down toward level 40, floored at 10", () => {
+  const nestBall = lookupBallInfo(8);
+  assert.deepEqual(resolveBallMultiplier(nestBall, { opponentLevel: 5 }), { multiplier: 35 });
+  assert.deepEqual(resolveBallMultiplier(nestBall, { opponentLevel: 35 }), { multiplier: 10 });
+  assert.deepEqual(resolveBallMultiplier(nestBall, { opponentLevel: 40 }), { multiplier: 10 });
+  assert.deepEqual(resolveBallMultiplier(nestBall, { opponentLevel: 100 }), { multiplier: 10 });
+});
+
+test("resolveBallMultiplier returns null for balls whose real bonus depends on undecoded state", () => {
+  assert.equal(resolveBallMultiplier(lookupBallInfo(7), {}), null); // Dive Ball
+  assert.equal(resolveBallMultiplier(lookupBallInfo(9), {}), null); // Repeat Ball
+  assert.equal(resolveBallMultiplier(lookupBallInfo(10), {}), null); // Timer Ball
+  assert.equal(resolveBallMultiplier(lookupBallInfo(5), {}), null); // Safari Ball
+  assert.equal(resolveBallMultiplier(null, {}), null);
+});
+
+test("calculateCatchChance matches the real Gen III formula for a known full-health, unstatused case", () => {
+  // catchRate 45 (e.g. Bulbasaur), Poke Ball (x10), full HP, no status:
+  // odds = floor(45*10/10) * (3*max - 2*max) / (3*max) = floor(45/3) = 15.
+  // Widely cited as ~6% catch chance for this exact case.
+  const chance = calculateCatchChance({
+    catchRate: 45,
+    ballMultiplier: { multiplier: 10 },
+    maxHp: 100,
+    currentHp: 100,
+    status: "none",
+  });
+  assert.ok(chance > 0.05 && chance < 0.08, `expected ~6%, got ${chance}`);
+});
+
+test("calculateCatchChance: guaranteed (Master Ball) is always 1, low HP/status always raise chance", () => {
+  assert.equal(
+    calculateCatchChance({ catchRate: 3, ballMultiplier: { guaranteed: true }, maxHp: 100, currentHp: 100, status: "none" }),
+    1,
+  );
+
+  const fullHealth = calculateCatchChance({ catchRate: 45, ballMultiplier: { multiplier: 10 }, maxHp: 100, currentHp: 100, status: "none" });
+  const lowHealth = calculateCatchChance({ catchRate: 45, ballMultiplier: { multiplier: 10 }, maxHp: 100, currentHp: 5, status: "none" });
+  const asleep = calculateCatchChance({ catchRate: 45, ballMultiplier: { multiplier: 10 }, maxHp: 100, currentHp: 100, status: "asleep" });
+  assert.ok(lowHealth > fullHealth);
+  assert.ok(asleep > fullHealth);
+});
+
+test("calculateCatchChance never fabricates a value for missing/unresolved inputs", () => {
+  assert.equal(calculateCatchChance({ catchRate: null, ballMultiplier: { multiplier: 10 }, maxHp: 100, currentHp: 100, status: "none" }), null);
+  assert.equal(calculateCatchChance({ catchRate: 45, ballMultiplier: null, maxHp: 100, currentHp: 100, status: "none" }), null);
+  assert.equal(calculateCatchChance({ catchRate: 45, ballMultiplier: { multiplier: 10 }, maxHp: null, currentHp: 100, status: "none" }), null);
 });

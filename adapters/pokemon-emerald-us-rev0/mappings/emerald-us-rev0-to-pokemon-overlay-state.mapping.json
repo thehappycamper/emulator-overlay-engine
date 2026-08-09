@@ -2,8 +2,8 @@
   "schemaVersion": "0.1.0",
   "id": "pokemon.emerald.us-rev0-to-overlay-state",
   "name": "Pokemon Emerald US Rev 0 To Pokemon Overlay State",
-  "version": "2.0.0",
-  "description": "Maps the provider-neutral, already-enriched Emerald acquisition snapshot (full party, opponent, badges, resolved location name) into the current Pokemon normalized overlay state. Unlike the prior fixed-single-slot mapping this supersedes, no synthetic placeholder Pokemon data is used: party members and the opponent are included only when the source genuinely reports them.",
+  "version": "2.1.0",
+  "description": "Maps the provider-neutral, already-enriched Emerald acquisition snapshot (full party, opponent, badges, resolved location name) into the current Pokemon normalized overlay state. Unlike the prior fixed-single-slot mapping this supersedes, no synthetic placeholder Pokemon data is used: party members and the opponent are included only when the source genuinely reports them. P05-T011 additionally maps Poke Ball inventory, per-map wild encounter rates, trainer-battle detection, and per-Pokemon base catch rate.",
   "source": {
     "id": "pokemon.emerald.us-rev0.acquisition",
     "type": "acquisition-source-snapshot",
@@ -57,7 +57,7 @@
       "sourcePath": "/__placeholder/bag",
       "targetPath": "/bag",
       "default": {},
-      "description": "Literal empty bag; bag acquisition is not implemented."
+      "description": "Ensures /bag always exists even when no ball data is available; /bag/balls is populated separately below when the save block is readable."
     },
     {
       "sourcePath": "/__placeholder/party",
@@ -624,6 +624,50 @@
       "sourcePath": "/battle/opponent/moves",
       "targetPath": "/battle/opponent/moves",
       "required": false
+    },
+    {
+      "sourcePath": "/bag/balls",
+      "targetPath": "/bag/balls",
+      "description": "Poke Ball inventory (P05-T011), decoded from the save block's bagPocket_PokeBalls; omitted when the save block is unreadable, never a fabricated empty/full inventory."
+    },
+    {
+      "sourcePath": "/location/encounters",
+      "targetPath": "/location/encounters",
+      "description": "Wild encounter table for the current map (P05-T011), from pret/pokeemerald's own wild_encounters.json; null for maps with no standard wild encounters or when location is unreadable."
+    },
+    {
+      "sourcePath": "/battle/trainerBattle",
+      "targetPath": "/battle/trainerBattle",
+      "description": "True when BATTLE_TYPE_TRAINER is set (P05-T011); used to hide catch-odds/ball UI during trainer battles, where throwing balls is not possible."
+    },
+    {
+      "sourcePath": "/party/slots/0/catchRate",
+      "targetPath": "/player/party/0/catchRate"
+    },
+    {
+      "sourcePath": "/party/slots/1/catchRate",
+      "targetPath": "/player/party/1/catchRate"
+    },
+    {
+      "sourcePath": "/party/slots/2/catchRate",
+      "targetPath": "/player/party/2/catchRate"
+    },
+    {
+      "sourcePath": "/party/slots/3/catchRate",
+      "targetPath": "/player/party/3/catchRate"
+    },
+    {
+      "sourcePath": "/party/slots/4/catchRate",
+      "targetPath": "/player/party/4/catchRate"
+    },
+    {
+      "sourcePath": "/party/slots/5/catchRate",
+      "targetPath": "/player/party/5/catchRate"
+    },
+    {
+      "sourcePath": "/battle/opponent/catchRate",
+      "targetPath": "/battle/opponent/catchRate",
+      "description": "Base species catch rate (P05-T011); used with the current ball/HP/status to compute live catch odds for a wild opponent."
     }
   ],
   "validation": {

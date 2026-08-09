@@ -28,6 +28,12 @@ local MOVES = loadData("moves.lua")
 local ITEMS = loadData("items.lua")
 local LOCATIONS = loadData("locations.lua")
 local CHARMAP = loadData("charmap.lua")
+local ENCOUNTERS = loadData("encounters.lua")
+local BALLS = loadData("balls.lua")
+
+-- BATTLE_TYPE_TRAINER (include/constants/battle.h: `#define
+-- BATTLE_TYPE_TRAINER (1 << 3)`) - see reference-data.js's twin constant.
+local BATTLE_TYPE_TRAINER = 1 << 3
 
 local M = {}
 
@@ -81,6 +87,9 @@ local SAVEBLOCK1 = {
     badge1ByteOffset = 268,
     badge1Bit = 7,
     badges2Through8ByteOffset = 269,
+    pokeBallsOffset = 0x650,
+    pokeBallsSlotCount = 16,
+    pokeBallsSlotSize = 4,
 }
 
 -- Substructure order tables for personality % 24 (all four types). See
@@ -309,6 +318,7 @@ local function readPokemon(reader, address)
         itemId = (heldItemId ~= 0) and heldItemId or nil,
         exp = experience,
         expProgress = speciesInfo and speciesInfo.growthRate and expProgress(speciesInfo.growthRate, level, experience) or nil,
+        catchRate = speciesInfo and speciesInfo.catchRate or nil,
         stats = {
             atk = reader.read16(address + POKEMON.attackOffset),
             def = reader.read16(address + POKEMON.defenseOffset),
@@ -319,6 +329,93 @@ local function readPokemon(reader, address)
         ivs = ivs,
         moves = moves,
     }
+end
+
+-- Resolves a ball's catch-rate multiplier for the current opponent, or nil
+-- when the ball's real bonus depends on undecoded state - mirrors
+-- reference-data.js's resolveBallMultiplier field-for-field.
+local function resolveBallMultiplier(ballInfo, opponentTypes, opponentLevel)
+    if ballInfo == nil then return nil end
+    if ballInfo.kind == "guaranteed" then return { guaranteed = true } end
+    if ballInfo.kind == "static" then return { multiplier = ballInfo.multiplier } end
+    if ballInfo.kind == "type-conditional" then
+        local matches = false
+        for _, matchType in ipairs(ballInfo.matchTypes or {}) do
+            for _, oppType in ipairs(opponentTypes or {}) do
+                if oppType == matchType then matches = true end
+            end
+        end
+        return { multiplier = matches and ballInfo.multiplierIfMatch or ballInfo.multiplierOtherwise }
+    end
+    if ballInfo.kind == "level-conditional" then
+        if opponentLevel == nil then return nil end
+        if opponentLevel >= 40 then return { multiplier = 10 } end
+        local multiplier = 40 - opponentLevel
+        if multiplier < 10 then multiplier = 10 end
+        return { multiplier = multiplier }
+    end
+    return nil -- "unavailable" - depends on undecoded state
+end
+
+-- Real Gen III catch-probability formula, transcribed field-for-field from
+-- pret/pokeemerald's Cmd_handleballthrow (src/battle_script_commands.c) -
+-- see reference-data.js's calculateCatchChance for the JS twin and full
+-- citation, and docs/tasks/P05/P05-T011.md for the exact source lines.
+local function calculateCatchChance(catchRate, ballMultiplier, maxHp, currentHp, status)
+    if catchRate == nil or catchRate < 0 then return nil end
+    if ballMultiplier == nil then return nil end
+    if ballMultiplier.guaranteed then return 1 end
+    if ballMultiplier.multiplier == nil then return nil end
+    if maxHp == nil or maxHp <= 0 or currentHp == nil or currentHp < 0 then return nil end
+
+    local odds = (catchRate * ballMultiplier.multiplier) // 10
+    odds = (odds * (maxHp * 3 - currentHp * 2)) // (3 * maxHp)
+
+    if status == "asleep" or status == "frozen" then odds = odds * 2 end
+    if status == "poisoned" or status == "burned" or status == "paralyzed" or status == "badly-poisoned" then
+        odds = (odds * 15) // 10
+    end
+
+    if odds > 254 then return 1 end
+    if odds <= 0 then return 0 end
+
+    local innerQuotient = 16711680 // odds
+    local firstSqrt = math.floor(math.sqrt(innerQuotient))
+    local b = math.floor(math.sqrt(firstSqrt))
+    if b <= 0 then return 1 end
+
+    local shakeThreshold = 1048560 // b
+    if shakeThreshold > 65535 then shakeThreshold = 65535 end
+    local shakeProbability = shakeThreshold / 65536
+    local chance = shakeProbability ^ 4
+    if chance > 1 then chance = 1 end
+    return chance
+end
+
+-- `wildOpponent` is only passed for an active, non-trainer battle - see
+-- reference-data.js's readBag twin for the full architecture rationale.
+local function readBag(reader, saveBlock1Address, wildOpponent)
+    local balls = {}
+    for slot = 0, SAVEBLOCK1.pokeBallsSlotCount - 1 do
+        local slotAddress = saveBlock1Address + SAVEBLOCK1.pokeBallsOffset + slot * SAVEBLOCK1.pokeBallsSlotSize
+        local itemId = reader.read16(slotAddress)
+        local quantity = reader.read16(slotAddress + 2)
+        if itemId ~= 0 then
+            local ballInfo = BALLS[itemId]
+            local catchChance = nil
+            if wildOpponent ~= nil and ballInfo ~= nil then
+                local multiplier = resolveBallMultiplier(ballInfo, wildOpponent.types, wildOpponent.level)
+                catchChance = calculateCatchChance(wildOpponent.catchRate, multiplier, wildOpponent.maxHp, wildOpponent.currentHp, wildOpponent.status)
+            end
+            balls[#balls + 1] = {
+                id = itemId,
+                name = (ballInfo and ballInfo.name) or ITEMS[itemId],
+                quantity = quantity,
+                catchChance = catchChance,
+            }
+        end
+    end
+    return { balls = balls }
 end
 
 local function readBadges(reader, saveBlock1Address)
@@ -373,6 +470,9 @@ function M.acquire(reader)
     if battleActive then
         opponent = readPokemon(reader, address.enemyParty)
     end
+    local typeFlags = reader.read32(address.battleTypeFlags)
+    local trainerBattle = (typeFlags & BATTLE_TYPE_TRAINER) ~= 0
+    local wildOpponent = (battleActive and not trainerBattle) and opponent or nil
 
     local saveBlock1 = reader.read32(address.saveBlock1Pointer)
     local locationReadable = saveBlock1 >= SAVEBLOCK1.ewramStart and saveBlock1 + 5 < SAVEBLOCK1.ewramEnd
@@ -390,6 +490,7 @@ function M.acquire(reader)
             name = LOCATIONS[locationKey],
             x = signed16(reader.read16(saveBlock1)),
             y = signed16(reader.read16(saveBlock1 + 2)),
+            encounters = ENCOUNTERS[locationKey],
         }
     end
 
@@ -397,11 +498,13 @@ function M.acquire(reader)
         party = { count = partyCount, slots = slots, first = slots[1] or nil },
         battle = {
             active = battleActive,
-            typeFlags = reader.read32(address.battleTypeFlags),
+            typeFlags = typeFlags,
+            trainerBattle = trainerBattle,
             opponent = opponent,
         },
         location = location,
         badges = badgesReadable and readBadges(reader, saveBlock1) or nil,
+        bag = badgesReadable and readBag(reader, saveBlock1, wildOpponent) or nil,
     }
 end
 
@@ -470,7 +573,7 @@ local function pokemonJson(pokemon)
     end
     return string.format(
         '{"speciesId":%d,"name":%s,"nickname":%s,"types":%s,"gender":%s,"level":%d,"currentHp":%d,"maxHp":%d,'
-            .. '"status":%s,"item":%s,"itemId":%s,"exp":%d,"expProgress":%s,"stats":%s,"ivs":%s,"moves":%s}',
+            .. '"status":%s,"item":%s,"itemId":%s,"exp":%d,"expProgress":%s,"catchRate":%s,"stats":%s,"ivs":%s,"moves":%s}',
         pokemon.speciesId,
         jsonValueOrNull(pokemon.name),
         jsonString(pokemon.nickname or ""),
@@ -484,6 +587,7 @@ local function pokemonJson(pokemon)
         jsonValueOrNull(pokemon.itemId),
         pokemon.exp,
         expProgressJson(pokemon.expProgress),
+        jsonValueOrNull(pokemon.catchRate),
         statsJson(pokemon.stats),
         statsJson(pokemon.ivs),
         movesJson(pokemon.moves)
@@ -498,17 +602,39 @@ local function partySlotsJson(slots)
     return "[" .. table.concat(parts, ",") .. "]"
 end
 
+local function encounterJson(encounter)
+    return string.format(
+        '{"method":%s,"speciesId":%d,"name":%s,"minLevel":%d,"maxLevel":%d,"rate":%s}',
+        jsonString(encounter.method),
+        encounter.speciesId,
+        jsonValueOrNull(encounter.name),
+        encounter.minLevel,
+        encounter.maxLevel,
+        tostring(encounter.rate)
+    )
+end
+
+local function encountersJson(encounters)
+    if encounters == nil then return "null" end
+    local parts = {}
+    for index, encounter in ipairs(encounters) do
+        parts[index] = encounterJson(encounter)
+    end
+    return "[" .. table.concat(parts, ",") .. "]"
+end
+
 local function locationJson(location)
     if location == nil then
         return "null"
     end
     return string.format(
-        '{"mapGroup":%d,"mapNumber":%d,"name":%s,"x":%d,"y":%d}',
+        '{"mapGroup":%d,"mapNumber":%d,"name":%s,"x":%d,"y":%d,"encounters":%s}',
         location.mapGroup,
         location.mapNumber,
         jsonValueOrNull(location.name),
         location.x,
-        location.y
+        location.y,
+        encountersJson(location.encounters)
     )
 end
 
@@ -521,12 +647,32 @@ local function badgesJson(badges)
     return "[" .. table.concat(parts, ",") .. "]"
 end
 
+local function ballJson(ball)
+    return string.format(
+        '{"id":%d,"name":%s,"quantity":%d,"catchChance":%s}',
+        ball.id,
+        jsonValueOrNull(ball.name),
+        ball.quantity,
+        jsonValueOrNull(ball.catchChance)
+    )
+end
+
+local function bagJson(bag)
+    if bag == nil then return "null" end
+    local parts = {}
+    for index, ball in ipairs(bag.balls) do
+        parts[index] = ballJson(ball)
+    end
+    return '{"balls":[' .. table.concat(parts, ",") .. "]}"
+end
+
 function M.snapshotJson(source, identity, acquisition)
     M.assertIdentity(identity)
     return string.format(
         '{"contract":{"id":%s,"version":%s},"source":%s,"game":{"gameCode":%s,"title":%s,"revision":%d,"crc32":%s},'
-            .. '"party":{"count":%d,"slots":%s,"first":%s},"battle":{"active":%s,"typeFlags":%d,"opponent":%s},'
-            .. '"location":%s,"badges":%s}',
+            .. '"party":{"count":%d,"slots":%s,"first":%s},'
+            .. '"battle":{"active":%s,"typeFlags":%d,"trainerBattle":%s,"opponent":%s},'
+            .. '"location":%s,"badges":%s,"bag":%s}',
         jsonString(M.contract.id),
         jsonString(M.contract.version),
         sourceJson(source),
@@ -539,9 +685,11 @@ function M.snapshotJson(source, identity, acquisition)
         pokemonJson(acquisition.party.first),
         tostring(acquisition.battle.active),
         acquisition.battle.typeFlags,
+        tostring(acquisition.battle.trainerBattle),
         pokemonJson(acquisition.battle.opponent),
         locationJson(acquisition.location),
-        badgesJson(acquisition.badges)
+        badgesJson(acquisition.badges),
+        bagJson(acquisition.bag)
     )
 end
 

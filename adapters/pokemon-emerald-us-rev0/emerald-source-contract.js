@@ -67,6 +67,7 @@ export function createEmeraldSourceSnapshot(source, identity, acquisition) {
     battle: Object.freeze({
       active: acquisition?.battle?.active,
       typeFlags: acquisition?.battle?.typeFlags,
+      trainerBattle: acquisition?.battle?.trainerBattle,
       opponent: freezePokemon(acquisition?.battle?.opponent ?? null),
     }),
     location:
@@ -77,5 +78,9 @@ export function createEmeraldSourceSnapshot(source, identity, acquisition) {
       acquisition?.badges === null || acquisition?.badges === undefined
         ? null
         : Object.freeze([...acquisition.badges]),
+    bag:
+      acquisition?.bag === null || acquisition?.bag === undefined
+        ? null
+        : Object.freeze({ balls: Object.freeze([...(acquisition.bag.balls ?? [])]) }),
   });
 }

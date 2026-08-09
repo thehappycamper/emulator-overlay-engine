@@ -94,7 +94,7 @@ test("contract version and source invariants reject incompatible snapshots", asy
 test("empty party, inactive battle, and unreadable location remain valid source states", async () => {
   const snapshot = createEmeraldSourceSnapshot(MGBA_SOURCE, EMERALD_US_REV0.identity, {
     party: { count: 0, first: null },
-    battle: { active: false, typeFlags: 0, opponent: null },
+    battle: { active: false, typeFlags: 0, trainerBattle: false, opponent: null },
     location: null,
   });
   assert.equal(assertValidEmeraldSourceSnapshot(snapshot), true);

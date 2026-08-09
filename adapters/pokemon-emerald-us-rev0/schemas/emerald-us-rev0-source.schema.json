@@ -3,7 +3,7 @@
   "$id": "urn:source-contract:pokemon.emerald.us-rev0.acquisition:1.0.0",
   "title": "Pokemon Emerald US Rev 0 Acquisition Source Snapshot",
   "type": "object",
-  "required": ["contract", "source", "game", "party", "battle", "location", "badges"],
+  "required": ["contract", "source", "game", "party", "battle", "location", "badges", "bag"],
   "properties": {
     "contract": {
       "type": "object",
@@ -85,10 +85,11 @@
     },
     "battle": {
       "type": "object",
-      "required": ["active", "typeFlags", "opponent"],
+      "required": ["active", "typeFlags", "opponent", "trainerBattle"],
       "properties": {
         "active": { "type": "boolean" },
         "typeFlags": { "type": "integer", "minimum": 0, "maximum": 4294967295 },
+        "trainerBattle": { "type": "boolean" },
         "opponent": {
           "oneOf": [
             { "$ref": "#/$defs/sourcePokemon" },
@@ -115,7 +116,13 @@
             "mapNumber": { "type": "integer", "minimum": 0, "maximum": 255 },
             "name": { "type": ["string", "null"] },
             "x": { "type": "integer", "minimum": -32768, "maximum": 32767 },
-            "y": { "type": "integer", "minimum": -32768, "maximum": 32767 }
+            "y": { "type": "integer", "minimum": -32768, "maximum": 32767 },
+            "encounters": {
+              "oneOf": [
+                { "type": "array", "items": { "$ref": "#/$defs/sourceEncounter" } },
+                { "type": "null" }
+              ]
+            }
           },
           "additionalProperties": false
         },
@@ -129,6 +136,22 @@
           "minItems": 8,
           "maxItems": 8,
           "items": { "type": "boolean" }
+        },
+        { "type": "null" }
+      ]
+    },
+    "bag": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["balls"],
+          "properties": {
+            "balls": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sourceBallSlot" }
+            }
+          },
+          "additionalProperties": false
         },
         { "type": "null" }
       ]
@@ -173,10 +196,40 @@
         },
         "stats": { "$ref": "#/$defs/sourceStats" },
         "ivs": { "$ref": "#/$defs/sourceStats" },
+        "catchRate": { "type": ["integer", "null"], "minimum": 0, "maximum": 255 },
         "moves": {
           "type": "array",
           "maxItems": 4,
           "items": { "$ref": "#/$defs/sourceMove" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "sourceEncounter": {
+      "type": "object",
+      "required": ["method", "speciesId", "minLevel", "maxLevel", "rate"],
+      "properties": {
+        "method": { "type": "string" },
+        "speciesId": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "name": { "type": ["string", "null"] },
+        "minLevel": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "maxLevel": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "rate": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "sourceBallSlot": {
+      "type": "object",
+      "required": ["id", "quantity"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "name": { "type": ["string", "null"] },
+        "quantity": { "type": "integer", "minimum": 0, "maximum": 999 },
+        "catchChance": {
+          "description": "Computed catch probability [0,1] against the current wild opponent, or null when not in a wild battle or when this ball's real bonus depends on undecoded state.",
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
         }
       },
       "additionalProperties": false

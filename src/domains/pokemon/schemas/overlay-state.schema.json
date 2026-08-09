@@ -43,7 +43,11 @@
         "activePlayerIndex": { "type": "integer", "minimum": 0 },
         "opponent": { "$ref": "#/$defs/pokemon" },
         "weather": { "type": "string" },
-        "turn": { "type": "integer", "minimum": 0 }
+        "turn": { "type": "integer", "minimum": 0 },
+        "trainerBattle": {
+          "description": "True when the current battle is against a trainer, not a wild Pokemon; ball-throw/catch-odds UI should not be shown.",
+          "type": "boolean"
+        }
       }
     },
     "location": {
@@ -53,8 +57,10 @@
         "name": { "type": "string" },
         "mapId": { "type": "string" },
         "encounters": {
-          "type": "array",
-          "items": { "$ref": "#/$defs/encounter" }
+          "oneOf": [
+            { "type": "array", "items": { "$ref": "#/$defs/encounter" } },
+            { "type": "null" }
+          ]
         }
       }
     },
@@ -143,6 +149,12 @@
         },
         "currentHp": { "type": "integer", "minimum": 0 },
         "maxHp": { "type": "integer", "minimum": 1 },
+        "catchRate": {
+          "description": "Base species catch rate (0-255); used with the current ball, HP, and status to compute live catch odds for a wild opponent.",
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 255
+        },
         "stats": { "$ref": "#/$defs/stats" },
         "ivs": { "$ref": "#/$defs/stats" },
         "evs": { "$ref": "#/$defs/stats" },
@@ -198,7 +210,13 @@
         "id": { "type": "integer" },
         "name": { "type": "string" },
         "quantity": { "type": "integer", "minimum": 0 },
-        "modifier": { "type": "number" }
+        "modifier": { "type": "number" },
+        "catchChance": {
+          "description": "Computed catch probability [0,1] against the current wild opponent, or null/absent when not in a wild battle or not computable for this ball.",
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        }
       }
     }
   }

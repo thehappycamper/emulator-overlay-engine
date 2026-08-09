@@ -178,3 +178,68 @@ test("battle stat comparison escapes HTML-significant nicknames in its table hea
   assert.doesNotMatch(html, /<img src=x onerror/);
   assert.match(html, /&lt;img src=x onerror=alert\(1\)&gt;/);
 });
+
+test("wild encounter panel (P05-T011) is collapsed by default and lists the real per-location table", () => {
+  const state = readSampleState();
+  const html = renderPokemonOverlay(state);
+
+  assert.match(html, /<details class="encounters-panel">/);
+  assert.doesNotMatch(html, /<details class="encounters-panel" open/);
+  assert.match(html, /Wild Encounters Here \(4\)/);
+  assert.match(html, /Zigzagoon/i);
+});
+
+test("wild encounter panel shows an explicit no-encounters message rather than an empty table", () => {
+  const state = readSampleState();
+  state.location.encounters = [];
+  assert.match(renderPokemonOverlay(state), /No wild encounters at this location\./);
+
+  delete state.location.encounters;
+  assert.match(renderPokemonOverlay(state), /No wild encounters at this location\./);
+});
+
+test("Poke Ball catch-odds panel (P05-T011) renders only during an explicitly wild (non-trainer) battle", () => {
+  const state = readSampleState();
+  state.battle.trainerBattle = false;
+  const wildHtml = renderPokemonOverlay(state);
+  assert.match(wildHtml, /<details class="balls-panel">/);
+  assert.doesNotMatch(wildHtml, /<details class="balls-panel" open/);
+  assert.match(wildHtml, /Poke Ball/);
+
+  state.battle.trainerBattle = true;
+  assert.doesNotMatch(renderPokemonOverlay(state), /balls-panel/);
+});
+
+test("Poke Ball catch-odds panel does not render when trainerBattle is unknown, to avoid implying balls can be thrown", () => {
+  const state = readSampleState();
+  delete state.battle.trainerBattle;
+  assert.doesNotMatch(renderPokemonOverlay(state), /balls-panel/);
+});
+
+test("Poke Ball catch-odds panel does not render outside of battle even with balls in the bag", () => {
+  const state = readSampleState();
+  state.battle.trainerBattle = false;
+  state.battle.opponent = null;
+  assert.doesNotMatch(renderPokemonOverlay(state), /balls-panel/);
+});
+
+test("Poke Ball catch-odds panel shows a numeric percent when computed and an honest 'unavailable' marker when not", () => {
+  const state = readSampleState();
+  state.battle.trainerBattle = false;
+  state.bag.balls = [
+    { id: 4, name: "Poke Ball", quantity: 5, catchChance: 0.42 },
+    { id: 7, name: "Dive Ball", quantity: 1, catchChance: null },
+  ];
+  const html = renderPokemonOverlay(state);
+  assert.match(html, /42\.0%/);
+  assert.match(html, /unavailable/);
+});
+
+test("Poke Ball catch-odds panel escapes HTML-significant ball names", () => {
+  const state = readSampleState();
+  state.battle.trainerBattle = false;
+  state.bag.balls = [{ id: 4, name: '<img src=x onerror=alert(1)>', quantity: 1, catchChance: 0.1 }];
+  const html = renderPokemonOverlay(state);
+  assert.doesNotMatch(html, /<img src=x onerror/);
+  assert.match(html, /&lt;img src=x onerror=alert\(1\)&gt;/);
+});
