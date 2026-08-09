@@ -16,7 +16,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | `P00` | Initial MVP | completed |
 | `P01` | Platform Mapping Foundation | completed |
 | `P02` | Domain Boundary | completed |
-| `P03` | Semantic Event Foundation | active - `P03-T001` implemented, awaiting independent review |
+| `P03` | Semantic Event Foundation | completed |
 | `P04` | Event Routing And Actions | planned |
 | `P05` | Live Gameplay Source | active - `P05-T001`-`T006`, `T009`, `T010`, `T011` completed; real mGBA/BizHawk end-to-end acceptance still required |
 | `P06` | Second Source / Domain Proof | active (provider-neutral acquisition implemented and reviewed; real-ROM BizHawk acceptance and `P05` gate remain open) |
@@ -107,16 +107,16 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P03 — Semantic Event Foundation
 
-**Status:** active. `P03-T001` is implemented and pushed for independent review; not yet merged.
+**Status:** completed. Closed at `main` (fast-forward merge of `fix/P03-T001-event-review-findings`, independent review verdict APPROVE after one REQUEST CHANGES round, post-merge validation passed).
 
 **Objective:** Define a normalized, domain-neutral semantic event contract and prove state-transition-to-event detection (`Previous State + Current State → Event Detector → Semantic Event`), per ADR 0013 and `docs/knowledge/product-vision.md`.
 
 **Entry conditions:** `P01` complete (event targets should be provable against the existing mapping/target-descriptor contract, per the "additive, not breaking" compatibility analysis in `P01-T004`'s review). `P02` is not a hard prerequisite but is likely to inform where event *interpretation* lives (domain vs. platform). ✅ Met.
 
 **Major tasks:**
-- [`P03-T001`](../tasks/P03/P03-T001.md) — Provider-neutral semantic event derivation layer: a domain-neutral `src/events/deriveEvents()` primitive plus the first concrete Pokemon detector set (`battle.started`/`battle.ended`/`pokemon.hp.changed`/`pokemon.damaged`/`pokemon.healed`/`pokemon.fainted`/`pokemon.status.changed`/`party.changed`/`location.changed`/`badge.earned`). Implemented, pushed to `feat/P03-T001-semantic-event-foundation`, awaiting independent review. See [ADR 0024](../decisions/0024-semantic-event-derivation.md).
+- [`P03-T001`](../tasks/P03/P03-T001.md) — Provider-neutral semantic event derivation layer: a domain-neutral `src/events/deriveEvents()` primitive plus the first concrete Pokemon detector set (`battle.started`/`battle.ended`/`pokemon.hp.changed`/`pokemon.damaged`/`pokemon.healed`/`pokemon.fainted`/`pokemon.status.changed`/`party.changed`/`location.changed`/`badge.earned`). Completed (independent review: round 1 REQUEST CHANGES on ambiguous fallback-identity pairing and an unenforced timestamp format, round 2 APPROVE after focused fixes; fast-forward merged). See [ADR 0024](../decisions/0024-semantic-event-derivation.md).
 
-**Exit criteria:** A normalized event contract exists (schema); at least one concrete state-transition-to-event detection is proven end-to-end with tests (e.g. a Pokemon badge-earned style transition); no arbitrary-code-execution path introduced (same constraint as `P01-T004`'s mapping/calculated-field work). Contract and detection proof implemented via `P03-T001`; phase does not close until `P03-T001` is independently reviewed and merged.
+**Exit criteria (all met):** A normalized event contract exists (schema). ✅ At least one concrete state-transition-to-event detection is proven end-to-end with tests. ✅ (`P03-T001`, ten Pokemon event types). No arbitrary-code-execution path introduced (same constraint as `P01-T004`'s mapping/calculated-field work). ✅ Independently re-verified post-merge.
 
 **Dependencies:** `P01`.
 
