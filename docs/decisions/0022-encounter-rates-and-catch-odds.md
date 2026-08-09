@@ -31,7 +31,7 @@ The four-shake-check structure (`for (shakes = 0; shakes < 4 && Random() < thres
 
 Each of the twelve Gen III Poke Ball item IDs is classified in a new `balls.{json,lua}` reference table by how its multiplier is determined:
 
-- **`guaranteed`** - Master Ball (always catches; handled as a special case rather than forced through the generic multiplier table, since the real code's handling of Master Ball's multiplier lookup could not be confirmed to resolve correctly - see Non-Goals).
+- **`guaranteed`** - Master Ball. Confirmed by source, not inferred: `Cmd_handleballthrow` unconditionally executes `if (gLastUsedItem == ITEM_MASTER_BALL) shakes = BALL_3_SHAKES_SUCCESS;` immediately after the shake-check loop (with the decompilation's own comment, "why calculate the shakes before that check?", acknowledging the same override this project relies on) - the shake result is force-overwritten to a guaranteed catch regardless of whatever `ballMultiplier`/`odds` value the earlier general-purpose multiplier lookup produced for Master Ball's out-of-range table index (see Non-Goals). This project reproduces only the override's *outcome* (always catch), not the undefined intermediate table read.
 - **`static`** - Poke/Great/Ultra/Luxury/Premier Ball (fixed multiplier, always computable).
 - **`type-conditional`** - Net Ball (Water/Bug bonus; computable, since opponent types are already decoded).
 - **`level-conditional`** - Nest Ball (lower-level bonus; computable, since opponent level is already decoded).
@@ -47,7 +47,7 @@ Each of the twelve Gen III Poke Ball item IDs is classified in a new `balls.{jso
 
 ## Non-Goals
 
-- Master Ball's exact multiplier-table interaction in the real C code could not be fully confirmed from the excerpt read (its item ID is lower than `ITEM_ULTRA_BALL`, which the visible `sBallCatchBonuses[gLastUsedItem - ITEM_ULTRA_BALL]` indexing expression would underflow for) - handled here as an unconditional 100% guaranteed catch instead, which is long-established, undisputed Pokemon game knowledge independent of that specific code path.
+- Master Ball's `ballMultiplier`/`odds` computation is not reproduced (its item ID, 1, is lower than `ITEM_ULTRA_BALL`'s, 2, so the general `sBallCatchBonuses[gLastUsedItem - ITEM_ULTRA_BALL]` lookup the other non-"special" balls share would index that table at `-1` for Master Ball - a value the real game apparently never needs to be meaningful, since the subsequent unconditional `shakes = BALL_3_SHAKES_SUCCESS` override, confirmed by source, replaces whatever that computation produced). Reproducing the override's outcome (always catch) is correct and sufficient; reproducing the specific out-of-range intermediate value it discards is out of scope.
 - Dive/Repeat/Timer/Safari Ball multipliers remain unavailable, per the reasons in their `balls.json` entries - tracked as follow-up work, not guessed at.
 - No bag pockets other than Poke Balls are decoded (general items, key items, TMs, berries) - out of scope; the request was specifically about Poke Balls and catch odds.
 - No UI to actually throw a ball or take any battle action - this remains a read-only diagnostic/informational display, consistent with every other part of this project's scope guard against adding action/input control.
