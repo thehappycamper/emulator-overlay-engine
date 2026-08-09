@@ -53,7 +53,11 @@
 
 | Path | Purpose |
 | --- | --- |
-| `adapters/gen3-mgba/README.md` | Notes and intended contract for first live mGBA adapter. |
+| `adapters/gen3-mgba/README.md` | Supported fingerprint, mGBA setup, manual smoke procedure, sources, and limitations for the first live acquisition proof. |
+| `adapters/gen3-mgba/emerald-acquisition.lua` | Read-only mGBA 0.10.3 Lua provider for strict-fingerprint Emerald Rev 0 diagnostics. |
+| `adapters/gen3-mgba/emerald-us-rev0.js` | Pure/testable identity, Gen III Pokemon decoding, address, pointer, and diagnostic reference logic. |
+| `adapters/gen3-mgba/extension.json` | Public extension manifest for the acquisition proof. |
+| `adapters/gen3-mgba/fixtures/` | Synthetic derived acquisition fixtures; no ROM/save/game binaries. |
 | `extensions/README.md` | Extension model and rules. |
 | `examples/extensions/` | Example extension manifests and README templates. |
 | `examples/templates/` | Example shareable template manifests and README files. |
@@ -74,6 +78,7 @@
 | `test/mapping.test.js` | Mapping pipeline and fusion example execution tests. |
 | `test/schema-validation.test.js` | Automated validation of public manifests, mappings, canonical Pokemon state fixtures, and the legacy state-schema alias. |
 | `test/live-state.test.js` | Live-state polling controller: render-on-change, no-overlap fetches, transient-failure/recovery, and status transitions. |
+| `test/mgba-emerald-acquisition.test.js` | Emerald fingerprint, Gen III encrypted-species/stat decoding, battle/location acquisition, pointer safety, and Lua-layout synchronization tests. |
 | `tools/dev-server.mjs` | Dependency-free local static server for overlay development. |
 
 ## Documentation

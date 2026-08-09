@@ -16,7 +16,7 @@ The implemented foundation is intentionally small and Pokemon-focused:
 - Dependency-free, domain-neutral browser host that polls a state source and renders a useful challenge dashboard through the selected domain presentation.
 - Pokemon domain package with its normalized-state contract, overlay presentation, and damage, catch, and type-effectiveness calculators plus Node tests.
 - Domain-neutral mapping contract with safe calculated expressions and schema-validated examples.
-- Gen 3 mGBA adapter notes describing how live Lua export should reach normalized state, via the mapping runtime or as a documented direct-export exception.
+- Read-only Pokemon Emerald Rev 0 acquisition proof for mGBA 0.10.3, with strict ROM identification and live diagnostic reads; source-contract and normalized-state export remain future work.
 - GitHub Actions CI for tests.
 
 ## Local Use

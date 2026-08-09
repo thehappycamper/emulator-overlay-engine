@@ -92,6 +92,8 @@ src/domains/pokemon/schemas/overlay-state.schema.json
 
 The first live implementation may write `public/live-state.json` for polling. A later transport may differ, but payload semantics should remain tied to the selected named target contract rather than acquisition mechanics.
 
+`P05-T002` precedes that integration with an acquisition-only proof under `adapters/gen3-mgba/`: a strict-fingerprint Emerald Rev 0 Lua diagnostic reads changing emulator values but intentionally defines no source contract, normalized export, transport, or overlay polling behavior. Those remain separately reviewed tasks.
+
 ## Fidelity, Provenance, And Confidence
 
 Providers may eventually differ in fidelity. Emulator memory may expose exact values, while vision or audio providers may infer values with uncertainty. Future source, state, or event contracts may need provenance/confidence metadata, but this document does not define those fields. That work requires a separate architecture and schema decision.

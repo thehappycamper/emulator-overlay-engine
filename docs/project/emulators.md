@@ -6,7 +6,7 @@ The engine is source-agnostic; an emulator is one source-provider type, not a pl
 
 | Emulator | Status | Notes |
 | --- | --- | --- |
-| mGBA | planned extension | Strong candidate for first live emulator extension. Existing local Lua-style logic can supply Gen 3 party/opponent data. |
+| mGBA 0.10.3 | active acquisition proof | `adapters/gen3-mgba/emerald-acquisition.lua` supports the exact English retail Emerald Rev 0 fingerprint and displays live party HP/species, battle/opponent, and map diagnostics. Source-contract and normalized export are not implemented. |
 | VBA-RR | planned extension | Has Lua support and can draw overlays directly. Good fallback for classic Lua overlays. |
 | VisualBoyAdvance-M | unknown | Standalone executable detected locally. Lua support depends on build and configuration. |
 | BizHawk | candidate | Good future option for multi-system tooling and Lua support, not currently scaffolded. |
@@ -24,10 +24,9 @@ An emulator adapter should:
 
 ## First Adapter Target
 
-First live target: Gen 3 mGBA export.
+First live target: Gen 3 mGBA export. The initial acquisition-only proof is implemented under `P05-T002` for mGBA 0.10.3 and English retail Pokemon Emerald Rev 0 (`AGB-BPEE`, CRC32 `1F1C08FB`).
 
 Reason:
 
-- Existing local script already handles Gen 3 Pokemon struct decoding.
 - mGBA is actively maintained and has script support.
-- The static MVP API can be exercised by writing normalized JSON.
+- The provider can keep emulator APIs and version-specific addresses at the adapter boundary before later source-contract and mapping tasks.
