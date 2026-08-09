@@ -18,7 +18,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | `P02` | Domain Boundary | completed |
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
-| `P05` | Live Gameplay Source | active - `P05-T001`-`T005` completed; `P05-T006` savestate-CLI automation in review; real mGBA end-to-end acceptance still required |
+| `P05` | Live Gameplay Source | active - `P05-T001`-`T006` completed; real mGBA end-to-end acceptance still required |
 | `P06` | Second Source / Domain Proof | planned |
 | — | Later Product Tracks | coarse / not phased yet |
 
@@ -143,7 +143,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P05 — Live Gameplay Source
 
-**Status:** active. `P05-T001` through `P05-T005` are complete. `P05-T006` automates savestate loading via mGBA's documented `--savestate` CLI flag (script loading remains the one confirmed-unavoidable manual step) and is awaiting independent review. The phase gate still requires real mGBA end-to-end acceptance evidence and broader party/opponent/seed/frame/bag/map coverage. `P05` remains active and is not complete until the real live acceptance test is performed and recorded.
+**Status:** active. `P05-T001` through `P05-T006` are complete. The launcher now automates supported savestate loading while Lua script loading remains manual. The phase gate still requires real mGBA end-to-end acceptance evidence and broader party/opponent/seed/frame/bag/map coverage. `P05` remains active and is not complete until the real live acceptance test is performed and recorded.
 
 **Objective:** Implement the first live source integration — the Gen 3 mGBA adapter sketched in `adapters/gen3-mgba/README.md` and `docs/project/roadmap.md`'s "First Real Live Integration" — against the source-agnostic platform boundary clarified in `P01-T006`.
 
@@ -155,7 +155,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 - [`P05-T003`](../tasks/P05/P05-T003.md) - Named/versioned Emerald acquisition source contract, schema validation, public-safe fixture, and replace-via-temporary-file snapshot handoff. Completed (independent review APPROVE, merged to `main` at `235f91c`).
 - [`P05-T004`](../tasks/P05/P05-T004.md) - Existing-runtime mapping into canonical Pokemon state, explicit placeholders, Ajv target validation, and atomic `public/live-state.json` handoff. Completed (independent review APPROVE, merged to `main` at `f301d6b`); real mGBA end-to-end acceptance remains a separate, still-pending manual step.
 - [`P05-T005`](../tasks/P05/P05-T005.md) - Gitignored local Proof 1 configuration, path/setup validation, and Windows-friendly mGBA launch/manual handoff. Completed (independent review APPROVE, merged to `main` at `428324c`); no source, mapping, or emulator contract changes; real mGBA end-to-end acceptance remains a separate, still-pending manual step.
-- [`P05-T006`](../tasks/P05/P05-T006.md) - Automates savestate loading via mGBA's documented `--savestate` CLI flag, after confirming (via mgba-emu/mgba#3289) that script loading has no supported non-GUI path. Implemented; awaiting independent review.
+- [`P05-T006`](../tasks/P05/P05-T006.md) - Automates savestate loading via mGBA's documented `--savestate` CLI flag, after confirming (via mgba-emu/mgba#3289) that script loading has no supported non-GUI path. Completed (independent review APPROVE, fast-forward merged at `aa5d97b`).
 
 Remaining roadmap deliverables will be scoped separately: real mGBA end-to-end acceptance and broader acquisition/mapping for phase-gate fields not yet available.
 
