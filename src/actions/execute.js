@@ -45,7 +45,26 @@ export const ACTION_EXECUTION_CODES = Object.freeze({
   INVALID_REQUEST: "INVALID_REQUEST",
   INVALID_PAYLOAD: "INVALID_PAYLOAD",
   EXECUTION_FAILED: "EXECUTION_FAILED",
+  INTERNAL_ERROR: "INTERNAL_ERROR",
 });
+
+// Safely describes a thrown value that is not guaranteed to be an Error -
+// providers, validatePayload(), and authorize() are caller-supplied and may
+// throw null/undefined/a string/a plain object instead of an Error. Never
+// reads `.message` on an untrusted value without first confirming it is
+// actually an Error.
+function describeThrown(value) {
+  if (value instanceof Error) return value.message || value.stack || value.name || "Error";
+  if (typeof value === "string") return value;
+  if (value === null || value === undefined) return String(value);
+  if (typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") return String(value);
+  try {
+    const json = JSON.stringify(value);
+    return typeof json === "string" ? json : String(value);
+  } catch {
+    return String(value);
+  }
+}
 
 function assertProvider(provider) {
   if (!provider || typeof provider !== "object") throw new TypeError("Action provider must be an object");
@@ -66,28 +85,81 @@ function assertProvider(provider) {
   }
 }
 
-// The chosen idempotency key for replay/duplicate detection: `sequence` is
-// documented (action-request.schema.json) as unique within one
-// correlationId's evaluation run, so this pair is the smallest honest
-// identity for "the same action request" without inventing a new field.
-function requestKey(request) {
-  return `${request.correlationId}:${request.sequence}`;
+// Replay identity policy (ADR 0027 addendum, fix round): a
+// `correlationId:sequence` pair alone only identifies a request's declared
+// *position* within one evaluation run, not its *content*. Two requests
+// that legitimately differ - a different rule, a different triggering
+// event, or a different payload - must never be conflated into the same
+// replay identity just because a caller (a caller bug, a rebuilt/replayed
+// event stream, or a hand-constructed request) happens to reuse that pair.
+//
+// The chosen policy is a full canonical fingerprint: the replay identity is
+// a deterministic, object-key-order-independent serialization of every
+// field relevant to "is this semantically the same request" -
+// `actionType`, `correlationId`, `sequence`, `ruleId`, `triggeringEvent`,
+// and `payload`. Two requests share a replay identity if and only if all
+// six match exactly. Anything else - even one sharing a
+// `correlationId:sequence` pair - is evaluated as an independent request on
+// its own merits; it is never spuriously merged with, or rejected against,
+// an unrelated cached/in-flight outcome.
+function canonicalStringify(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalStringify).join(",")}]`;
+  if (value && typeof value === "object") {
+    const keys = Object.keys(value).sort();
+    return `{${keys.map((key) => `${JSON.stringify(key)}:${canonicalStringify(value[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
 }
 
+function computeReplayIdentity(request) {
+  return canonicalStringify({
+    actionType: request.actionType,
+    correlationId: request.correlationId,
+    sequence: request.sequence,
+    ruleId: request.ruleId,
+    triggeringEvent: request.triggeringEvent,
+    payload: request.payload,
+  });
+}
+
+function isPlainObjectOrNull(value) {
+  return value === null || (typeof value === "object" && !Array.isArray(value));
+}
+
+// Builds a schema-validated ActionResult. If the requested shape somehow
+// fails its own schema (a defense-in-depth backstop - every known way this
+// could happen is already guarded before this is called), this converts
+// that into a structured INTERNAL_ERROR failure instead of letting
+// ActionResultValidationError escape execute()/executeAll(); execute() must
+// never throw for request-shaped input.
 function buildResult(request, status, code, message, { result = null, details = null } = {}) {
   const built = {
     status,
-    code,
-    message,
-    actionType: request?.actionType ?? null,
-    sequence: request?.sequence ?? null,
-    correlationId: request?.correlationId ?? null,
-    ruleId: request?.ruleId ?? null,
-    result,
-    details,
+    code: typeof code === "string" && code ? code : ACTION_EXECUTION_CODES.INTERNAL_ERROR,
+    message: typeof message === "string" ? message : describeThrown(message),
+    actionType: typeof request?.actionType === "string" ? request.actionType : null,
+    sequence: Number.isInteger(request?.sequence) ? request.sequence : null,
+    correlationId: typeof request?.correlationId === "string" ? request.correlationId : null,
+    ruleId: typeof request?.ruleId === "string" ? request.ruleId : null,
+    result: isPlainObjectOrNull(result) ? result : null,
+    details: isPlainObjectOrNull(details) ? details : { value: describeThrown(details) },
   };
-  assertValidActionResult(built);
-  return Object.freeze(built);
+  try {
+    assertValidActionResult(built);
+    return Object.freeze(built);
+  } catch (validationError) {
+    return Object.freeze({
+      status: "failed",
+      code: ACTION_EXECUTION_CODES.INTERNAL_ERROR,
+      message: `Executor produced an invalid internal result and converted it to a structured failure: ${validationError.message}`,
+      actionType: built.actionType,
+      sequence: built.sequence,
+      correlationId: built.correlationId,
+      ruleId: built.ruleId,
+      result: null,
+      details: null,
+    });
+  }
 }
 
 // Creates a capability-gated executor bound to a fixed set of registered
@@ -106,45 +178,28 @@ export function createActionExecutor(providers, { grantedCapabilities = [], defa
 
   // In-memory only, scoped to this executor instance's lifetime - matches
   // this project's existing session-scoped-state convention (e.g.
-  // createEventSequencer). Grows for the life of the executor; a future
-  // task should consider bounding/expiring this store for a long-running
-  // session, which this proof does not need.
+  // createEventSequencer). A new executor starts with no replay history,
+  // and nothing here is persisted or shared across executor instances or
+  // process restarts. `executed` grows for the life of the executor and is
+  // never pruned or bounded; a future long-running-session task should
+  // consider expiring old entries, which this proof does not need.
   const executed = new Map();
 
-  async function execute(request, context = {}) {
-    let validRequest;
-    try {
-      assertValidActionRequest(request);
-      validRequest = request;
-    } catch (error) {
-      return buildResult(request, "rejected", ACTION_EXECUTION_CODES.INVALID_REQUEST, error.message);
-    }
+  // Single-flight guard: while a replay identity's pipeline is in progress,
+  // concurrent identical requests await this same promise instead of each
+  // independently observing an empty `executed` cache and invoking the
+  // provider a second (or third...) time. Always cleared in a `finally`, so
+  // a failed/rejected in-flight execution can never deadlock or
+  // permanently poison the key - a later identical request simply starts a
+  // fresh attempt.
+  const inFlight = new Map();
 
-    const key = requestKey(validRequest);
-    const previous = executed.get(key);
-    if (previous) {
-      const isReplayOfSameRequest =
-        previous.request.actionType === validRequest.actionType &&
-        JSON.stringify(previous.request.payload) === JSON.stringify(validRequest.payload);
-      if (isReplayOfSameRequest) {
-        // A genuine replay: return the original outcome without invoking
-        // the provider a second time. This is the explicit duplicate
-        // policy - re-delivery of the same (correlationId, sequence) pair
-        // with the same content never re-runs a side effect.
-        return buildResult(
-          validRequest,
-          "duplicate",
-          ACTION_EXECUTION_CODES.DUPLICATE,
-          "An identical action request was already executed; it was not re-executed.",
-          { result: previous.result.result },
-        );
-      }
-      // Same (correlationId, sequence) key but a genuinely different
-      // request (a caller bug or a colliding key) - never conflate this
-      // with the cached result. It falls through and is evaluated fresh
-      // on its own merits below, exactly like a first-time request.
-    }
-
+  // Runs the actual fail-closed pipeline (provider lookup through
+  // execution) for one already-deduplicated replay identity. Only ever
+  // invoked once per identity while its promise is registered in
+  // `inFlight` - concurrent callers for the same identity await that
+  // promise instead of calling this again.
+  async function runPipeline(validRequest, context, key) {
     const provider = registry.get(validRequest.actionType);
     if (!provider) {
       return buildResult(
@@ -171,12 +226,13 @@ export function createActionExecutor(providers, { grantedCapabilities = [], defa
       try {
         authorized = await provider.authorize(validRequest.payload, mergedContext);
       } catch (error) {
+        const reason = describeThrown(error);
         return buildResult(
           validRequest,
           "rejected",
           ACTION_EXECUTION_CODES.UNAUTHORIZED_ACTION,
-          `Authorization check for "${validRequest.actionType}" threw: ${error.message}`,
-          { details: { error: error.message } },
+          `Authorization check for "${validRequest.actionType}" threw: ${reason}`,
+          { details: { error: reason } },
         );
       }
       if (!authorized) {
@@ -192,25 +248,37 @@ export function createActionExecutor(providers, { grantedCapabilities = [], defa
     try {
       provider.validatePayload(validRequest.payload);
     } catch (error) {
-      return buildResult(
-        validRequest,
-        "rejected",
-        ACTION_EXECUTION_CODES.INVALID_PAYLOAD,
-        error.message,
-        { details: { error: error.message } },
-      );
+      const reason = describeThrown(error);
+      return buildResult(validRequest, "rejected", ACTION_EXECUTION_CODES.INVALID_PAYLOAD, reason, { details: { error: reason } });
     }
 
     let executionResult;
     try {
-      executionResult = (await provider.execute(validRequest.payload, mergedContext)) ?? {};
+      const raw = await provider.execute(validRequest.payload, mergedContext);
+      executionResult = raw ?? {};
     } catch (error) {
+      const reason = describeThrown(error);
       return buildResult(
         validRequest,
         "failed",
         ACTION_EXECUTION_CODES.EXECUTION_FAILED,
-        `"${validRequest.actionType}" execution threw: ${error.message}`,
-        { details: { error: error.message } },
+        `"${validRequest.actionType}" execution threw: ${reason}`,
+        { details: { error: reason } },
+      );
+    }
+
+    // Contain a provider that returns something other than a plain object
+    // (a string, a number, an array, ...) - the result schema requires
+    // `result` to be an object or null, and silently accepting a malformed
+    // value here would either corrupt the published ActionResult or force
+    // buildResult()'s own backstop to swallow a perfectly diagnosable error.
+    if (typeof executionResult !== "object" || Array.isArray(executionResult)) {
+      return buildResult(
+        validRequest,
+        "failed",
+        ACTION_EXECUTION_CODES.EXECUTION_FAILED,
+        `"${validRequest.actionType}" execution returned a malformed result (expected an object)`,
+        { details: { error: `Provider returned ${describeThrown(executionResult)}` } },
       );
     }
 
@@ -221,8 +289,71 @@ export function createActionExecutor(providers, { grantedCapabilities = [], defa
       `Executed "${validRequest.actionType}"`,
       { result: executionResult },
     );
-    executed.set(key, { request: validRequest, result: successResult });
+    // Only ever cache a genuine success - a rejected/failed outcome
+    // (including buildResult()'s own INTERNAL_ERROR backstop) is never
+    // cached, so the replay identity is never permanently poisoned by a
+    // failure and a later identical request can always retry.
+    if (successResult.status === "executed") {
+      executed.set(key, { request: validRequest, result: successResult });
+    }
     return successResult;
+  }
+
+  async function execute(request, context = {}) {
+    let validRequest;
+    try {
+      assertValidActionRequest(request);
+      validRequest = request;
+    } catch (error) {
+      return buildResult(request, "rejected", ACTION_EXECUTION_CODES.INVALID_REQUEST, describeThrown(error));
+    }
+
+    const key = computeReplayIdentity(validRequest);
+
+    const cached = executed.get(key);
+    if (cached) {
+      // A genuine, already-completed replay: return the original outcome
+      // without invoking the provider a second time.
+      return buildResult(
+        validRequest,
+        "duplicate",
+        ACTION_EXECUTION_CODES.DUPLICATE,
+        "An identical action request was already executed; it was not re-executed.",
+        { result: cached.result.result },
+      );
+    }
+
+    const inFlightPromise = inFlight.get(key);
+    if (inFlightPromise) {
+      // A concurrent identical request is already mid-pipeline for this
+      // exact replay identity - wait for it instead of racing it. Neither
+      // caller can observe an empty cache and independently invoke the
+      // provider, which is what guarantees exactly one invocation.
+      const primaryResult = await inFlightPromise;
+      if (primaryResult.status !== "executed") {
+        // The in-flight attempt did not succeed. This caller did not cause
+        // a second invocation, and the key is not poisoned by that
+        // outcome - a subsequent call (concurrent or sequential) is free
+        // to start a fresh attempt. Share the same non-success outcome
+        // rather than triggering a redundant, guaranteed-identical retry.
+        return primaryResult;
+      }
+      return buildResult(
+        validRequest,
+        "duplicate",
+        ACTION_EXECUTION_CODES.DUPLICATE,
+        "An identical action request was already executed concurrently; it was not re-executed.",
+        { result: primaryResult.result },
+      );
+    }
+
+    const pipelinePromise = runPipeline(validRequest, context, key);
+    inFlight.set(key, pipelinePromise);
+    try {
+      return await pipelinePromise;
+    } finally {
+      inFlight.delete(key);
+    }
   }
 
   // Executes a batch of requests strictly in array order (never

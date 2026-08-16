@@ -218,6 +218,212 @@ test("duplicate/replayed action handling: an identical replay is not re-executed
   assert.deepEqual(calls, ["A Pokemon fainted", "different message"]);
 });
 
+test("concurrent identical action requests single-flight: exactly one provider invocation occurs", async () => {
+  let calls = 0;
+  let resolveExecute;
+  const gatedProvider = {
+    actionType: "overlay.notification",
+    requiredCapability: "overlay.notify",
+    validatePayload() {},
+    authorize: () => true,
+    async execute(payload) {
+      calls += 1;
+      await new Promise((resolve) => { resolveExecute = resolve; });
+      return { delivered: true, message: payload.message };
+    },
+  };
+  const executor = createActionExecutor([gatedProvider], { grantedCapabilities: ["overlay.notify"] });
+  const request = actionRequest();
+
+  const firstPromise = executor.execute(request, {});
+  const secondPromise = executor.execute(request, {});
+  // Let both calls' synchronous prefixes (including single-flight
+  // registration) and the pending microtasks up to provider.execute() run
+  // before releasing the gate.
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(calls, 1, "the second concurrent call must not have invoked the provider before the first completed");
+  resolveExecute();
+
+  const [first, second] = await Promise.all([firstPromise, secondPromise]);
+  assert.equal(calls, 1, "the provider must be invoked exactly once for two concurrent identical requests");
+  assert.equal(first.status, "executed");
+  assert.equal(second.status, "duplicate");
+  assert.equal(second.code, ACTION_EXECUTION_CODES.DUPLICATE);
+  assert.deepEqual(second.result, first.result);
+  assert.equal(assertValidActionResult(first), true);
+  assert.equal(assertValidActionResult(second), true);
+});
+
+test("concurrent identical requests do not deadlock when the in-flight execution fails, and the key is not poisoned afterward", async () => {
+  let calls = 0;
+  let rejectExecute;
+  const flakyProvider = {
+    actionType: "overlay.notification",
+    requiredCapability: "overlay.notify",
+    validatePayload() {},
+    authorize: () => true,
+    async execute() {
+      calls += 1;
+      if (calls === 1) {
+        await new Promise((_resolve, reject) => { rejectExecute = reject; });
+      }
+      return { delivered: true };
+    },
+  };
+  const executor = createActionExecutor([flakyProvider], { grantedCapabilities: ["overlay.notify"] });
+  const request = actionRequest();
+
+  const firstPromise = executor.execute(request, {});
+  const secondPromise = executor.execute(request, {});
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  rejectExecute(new Error("boom"));
+
+  const [first, second] = await Promise.all([firstPromise, secondPromise]);
+  assert.equal(calls, 1, "only the single in-flight attempt may invoke the provider");
+  assert.equal(first.status, "failed");
+  assert.equal(second.status, "failed");
+  assert.equal(second.code, ACTION_EXECUTION_CODES.EXECUTION_FAILED);
+  assert.equal(assertValidActionResult(first), true);
+  assert.equal(assertValidActionResult(second), true);
+
+  // The key must be free again immediately afterward - not deadlocked, not
+  // permanently poisoned by the earlier failure.
+  const retry = await executor.execute(request, {});
+  assert.equal(retry.status, "executed");
+  assert.equal(calls, 2);
+});
+
+test("a failed execution does not poison the replay key: an identical retry after a failure can still execute", async () => {
+  let shouldFail = true;
+  const flakyProvider = {
+    actionType: "overlay.notification",
+    requiredCapability: "overlay.notify",
+    validatePayload() {},
+    authorize: () => true,
+    execute() {
+      if (shouldFail) {
+        shouldFail = false;
+        throw new Error("transient");
+      }
+      return { delivered: true };
+    },
+  };
+  const executor = createActionExecutor([flakyProvider], { grantedCapabilities: ["overlay.notify"] });
+  const request = actionRequest();
+
+  const failedAttempt = await executor.execute(request, {});
+  assert.equal(failedAttempt.status, "failed");
+
+  const retry = await executor.execute(request, {});
+  assert.equal(retry.status, "executed", "the replay key must not be permanently poisoned by a prior failure");
+});
+
+test("replay identity is strengthened: same correlationId+sequence but a different ruleId/triggeringEvent/actionType/payload is never conflated as a duplicate", async () => {
+  const calls = [];
+  const makeProvider = (actionType) => ({
+    actionType,
+    requiredCapability: "test.capability",
+    validatePayload() {},
+    authorize: () => true,
+    execute(payload) { calls.push([actionType, payload]); return { ok: true }; },
+  });
+  const executor = createActionExecutor([makeProvider("test.a"), makeProvider("test.b")], { grantedCapabilities: ["test.capability"] });
+
+  const base = actionRequest({ actionType: "test.a", payload: { n: 1 } });
+
+  const first = await executor.execute(base, {});
+  assert.equal(first.status, "executed");
+
+  const differentPayload = { ...base, payload: { n: 2 } };
+  const secondByPayload = await executor.execute(differentPayload, {});
+  assert.equal(secondByPayload.status, "executed");
+
+  const differentRule = { ...base, ruleId: "a-different-rule" };
+  const secondByRule = await executor.execute(differentRule, {});
+  assert.equal(secondByRule.status, "executed");
+
+  const differentEvent = { ...base, triggeringEvent: { ...base.triggeringEvent, detectedAt: "2026-08-09T00:00:01.000Z" } };
+  const secondByEvent = await executor.execute(differentEvent, {});
+  assert.equal(secondByEvent.status, "executed");
+
+  const differentType = { ...base, actionType: "test.b" };
+  const secondByType = await executor.execute(differentType, {});
+  assert.equal(secondByType.status, "executed");
+
+  // A genuine replay of the ORIGINAL request (every field identical) is
+  // still correctly deduplicated.
+  const replay = await executor.execute(base, {});
+  assert.equal(replay.status, "duplicate");
+
+  assert.equal(calls.length, 5, "every semantically distinct request variant must invoke the provider exactly once, and none of them a second time");
+});
+
+test("a provider returning a non-object value is contained as a structured failure, not propagated", async () => {
+  for (const malformed of ["not-an-object", 42, true, ["array", "result"]]) {
+    const provider = {
+      actionType: "overlay.notification",
+      requiredCapability: "overlay.notify",
+      validatePayload() {},
+      authorize: () => true,
+      execute() { return malformed; },
+    };
+    const executor = createActionExecutor([provider], { grantedCapabilities: ["overlay.notify"] });
+    const result = await executor.execute(actionRequest(), {});
+    assert.equal(result.status, "failed");
+    assert.equal(result.code, ACTION_EXECUTION_CODES.EXECUTION_FAILED);
+    assert.equal(assertValidActionResult(result), true);
+  }
+});
+
+test("provider/validator/authorize throwing non-Error values (null, undefined, string, number, plain object) never crashes execute() and always yields a schema-valid result", async () => {
+  const nonErrorValues = [null, undefined, "plain string reason", 42, { custom: "shape" }];
+
+  for (const thrown of nonErrorValues) {
+    const provider = {
+      actionType: "overlay.notification",
+      requiredCapability: "overlay.notify",
+      validatePayload() {},
+      authorize: () => true,
+      execute() { throw thrown; },
+    };
+    const executor = createActionExecutor([provider], { grantedCapabilities: ["overlay.notify"] });
+    const result = await executor.execute(actionRequest(), {});
+    assert.equal(result.status, "failed");
+    assert.equal(result.code, ACTION_EXECUTION_CODES.EXECUTION_FAILED);
+    assert.equal(assertValidActionResult(result), true);
+  }
+
+  for (const thrown of nonErrorValues) {
+    const provider = {
+      actionType: "overlay.notification",
+      requiredCapability: "overlay.notify",
+      validatePayload() { throw thrown; },
+      authorize: () => true,
+      execute() { return {}; },
+    };
+    const executor = createActionExecutor([provider], { grantedCapabilities: ["overlay.notify"] });
+    const result = await executor.execute(actionRequest(), {});
+    assert.equal(result.status, "rejected");
+    assert.equal(result.code, ACTION_EXECUTION_CODES.INVALID_PAYLOAD);
+    assert.equal(assertValidActionResult(result), true);
+  }
+
+  for (const thrown of nonErrorValues) {
+    const provider = {
+      actionType: "overlay.notification",
+      requiredCapability: "overlay.notify",
+      validatePayload() {},
+      authorize() { throw thrown; },
+      execute() { return {}; },
+    };
+    const executor = createActionExecutor([provider], { grantedCapabilities: ["overlay.notify"] });
+    const result = await executor.execute(actionRequest(), {});
+    assert.equal(result.status, "rejected");
+    assert.equal(result.code, ACTION_EXECUTION_CODES.UNAUTHORIZED_ACTION);
+    assert.equal(assertValidActionResult(result), true);
+  }
+});
+
 test("the source action request is never mutated by execution", async () => {
   const request = actionRequest();
   const before = structuredClone(request);
