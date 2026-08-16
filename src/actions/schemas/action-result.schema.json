@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emulator-overlay-engine.local/schemas/action-result.schema.json",
+  "title": "Action Execution Result",
+  "description": "Structured outcome of one action-request execution attempt, produced by a capability-gated action executor. Always produced for every attempt, including rejected/failed/duplicate outcomes - the executor never throws.",
+  "type": "object",
+  "required": ["status", "code", "message", "actionType", "sequence", "correlationId", "ruleId", "result", "details"],
+  "properties": {
+    "status": {
+      "description": "executed: the provider ran and returned a result. duplicate: an identical request was already executed; not re-executed. rejected: the request never reached execution (unsupported type, missing capability, unauthorized, or invalid payload). failed: the provider was invoked but threw.",
+      "enum": ["executed", "duplicate", "rejected", "failed"]
+    },
+    "code": {
+      "description": "Machine-readable reason, always present (e.g. \"OK\", \"DUPLICATE\", \"UNSUPPORTED_ACTION_TYPE\", \"MISSING_CAPABILITY\", \"UNAUTHORIZED_ACTION\", \"INVALID_REQUEST\", \"INVALID_PAYLOAD\", \"EXECUTION_FAILED\").",
+      "type": "string",
+      "minLength": 1
+    },
+    "message": {
+      "description": "Human-readable outcome description.",
+      "type": "string"
+    },
+    "actionType": {
+      "description": "Echoed from the source action request. Null only when the request itself failed validation (INVALID_REQUEST) and the field could not be read safely.",
+      "type": ["string", "null"]
+    },
+    "sequence": {
+      "description": "Echoed from the source action request. Null only for INVALID_REQUEST.",
+      "type": ["integer", "null"]
+    },
+    "correlationId": {
+      "description": "Echoed from the source action request. Null only for INVALID_REQUEST.",
+      "type": ["string", "null"]
+    },
+    "ruleId": {
+      "description": "Echoed from the source action request. Null only for INVALID_REQUEST.",
+      "type": ["string", "null"]
+    },
+    "result": {
+      "description": "The provider's own return value. Populated only when status is \"executed\" or \"duplicate\" (the original executed result). Null otherwise.",
+      "type": ["object", "null"]
+    },
+    "details": {
+      "description": "Optional structured diagnostic (e.g. validation error text) for rejected/failed outcomes. Null otherwise.",
+      "type": ["object", "null"]
+    }
+  },
+  "additionalProperties": false
+}

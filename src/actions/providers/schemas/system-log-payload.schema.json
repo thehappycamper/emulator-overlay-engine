@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emulator-overlay-engine.local/schemas/system-log-payload.schema.json",
+  "title": "system.log Action Payload",
+  "description": "Payload contract for the harmless system.log local action provider.",
+  "type": "object",
+  "required": ["message"],
+  "properties": {
+    "level": { "enum": ["info", "warn", "error"], "default": "info" },
+    "message": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": false
+}
