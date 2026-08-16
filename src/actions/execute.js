@@ -347,7 +347,29 @@ export function createActionExecutor(providers, { grantedCapabilities = [], defa
       );
     }
 
-    const pipelinePromise = runPipeline(validRequest, context, key);
+    // Reserve the replay identity in `inFlight` *before* any part of the
+    // pipeline runs - including a synchronous re-entrant call. Calling
+    // runPipeline(...) directly here would start executing its synchronous
+    // prefix (provider lookup, capability check, and - whenever the
+    // provider has no authorize() hook, or authorize()/validatePayload()/
+    // execute() do no awaiting of their own before calling back out - the
+    // provider's own validatePayload()/execute()) immediately, before this
+    // function's very next line (`inFlight.set(...)`) ever gets to run. A
+    // provider that synchronously calls executor.execute() again with the
+    // same request would then still observe an empty `inFlight` entry and
+    // start a second, independent pipeline run, defeating single-flight
+    // even though ordinary asynchronous concurrency is already handled.
+    //
+    // Deferring the actual runPipeline() call to a microtask (queued via
+    // Promise.resolve().then(...)) closes that gap: everything up to and
+    // including `inFlight.set(key, pipelinePromise)` below completes
+    // synchronously, in this call's own synchronous execution window,
+    // before the queued microtask - and therefore before any part of
+    // runPipeline(), including a synchronously re-entrant provider - ever
+    // runs. Any re-entrant or concurrent execute() call for the same key,
+    // no matter how it arrives, is guaranteed to find the reservation
+    // already in place.
+    const pipelinePromise = Promise.resolve().then(() => runPipeline(validRequest, context, key));
     inFlight.set(key, pipelinePromise);
     try {
       return await pipelinePromise;

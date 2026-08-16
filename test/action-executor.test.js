@@ -254,6 +254,55 @@ test("concurrent identical action requests single-flight: exactly one provider i
   assert.equal(assertValidActionResult(second), true);
 });
 
+test("a provider that synchronously re-enters execute() with the identical request is single-flighted, not just concurrent async requests", async () => {
+  // A provider whose execute() is NOT declared async and calls back into
+  // executor.execute() with the exact same request as its very first
+  // statement - no await anywhere before that call. If the in-flight
+  // reservation were made only after runPipeline() started running (the
+  // previous version of this code), this synchronous call-back would run
+  // before the reservation existed and would start a second, independent
+  // pipeline attempt.
+  let executor;
+  let providerCalls = 0;
+  let reentrantResultPromise;
+  const request = actionRequest();
+
+  // Deliberately no authorize() hook: `await`ing even a synchronously
+  // truthy authorize() result would itself yield to a microtask and mask
+  // the bug this test targets. Without an authorize() hook, runPipeline()
+  // has no await at all before the provider.execute() call is evaluated,
+  // which is exactly the synchronous path that must still be reservation-
+  // safe.
+  const reentrantProvider = {
+    actionType: "overlay.notification",
+    requiredCapability: "overlay.notify",
+    validatePayload() {},
+    execute(payload) {
+      providerCalls += 1;
+      reentrantResultPromise = executor.execute(request, {});
+      return { delivered: true, message: payload.message };
+    },
+  };
+
+  executor = createActionExecutor([reentrantProvider], { grantedCapabilities: ["overlay.notify"] });
+
+  const outerResult = await executor.execute(request, {});
+  const reentrantResult = await reentrantResultPromise;
+
+  assert.equal(providerCalls, 1, "the provider must be invoked exactly once even under synchronous re-entrancy");
+  assert.equal(outerResult.status, "executed");
+  assert.equal(reentrantResult.status, "duplicate");
+  assert.equal(reentrantResult.code, ACTION_EXECUTION_CODES.DUPLICATE);
+  assert.deepEqual(reentrantResult.result, outerResult.result);
+  assert.equal(assertValidActionResult(outerResult), true);
+  assert.equal(assertValidActionResult(reentrantResult), true);
+
+  // The key is not left poisoned or stuck in-flight afterward.
+  const laterReplay = await executor.execute(request, {});
+  assert.equal(laterReplay.status, "duplicate");
+  assert.equal(providerCalls, 1);
+});
+
 test("concurrent identical requests do not deadlock when the in-flight execution fails, and the key is not poisoned afterward", async () => {
   let calls = 0;
   let rejectExecute;
