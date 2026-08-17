@@ -1,8 +1,12 @@
-// The overlay.notification harmless local action provider (P04-T002).
-// Delivers a message to an injected sink - defaults to a console line when
-// no sink is supplied, so this remains a genuinely local, no-I/O-required
-// action by default. No overlay/UI wiring exists yet; this proves the
-// executor boundary, not a real notification transport.
+// The overlay.notification harmless local action provider (P04-T002),
+// extended (P04-T003) to deliver to a real local overlay notification feed.
+// Delivers a message+severity to an injected sink - defaults to a console
+// line when no sink is supplied, so this remains a genuinely local,
+// no-I/O-required action unless a caller injects a real sink (see
+// tools/emerald-live-state.mjs for the real wiring, and
+// src/overlay/notification-feed.js for the delivery-side store this
+// provider knows nothing about - it only ever calls the injected `notify`
+// function).
 import { readFileSync } from "node:fs";
 import Ajv2020 from "ajv/dist/2020.js";
 
@@ -28,9 +32,16 @@ export const overlayNotificationProvider = Object.freeze({
     return context?.sessionAuthorized === true;
   },
 
-  execute(payload, context) {
-    const notify = typeof context?.notify === "function" ? context.notify : (message) => console.log(`[overlay.notification] ${message}`);
-    notify(payload.message);
-    return { delivered: true, message: payload.message };
+  // async so a real sink can perform local I/O (e.g. writing the
+  // notification feed file) and have a rejection genuinely propagate to the
+  // executor's own try/catch, becoming a structured EXECUTION_FAILED result
+  // rather than an unhandled rejection.
+  async execute(payload, context) {
+    const severity = payload.severity ?? "info";
+    const notify = typeof context?.notify === "function"
+      ? context.notify
+      : (message, sev) => console.log(`[overlay.notification:${sev}] ${message}`);
+    await notify(payload.message, severity);
+    return { delivered: true, message: payload.message, severity };
   },
 });

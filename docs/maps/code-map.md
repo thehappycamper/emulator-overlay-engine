@@ -37,8 +37,12 @@
 | `src/expressions/evaluate.js` | Pure evaluator for the whitelisted JSON expression AST. |
 | `src/mapping/apply.js` | Executes direct, value, and calculated mappings into a new target value. |
 | `src/overlay/host.js` | Domain-neutral validation and dispatch for a selected domain overlay presentation. |
-| `src/overlay/app.js` | Domain-neutral browser bootstrap: state URL/domain resolution, stylesheets, live-status display, and presentation dispatch. |
+| `src/overlay/app.js` | Domain-neutral browser bootstrap: state URL/domain resolution, stylesheets, live-status display, presentation dispatch, and the notifications panel. |
 | `src/overlay/live-state.js` | Domain-neutral, dependency-injectable polling controller: no-overlap fetch scheduling, change-only rendering, live/stale/error status. |
+| `src/overlay/notification-feed.js` | Pure, in-memory, TTL-pruned, capped notification feed store. |
+| `src/overlay/write-notification-feed.js` | Atomic writer for `public/notifications.json`. |
+| `src/overlay/notification-view.js` | Pure client-side reconciliation: which feed entries are newly visible vs. expired/dismissed. |
+| `src/overlay/notification-dom.js` | `textContent`-only DOM node builder and a polling notification panel (reuses `live-state.js`'s controller). |
 | `src/schemas/overlay-state.schema.json` | Compatibility `$ref` from the former platform path to the Pokemon-owned state contract. |
 | `src/schemas/extension.schema.json` | Public extension manifest contract. |
 | `src/schemas/template.schema.json` | Public template manifest contract. |
@@ -53,7 +57,7 @@
 | `src/actions/schemas/action-request.schema.json` | Domain-neutral action-request envelope; it describes effects and does not execute them. |
 | `src/actions/schemas/action-result.schema.json` | Structured, always-produced outcome of one action-execution attempt (executed/duplicate/rejected/failed). |
 | `src/actions/execute.js` | Capability-gated action executor: fail-closed supported/capability/authorization/payload pipeline, deterministic ordered batch execution, explicit replay/duplicate handling. Never imports the rules evaluator. |
-| `src/actions/providers/overlay-notification.js`, `system-log.js`, `index.js` | Harmless local action providers proving the executor architecture (console-line sinks by default, no real I/O). |
+| `src/actions/providers/overlay-notification.js`, `system-log.js`, `index.js` | `overlay.notification` (message + optional severity, real local delivery via `src/overlay/notification-feed.js` when wired by a caller) and `system.log` action providers (console-line sinks by default otherwise, no real I/O). |
 
 ## Public Overlay Assets
 
@@ -98,6 +102,12 @@
 | `test/engine.test.js` | Node tests for type, damage, projection, and capture calculators. |
 | `test/rules-actions.test.js` | Declarative rule schema/evaluation and action-request tests: predicates, ordering, malformed input, immutability, platform-neutrality, and a real P03 event integration. |
 | `test/action-executor.test.js` | Capability-gated action executor tests: fail-closed pipeline stages, deterministic batch ordering, replay/duplicate semantics, provider-exception handling, and platform-neutrality. |
+| `test/notification-feed.test.js` | Notification feed store tests: publish ordering, TTL pruning, `maxEntries` capping, malformed-input rejection. |
+| `test/write-notification-feed.test.js` | Atomic notification-feed-file writer tests: success, directory creation, rename-failure cleanup, input validation. |
+| `test/notification-view.test.js` | Pure client-side reconciliation tests: new/duplicate/expired/dismissed entries, malformed feeds, reconnect behavior. |
+| `test/notification-dom.test.js` | `textContent`-only DOM safety proof and polling notification panel reconciliation tests (fake-DOM harness). |
+| `test/overlay-notification-delivery.test.js` | Real provider + real executor + real feed integration: delivery, replay non-republish, ordering, failure containment, gating, state-mutation isolation. |
+| `test/emerald-live-state-notifications.test.js` | Real Emerald fixture + real mapping/event/rule/executor/feed integration through `tools/emerald-live-state.mjs`'s own exported functions. |
 | `test/domain-boundary.test.js` | Pokemon package resolution, behavior, unknown-domain, and compatibility tests. |
 | `test/events-derive.test.js` | Domain-neutral event envelope validation and `deriveEvents` primitive tests (stamping, sequencing, fail-closed validation, detector-list guards). |
 | `test/pokemon-events.test.js` | Pokemon semantic event detector tests: transitions, deduplication, simultaneous changes, battle entry/exit, party reorder/change, identity-heuristic limitations, provider-neutrality. |
@@ -113,7 +123,7 @@
 | `test/emerald-provider-parity.test.js` | Equivalent-provider source semantics, provider-independent downstream mapping, and mGBA compatibility import identity. |
 | `test/emerald-proof-config.test.js` | Local env parsing, required path/numeric validation, output-directory setup, and mGBA child environment tests. |
 | `tools/dev-server.mjs` | Dependency-free local static server for overlay development. |
-| `tools/emerald-live-state.mjs` | Narrow local watcher from Emerald source snapshot through mapping/validation to `public/live-state.json`. |
+| `tools/emerald-live-state.mjs` | Narrow local watcher from Emerald source snapshot through mapping/validation to `public/live-state.json`; also derives events from consecutive mapped states, evaluates the declarative rule fixture, and runs matching action requests through a capability-gated executor delivering to `public/notifications.json`. |
 | `tools/emerald-proof-config.mjs` | Pure local config parser/resolver plus Proof 1 path validation and launch-environment construction. |
 | `tools/launch-emerald-proof.mjs` | Windows-friendly `npm run proof:emerald` launcher and manual workflow handoff. |
 | `tools/local-env.mjs` | Non-executable parser shared by new local launcher configuration; shell expressions are treated as literal data. |
