@@ -43,23 +43,65 @@ export async function loadRules(rulesPath, { fileSystem = { readFile } } = {}) {
   return Array.isArray(parsed) ? parsed : [parsed];
 }
 
-// Builds the real, local notify() sink an executor context can use: publish
-// into the bounded in-memory feed, then atomically rewrite the feed file
-// the browser polls. Deliberately does not catch its own errors - a
-// publish/write failure must propagate to the caller (the
-// overlay.notification provider's execute(), then the executor's own
-// try/catch) and become a structured EXECUTION_FAILED result, not a
-// silently-dropped notification.
+// Builds the real, local notify() sink an executor context can use.
+//
+// Commit-after-success (P04-T003 fix round): a publish attempt must be
+// atomic from the action executor's perspective. The prior version called
+// feed.publish() (mutating the in-memory feed immediately) and only then
+// attempted the durable write - so a write failure left a notification
+// committed in memory even though the action correctly reported failure,
+// and because failed P04 actions are retryable (P04-T002 never caches a
+// non-"executed" outcome), a retry would publish a second entry on top of
+// the still-present failed one.
+//
+// Here, feed.prepare() computes the exact next feed state (assigned id,
+// timestamp, pruning, cap) without mutating the feed at all; that
+// candidate is durably written first; the feed is only ever mutated
+// (feed.commit()) once that write has actually succeeded. If the write
+// throws, the candidate is discarded and this function's own promise
+// rejects without ever calling commit() - the feed is left byte-for-byte
+// as it was, so a retry's prepare() call starts from the exact same state
+// (reusing the same id, since nextId was never advanced) and, on success,
+// commits exactly one entry. The rejection still propagates to the caller
+// (overlay-notification.js's execute(), then the executor's own
+// try/catch), becoming a structured EXECUTION_FAILED result rather than a
+// silently-dropped or duplicated notification.
 export function createNotificationDelivery({ feed, notificationsFeedPath, fileSystem } = {}) {
-  if (!feed || typeof feed.publish !== "function") {
+  if (!feed || typeof feed.prepare !== "function" || typeof feed.commit !== "function") {
     throw new TypeError("createNotificationDelivery requires a notification feed");
   }
   if (typeof notificationsFeedPath !== "string" || !notificationsFeedPath) {
     throw new TypeError("createNotificationDelivery requires a notificationsFeedPath");
   }
-  return async function notify(message, severity) {
-    feed.publish({ message, severity });
-    await writeNotificationFeed(notificationsFeedPath, feed.list(), fileSystem ? { fileSystem } : undefined);
+
+  // Serializes publish attempts made through this one delivery instance,
+  // so two notify() calls can never both prepare() a candidate from the
+  // same pre-write feed state and then commit out of order. In the real
+  // wiring, tools/emerald-live-state.mjs's own session already only ever
+  // calls notify() sequentially - one request at a time, inside
+  // executor.executeAll()'s plain for-loop (P04-T002), itself only ever
+  // invoked from one mapAndNotify() call awaited to completion before the
+  // next poll starts (see createEmeraldLiveStateSession below) - so this
+  // queue is a small, local, bounded safeguard against future/other
+  // callers, not a new general-purpose locking subsystem, and it neither
+  // replaces nor duplicates P04-T002's own replay/single-flight guard
+  // (which already prevents a genuine replay from ever calling notify() a
+  // second time at all).
+  let queue = Promise.resolve();
+
+  async function publishOnce(message, severity) {
+    const candidate = feed.prepare({ message, severity });
+    await writeNotificationFeed(notificationsFeedPath, candidate.entries, fileSystem ? { fileSystem } : undefined);
+    feed.commit(candidate);
+  }
+
+  return function notify(message, severity) {
+    const attempt = queue.then(() => publishOnce(message, severity));
+    // Never let one failed attempt break serialization for the next
+    // caller - each caller still observes its own attempt's real outcome
+    // via the returned promise below.
+    queue = attempt.then(() => undefined, () => undefined);
+    return attempt;
   };
 }
 

@@ -38,3 +38,18 @@ This is deliberately a *second* file/poller, not a new field merged into the exi
 ## Follow-Up
 
 Recommended next task (see the P04-T003 task record's Follow-Up Tasks): decide whether/how a future action provider needs a richer authorization model than the current uniform `sessionAuthorized` flag, now that a real (not just harmless-proof) delivery channel exists.
+
+## Addendum (focused fix round: transactional publication)
+
+Pre-merge scrutiny found a blocking gap: `createNotificationDelivery`'s original `notify()` called `feed.publish(...)` (mutating the in-memory feed immediately) and only *then* attempted the durable write. A write failure left a notification committed in memory even though the action correctly reported failure - and because P04-T002 never caches a non-`"executed"` outcome, a retry of the same action would `feed.publish(...)` a *second* entry on top of the still-present failed one, and a slow, delayed write could later overwrite a newer, complete file with its own stale snapshot (a genuine, reproduced torn-write race between two racing publishes).
+
+**Chosen design: commit-after-success**, not rollback. `src/overlay/notification-feed.js` gained a two-phase `prepare()`/`commit()` pair alongside the existing (unchanged) `publish()`:
+
+- `prepare({ message, severity })` validates input and computes the exact next feed state - the same assigned id, timestamp, TTL-pruning, and `maxEntries` cap logic `publish()` already used - as a plain candidate object, **without mutating the feed at all**.
+- `commit(candidate)` applies a previously-`prepare()`d candidate as the feed's new state.
+
+`createNotificationDelivery` now does `prepare()` → durably write the candidate's entries → `commit()` only once that write has actually succeeded. If the write throws, the candidate is discarded; `entries`/`nextId` were never touched, so a retry's own `prepare()` call computes a fresh candidate from the *exact* same starting state (even reusing the same id, since `nextId` was never advanced) - satisfying "retry starts from the same effective state as before the failed attempt" precisely, not approximately.
+
+**Ordering/concurrency:** the real production path already serializes every `notify()` call - P04-T002's `executeAll()` is a plain sequential `for` loop, itself only ever driven by one `mapAndNotify()` call fully awaited before the next poll starts (`tools/emerald-live-state.mjs`). Rather than merely document that assumption, `createNotificationDelivery` also added a small, local, bounded serialization queue (a single promise chain) around its own `publishOnce()` step, so two `notify()` calls through *the same delivery instance* can never both `prepare()` from the same pre-write state and commit out of order - closing the theoretical race without introducing a general-purpose locking subsystem, a new replay mechanism, or any change to P04-T002's own single-flight/replay guard (which independently already prevents a genuine replay from calling `notify()` a second time at all).
+
+Verified against the pre-fix implementation directly (not just asserted): reverting only `createNotificationDelivery` back to its immediate-publish form reproduced all four regressions - an in-memory entry surviving a failed write, a retry publishing `[A, A]` instead of `[A]`, a pre-existing entry being incorrectly joined by a failed attempt's entry, and (via the persisted file specifically) a slower failed-then-delayed write overwriting a faster successful write's complete data. Re-applying the fix and re-running restored all four to green.

@@ -39,7 +39,7 @@
 | `src/overlay/host.js` | Domain-neutral validation and dispatch for a selected domain overlay presentation. |
 | `src/overlay/app.js` | Domain-neutral browser bootstrap: state URL/domain resolution, stylesheets, live-status display, presentation dispatch, and the notifications panel. |
 | `src/overlay/live-state.js` | Domain-neutral, dependency-injectable polling controller: no-overlap fetch scheduling, change-only rendering, live/stale/error status. |
-| `src/overlay/notification-feed.js` | Pure, in-memory, TTL-pruned, capped notification feed store. |
+| `src/overlay/notification-feed.js` | Pure, in-memory, TTL-pruned, capped notification feed store; `publish()` for direct use, and a two-phase `prepare()`/`commit()` for commit-after-success callers (see `tools/emerald-live-state.mjs`). |
 | `src/overlay/write-notification-feed.js` | Atomic writer for `public/notifications.json`. |
 | `src/overlay/notification-view.js` | Pure client-side reconciliation: which feed entries are newly visible vs. expired/dismissed. |
 | `src/overlay/notification-dom.js` | `textContent`-only DOM node builder and a polling notification panel (reuses `live-state.js`'s controller). |
@@ -107,6 +107,7 @@
 | `test/notification-view.test.js` | Pure client-side reconciliation tests: new/duplicate/expired/dismissed entries, malformed feeds, reconnect behavior. |
 | `test/notification-dom.test.js` | `textContent`-only DOM safety proof and polling notification panel reconciliation tests (fake-DOM harness). |
 | `test/overlay-notification-delivery.test.js` | Real provider + real executor + real feed integration: delivery, replay non-republish, ordering, failure containment, gating, state-mutation isolation. |
+| `test/notification-delivery-atomicity.test.js` | Transactional (commit-after-success) publication tests: failed-write/retry semantics, concurrency serialization, TTL/bounds through `prepare()`/`commit()`. |
 | `test/emerald-live-state-notifications.test.js` | Real Emerald fixture + real mapping/event/rule/executor/feed integration through `tools/emerald-live-state.mjs`'s own exported functions. |
 | `test/domain-boundary.test.js` | Pokemon package resolution, behavior, unknown-domain, and compatibility tests. |
 | `test/events-derive.test.js` | Domain-neutral event envelope validation and `deriveEvents` primitive tests (stamping, sequencing, fail-closed validation, detector-list guards). |
