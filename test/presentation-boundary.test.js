@@ -205,6 +205,28 @@ test("battle stat comparison shows stage-adjusted value and base for a non-neutr
   assert.match(attackRow, /base 100/);
 });
 
+test("battle stat comparison prefers the mapping layer's precomputed stageAdjustedStats over recalculating, for both player and opponent", () => {
+  const state = readSampleState();
+  state.player.party[0].stats.atk = 100;
+  // Deliberately wrong precomputed values (mathematically, +2 on base 100
+  // is 200, and +2 on the opponent's real base is not 999) - if
+  // presentation silently recalculated instead of consuming these, the
+  // mismatch would go undetected. `battle.player.stageAdjustedStats` in
+  // particular lives on a different object than `activePlayer` (the party
+  // slot), which is the exact wiring this test locks in.
+  state.battle.player = {
+    statStages: { atk: 2, def: 0, spe: 0, spa: 0, spd: 0, acc: 0, eva: 0 },
+    stageAdjustedStats: { atk: 555, def: 0, spa: 0, spd: 0, spe: 0 },
+  };
+  state.battle.opponent.statStages = { atk: 2, def: 0, spe: 0, spa: 0, spd: 0, acc: 0, eva: 0 };
+  state.battle.opponent.stageAdjustedStats = { atk: 777, def: 0, spa: 0, spd: 0, spe: 0 };
+  const html = renderPokemonOverlay(state);
+  const attackRow = html.match(/<tr>\s*<th scope="row">Attack<\/th>[\s\S]*?<\/tr>/)?.[0];
+  assert.ok(attackRow);
+  assert.match(attackRow, />555/, "the player column must show the precomputed 555, not a recalculated 200");
+  assert.match(attackRow, />777/, "the opponent column must show the precomputed 777, not a recalculated value");
+});
+
 test("battle stat comparison shows a neutral stat stage as (+0), distinguishable from a boost/drop by CSS class", () => {
   const state = readSampleState();
   state.battle.player = { statStages: { atk: 0, def: 0, spe: 0, spa: 0, spd: 0, acc: 0, eva: 0 } };

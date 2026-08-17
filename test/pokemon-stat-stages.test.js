@@ -32,6 +32,17 @@ test("invalid or missing stages fail closed without fabricating a neutral adjust
   assert.equal(calculateStageAdjustedStat(100, 7), null);
   assert.equal(deriveStageAdjustedStats({ atk: 100 }, { atk: 0 }), null);
   assert.equal(deriveStageAdjustedStats({ atk: 100, def: 100, spa: 100, spd: 100, spe: 100 }, null), null);
+  // All base stats present, but the stage object is missing one key
+  // (`def`) rather than being entirely absent - this must still fail
+  // closed for the whole result, not silently substitute a neutral 0
+  // stage for the missing key alone.
+  assert.equal(
+    deriveStageAdjustedStats(
+      { atk: 100, def: 100, spa: 100, spd: 100, spe: 100 },
+      { atk: -1, spa: 0, spd: 0, spe: 0 },
+    ),
+    null,
+  );
 });
 
 test("Emerald source stage survives mapping as raw stage and derived battle view", async () => {

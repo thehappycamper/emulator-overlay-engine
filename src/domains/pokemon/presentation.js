@@ -46,6 +46,12 @@ export function renderPokemonOverlay(state) {
   const isWildBattle = Boolean(opponent) && state.battle?.trainerBattle === false;
   const balls = state.bag?.balls ?? null;
   const playerStatStages = state.battle?.player?.statStages ?? null;
+  // `state.battle.player` (not `activePlayer` - a party-slot Pokemon, a
+  // separate object) is where the mapping layer attaches the
+  // already-derived stageAdjustedStats (see emerald-state-mapping.js) -
+  // must be threaded through separately so presentation can prefer it
+  // over recomputing.
+  const playerStageAdjustedStats = state.battle?.player?.stageAdjustedStats ?? null;
 
   return `
     <header class="topbar">
@@ -68,7 +74,7 @@ export function renderPokemonOverlay(state) {
 
       <section class="battle-section">
         <h2>Battle</h2>
-        ${opponent ? renderBattle(opponent, incoming, activePlayer, activePlayerIndex, playerStatStages) : '<p class="subtle empty-battle">Not currently in battle.</p>'}
+        ${opponent ? renderBattle(opponent, incoming, activePlayer, activePlayerIndex, playerStatStages, playerStageAdjustedStats) : '<p class="subtle empty-battle">Not currently in battle.</p>'}
         ${isWildBattle ? renderBallsPanel(balls) : ""}
       </section>
     </main>
@@ -217,7 +223,7 @@ function renderMove(move) {
   `;
 }
 
-function renderBattle(opponent, incoming, activePlayer, activePlayerIndex, playerStatStages) {
+function renderBattle(opponent, incoming, activePlayer, activePlayerIndex, playerStatStages, playerStageAdjustedStats) {
   const percent = hpPercent(opponent);
   const statusLabel = STATUS_LABEL[opponent.status] ?? opponent.status ?? "";
   const types = Array.isArray(opponent.types) ? opponent.types : [];
@@ -240,7 +246,7 @@ function renderBattle(opponent, incoming, activePlayer, activePlayerIndex, playe
       ${statusLabel ? `<div class="status-badge status-${opponent.status}">${statusLabel}</div>` : ""}
       ${moves.length ? `<ol class="moves">${moves.map(renderMove).join("")}</ol>` : '<p class="subtle">No observed moves.</p>'}
     </article>
-    ${renderStatComparison(activePlayer, activePlayerIndex, opponent, playerStatStages)}
+    ${renderStatComparison(activePlayer, activePlayerIndex, opponent, playerStatStages, playerStageAdjustedStats)}
     <div class="incoming-damage">
       <h3>Projected Incoming Damage</h3>
       <div class="damage-list">
@@ -261,11 +267,11 @@ function renderBattle(opponent, incoming, activePlayer, activePlayerIndex, playe
 // single number.
 const STAT_COMPARISON_ROWS = Object.freeze([
   { label: "Level", value: (pokemon) => (Number.isInteger(pokemon?.level) ? pokemon.level : null) },
-  { label: "Attack", value: (pokemon) => pokemon?.stats?.atk ?? null, stageAdjusted: (pokemon) => pokemon?.stageAdjustedStats?.atk ?? null, stageKey: "atk" },
-  { label: "Defense", value: (pokemon) => pokemon?.stats?.def ?? null, stageAdjusted: (pokemon) => pokemon?.stageAdjustedStats?.def ?? null, stageKey: "def" },
-  { label: "Sp. Atk", value: (pokemon) => pokemon?.stats?.spa ?? null, stageAdjusted: (pokemon) => pokemon?.stageAdjustedStats?.spa ?? null, stageKey: "spa" },
-  { label: "Sp. Def", value: (pokemon) => pokemon?.stats?.spd ?? null, stageAdjusted: (pokemon) => pokemon?.stageAdjustedStats?.spd ?? null, stageKey: "spd" },
-  { label: "Speed", value: (pokemon) => pokemon?.stats?.spe ?? null, stageAdjusted: (pokemon) => pokemon?.stageAdjustedStats?.spe ?? null, stageKey: "spe" },
+  { label: "Attack", value: (pokemon) => pokemon?.stats?.atk ?? null, stageAdjusted: (stageAdjustedStats) => stageAdjustedStats?.atk ?? null, stageKey: "atk" },
+  { label: "Defense", value: (pokemon) => pokemon?.stats?.def ?? null, stageAdjusted: (stageAdjustedStats) => stageAdjustedStats?.def ?? null, stageKey: "def" },
+  { label: "Sp. Atk", value: (pokemon) => pokemon?.stats?.spa ?? null, stageAdjusted: (stageAdjustedStats) => stageAdjustedStats?.spa ?? null, stageKey: "spa" },
+  { label: "Sp. Def", value: (pokemon) => pokemon?.stats?.spd ?? null, stageAdjusted: (stageAdjustedStats) => stageAdjustedStats?.spd ?? null, stageKey: "spd" },
+  { label: "Speed", value: (pokemon) => pokemon?.stats?.spe ?? null, stageAdjusted: (stageAdjustedStats) => stageAdjustedStats?.spe ?? null, stageKey: "spe" },
 ]);
 
 // Accuracy/Evasion have no underlying numeric base stat (they exist only as
@@ -327,7 +333,7 @@ function renderStatComparisonRow(label, playerValue, opponentValue, { playerText
 // verified active-battler tracking - see docs/tasks/P05/P05-T010.md for why
 // that remains a follow-up rather than a guess at a new fixed memory
 // address this task cannot verify in this environment.
-function renderStatComparison(activePlayer, activePlayerIndex, opponent, playerStatStages) {
+function renderStatComparison(activePlayer, activePlayerIndex, opponent, playerStatStages, playerStageAdjustedStats) {
   if (!activePlayer) {
     return `
       <details class="stat-compare">
@@ -342,11 +348,15 @@ function renderStatComparison(activePlayer, activePlayerIndex, opponent, playerS
     const opponentBaseValue = row.value(opponent);
     const playerStage = row.stageKey ? playerStatStages?.[row.stageKey] ?? null : null;
     const opponentStage = row.stageKey ? opponent?.statStages?.[row.stageKey] ?? null : null;
+    // Prefers the mapping layer's own already-derived stageAdjustedStats
+    // (see emerald-state-mapping.js's deriveStageAdjustedStats) over
+    // recomputing; recomputing here is only a fallback for state that
+    // didn't go through that mapping (e.g. hand-built test/sample state).
     const playerValue = row.stageKey && Number.isInteger(playerStage)
-      ? row.stageAdjusted(activePlayer) ?? calculateStageAdjustedStat(playerBaseValue, playerStage)
+      ? row.stageAdjusted(playerStageAdjustedStats) ?? calculateStageAdjustedStat(playerBaseValue, playerStage)
       : playerBaseValue;
     const opponentValue = row.stageKey && Number.isInteger(opponentStage)
-      ? row.stageAdjusted(opponent) ?? calculateStageAdjustedStat(opponentBaseValue, opponentStage)
+      ? row.stageAdjusted(opponent?.stageAdjustedStats) ?? calculateStageAdjustedStat(opponentBaseValue, opponentStage)
       : opponentBaseValue;
     return renderStatComparisonRow(row.label, playerValue, opponentValue, {
       playerBaseValue,
