@@ -17,7 +17,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | `P01` | Platform Mapping Foundation | completed |
 | `P02` | Domain Boundary | completed |
 | `P03` | Semantic Event Foundation | completed |
-| `P04` | Event Routing And Actions | active - `P04-T001` and `P04-T002` completed; `P04-T003` (real overlay.notification delivery) in review |
+| `P04` | Event Routing And Actions | active - `P04-T001`, `P04-T002`, and `P04-T003` completed; browser-shell follow-up remains before `P04-T004` |
 | `P05` | Live Gameplay Source | active - `P05-T001`-`T007`, `T009`-`T012` completed; `T013` in review; real mGBA/BizHawk end-to-end acceptance still required |
 | `P06` | Second Source / Domain Proof | active (provider-neutral acquisition implemented and reviewed; real-ROM BizHawk acceptance and `P05` gate remain open) |
 | — | Later Product Tracks | coarse / not phased yet |
@@ -126,7 +126,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P04 — Event Routing And Actions
 
-**Status:** active. `P04-T001` proves declarative event-to-action-request evaluation, and `P04-T002` adds the capability-gated action executor and two harmless local action providers; both are completed after independent review and merge. `P04-T003` wires `overlay.notification` to a real local delivery channel (pokemon.fainted -> rule -> executor -> browser notification); implemented and pushed for independent review. Broad action-provider ecosystem integrations remain out of scope.
+**Status:** active. `P04-T001` proves declarative event-to-action-request evaluation, and `P04-T002` adds the capability-gated action executor and two harmless local action providers; both are completed after independent review and merge. `P04-T003` wires `overlay.notification` to a real local delivery channel (pokemon.fainted -> rule -> executor -> browser notification); completed after independent review and merge. The pre-existing browser-shell Ajv module-resolution issue is an immediate follow-up before `P04-T004`; broad action-provider ecosystem integrations remain out of scope.
 
 **Objective:** Prove event subscriptions/routing and a minimal action contract (e.g. an event triggering an overlay update or a single action-provider example) without building broad integrations (no OBS/MQTT/hardware integrations yet — those are later product tracks).
 
@@ -135,9 +135,9 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 **Major tasks:**
 - [`P04-T001`](../tasks/P04/P04-T001.md) — Declarative semantic-event rules producing validated action requests. Completed (independent review APPROVE, fast-forward merged at `7d507a2`).
 - [`P04-T002`](../tasks/P04/P04-T002.md) — Capability-gated action executor: a fail-closed supported/capability/authorization/payload pipeline turning a validated action request into a real (but harmless) local effect via `overlay.notification`/`system.log` proof providers, with explicit replay/duplicate semantics. Completed after independent review and merge at `653b61e`. See [ADR 0027](../decisions/0027-capability-gated-action-executor.md).
-- [`P04-T003`](../tasks/P04/P04-T003.md) — Overlay notification local delivery: a real, capability/authorization-gated, replay-safe local file-and-poll channel (`public/notifications.json`) from a genuine `pokemon.fainted` event through the declarative rule and executor to a visible, safely-rendered, dismissible browser notification. Implemented, pushed for independent review. See [ADR 0029](../decisions/0029-overlay-notification-local-delivery.md).
+- [`P04-T003`](../tasks/P04/P04-T003.md) — Overlay notification local delivery: a real, capability/authorization-gated, replay-safe local file-and-poll channel (`public/notifications.json`) from a genuine `pokemon.fainted` event through the declarative rule and executor to a visible, safely-rendered, dismissible browser notification. Completed and merged at `5da3ee4`. See [ADR 0029](../decisions/0029-overlay-notification-local-delivery.md).
 
-**Exit criteria:** A minimal, provable path from a detected event to a validated declarative rule result and action request exists (met by `P04-T001`). A capability-gated executor turns at least one such request into a real, harmless local effect, failing closed on every unsupported/unauthorized/invalid case (met by `P04-T002`). At least one action provider reaches a real local delivery target end to end without weakening capability/authorization/replay guarantees (met by `P04-T003`, pending independent review). Broad action-provider ecosystem integrations remain out of scope for this phase.
+**Exit criteria:** A minimal, provable path from a detected event to a validated declarative rule result and action request exists (met by `P04-T001`). A capability-gated executor turns at least one such request into a real, harmless local effect, failing closed on every unsupported/unauthorized/invalid case (met by `P04-T002`). At least one action provider reaches a real local delivery target end to end without weakening capability/authorization/replay guarantees (met by `P04-T003`). Broad action-provider ecosystem integrations remain out of scope for this phase.
 
 **Dependencies:** `P03`.
 
