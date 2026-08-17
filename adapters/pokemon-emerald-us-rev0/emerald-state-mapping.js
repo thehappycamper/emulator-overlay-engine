@@ -3,6 +3,7 @@ import { readFile as readFileAsync } from "node:fs/promises";
 import Ajv2020 from "ajv/dist/2020.js";
 
 import { pokemonStateContract } from "../../src/domains/pokemon/index.js";
+import { deriveStageAdjustedStats } from "../../src/domains/pokemon/stat-stages.js";
 import { applyMappingProject } from "../../src/mapping/apply.js";
 import { writeJsonAtomically } from "./atomic-json-file.js";
 import { EMERALD_SOURCE_CONTRACT } from "./emerald-source-contract.js";
@@ -78,7 +79,7 @@ export function mapEmeraldSourceSnapshot(source, options = {}) {
   assertValidEmeraldStateMappingProject(project);
   assertContractDescriptors(project);
 
-  return applyMappingProject(project, source, {
+  const mapped = applyMappingProject(project, source, {
     validateTarget(target, descriptor, schemaId) {
       if (
         descriptor.id !== pokemonStateContract.id ||
@@ -91,6 +92,25 @@ export function mapEmeraldSourceSnapshot(source, options = {}) {
       return true;
     },
   });
+
+  // The declarative mapping carries source stages unchanged. This small
+  // Pokemon-domain derivation adds the battle-relevant view without changing
+  // the raw normalized stats or putting game semantics in the platform mapper.
+  const activePlayer = mapped.player?.party?.[mapped.battle?.activePlayerIndex ?? 0] ?? null;
+  if (mapped.battle?.player && activePlayer) {
+    mapped.battle.player.stageAdjustedStats = deriveStageAdjustedStats(
+      activePlayer.stats,
+      mapped.battle.player.statStages,
+    );
+  }
+  if (mapped.battle?.opponent) {
+    mapped.battle.opponent.stageAdjustedStats = deriveStageAdjustedStats(
+      mapped.battle.opponent.stats,
+      mapped.battle.opponent.statStages,
+    );
+  }
+  assertValidPokemonState(mapped);
+  return mapped;
 }
 
 export async function writePokemonLiveState(destination, state, options = {}) {

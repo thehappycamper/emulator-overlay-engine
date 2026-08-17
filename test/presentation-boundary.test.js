@@ -193,6 +193,18 @@ test("battle stat comparison shows a negative stat stage as a distinguishable (-
   assert.match(html, /<span class="stat-stage stage-down">\(-3\)<\/span>/);
 });
 
+test("battle stat comparison shows stage-adjusted value and base for a non-neutral stage", () => {
+  const state = readSampleState();
+  state.player.party[0].stats.atk = 100;
+  state.battle.player = { statStages: { atk: 2, def: 0, spe: 0, spa: 0, spd: 0, acc: 0, eva: 0 } };
+  const html = renderPokemonOverlay(state);
+  const attackRow = html.match(/<tr>\s*<th scope="row">Attack<\/th>[\s\S]*?<\/tr>/)?.[0];
+  assert.ok(attackRow);
+  assert.match(attackRow, />200/);
+  assert.match(attackRow, /\(\+2\)/);
+  assert.match(attackRow, /base 100/);
+});
+
 test("battle stat comparison shows a neutral stat stage as (+0), distinguishable from a boost/drop by CSS class", () => {
   const state = readSampleState();
   state.battle.player = { statStages: { atk: 0, def: 0, spe: 0, spa: 0, spd: 0, acc: 0, eva: 0 } };

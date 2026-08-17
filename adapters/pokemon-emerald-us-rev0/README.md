@@ -28,4 +28,6 @@ The current contract remains intentionally narrow: full occupied party decoding,
 
 Live battle stat stages (Attack/Defense/Speed/Sp. Atk/Sp. Def/Accuracy/Evasion modifiers, `-6..+6`) for the player's and opponent's single active battlers are read from `gBattleMons` at a fixed EWRAM address established from a community-maintained, independently cross-checked linker/RAM map (see `emerald-us-rev0.js`'s `battle` constant block for the full citation); `battle.player.statStages` and `battle.opponent.statStages` are null outside of an active battle or when the read is out of the game's real `[0,12]` raw range. This does not resolve which party slot the active battler corresponds to - that remains the same open problem `activePlayerIndex` already discloses.
 
+After the existing declarative mapping, the Pokemon domain derives `stageAdjustedStats` for the five ordinary battle stats using `pret/pokeemerald`'s `gStatStageRatios` and integer multiply-then-divide semantics. These values apply only stat-stage modifiers and are not the complete effective stat; raw `stats` and `statStages` remain available. If either raw stats or a stage is unavailable/invalid, the derived view is null rather than assuming neutral.
+
 No ROM, BIOS, save, savestate, emulator binary, or copied game data belongs here. Fixtures contain only synthetic derived values.

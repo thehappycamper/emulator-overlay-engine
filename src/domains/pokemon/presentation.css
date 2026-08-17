@@ -393,6 +393,13 @@ h3 {
   font-weight: 400;
 }
 
+.stat-base {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72em;
+  font-weight: 400;
+}
+
 .stat-stage.stage-up {
   color: var(--green);
 }

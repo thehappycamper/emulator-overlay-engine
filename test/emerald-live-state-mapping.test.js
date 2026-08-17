@@ -80,7 +80,21 @@ test("live Emerald fields map every genuinely-present party slot (not just one) 
   assert.equal(state.battle.opponent.speciesId, source.battle.opponent.speciesId);
   assert.deepEqual(state.battle.opponent.moves, source.battle.opponent.moves);
   assert.deepEqual(state.battle.opponent.statStages, source.battle.opponent.statStages);
-  assert.deepEqual(state.battle.player, source.battle.player);
+  assert.deepEqual(state.battle.player.statStages, source.battle.player.statStages);
+  assert.deepEqual(state.battle.player.stageAdjustedStats, {
+    atk: 13,
+    def: 36,
+    spa: 24,
+    spd: 8,
+    spe: 14,
+  });
+  assert.deepEqual(state.battle.opponent.stageAdjustedStats, {
+    atk: 50,
+    def: 20,
+    spa: 10,
+    spd: 10,
+    spe: 20,
+  });
   assert.deepEqual(state.player.badges, source.badges);
   assert.equal(state.location.name, source.location.name);
   assert.deepEqual(acquisition.location, { mapGroup: source.location.mapGroup, mapNumber: source.location.mapNumber, x: source.location.x, y: source.location.y });

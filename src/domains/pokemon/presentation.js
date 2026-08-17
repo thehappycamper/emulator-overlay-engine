@@ -1,4 +1,5 @@
 import { projectIncomingDamage } from "./damage.js";
+import { calculateStageAdjustedStat } from "./stat-stages.js";
 
 const STATUS_LABEL = Object.freeze({
   none: "",
@@ -260,11 +261,11 @@ function renderBattle(opponent, incoming, activePlayer, activePlayerIndex, playe
 // single number.
 const STAT_COMPARISON_ROWS = Object.freeze([
   { label: "Level", value: (pokemon) => (Number.isInteger(pokemon?.level) ? pokemon.level : null) },
-  { label: "Attack", value: (pokemon) => pokemon?.stats?.atk ?? null, stageKey: "atk" },
-  { label: "Defense", value: (pokemon) => pokemon?.stats?.def ?? null, stageKey: "def" },
-  { label: "Sp. Atk", value: (pokemon) => pokemon?.stats?.spa ?? null, stageKey: "spa" },
-  { label: "Sp. Def", value: (pokemon) => pokemon?.stats?.spd ?? null, stageKey: "spd" },
-  { label: "Speed", value: (pokemon) => pokemon?.stats?.spe ?? null, stageKey: "spe" },
+  { label: "Attack", value: (pokemon) => pokemon?.stats?.atk ?? null, stageAdjusted: (pokemon) => pokemon?.stageAdjustedStats?.atk ?? null, stageKey: "atk" },
+  { label: "Defense", value: (pokemon) => pokemon?.stats?.def ?? null, stageAdjusted: (pokemon) => pokemon?.stageAdjustedStats?.def ?? null, stageKey: "def" },
+  { label: "Sp. Atk", value: (pokemon) => pokemon?.stats?.spa ?? null, stageAdjusted: (pokemon) => pokemon?.stageAdjustedStats?.spa ?? null, stageKey: "spa" },
+  { label: "Sp. Def", value: (pokemon) => pokemon?.stats?.spd ?? null, stageAdjusted: (pokemon) => pokemon?.stageAdjustedStats?.spd ?? null, stageKey: "spd" },
+  { label: "Speed", value: (pokemon) => pokemon?.stats?.spe ?? null, stageAdjusted: (pokemon) => pokemon?.stageAdjustedStats?.spe ?? null, stageKey: "spe" },
 ]);
 
 // Accuracy/Evasion have no underlying numeric base stat (they exist only as
@@ -299,16 +300,22 @@ function formatStatStage(stage) {
   return ` <span class="stat-stage ${stageClass}">(${sign}${stage})</span>`;
 }
 
-function renderStatComparisonRow(label, playerValue, opponentValue, { playerText, opponentText, playerStage, opponentStage } = {}) {
+function renderStatComparisonRow(label, playerValue, opponentValue, { playerText, opponentText, playerStage, opponentStage, playerBaseValue, opponentBaseValue } = {}) {
   const indicator = statComparisonIndicator(playerValue, opponentValue);
   const playerDisplay = playerText ?? (typeof playerValue === "number" ? String(playerValue) : "&ndash;");
   const opponentDisplay = opponentText ?? (typeof opponentValue === "number" ? String(opponentValue) : "&ndash;");
+  const playerBase = Number.isInteger(playerStage) && playerStage !== 0 && Number.isInteger(playerBaseValue) && playerBaseValue !== playerValue
+    ? `<span class="stat-base">base ${playerBaseValue}</span>`
+    : "";
+  const opponentBase = Number.isInteger(opponentStage) && opponentStage !== 0 && Number.isInteger(opponentBaseValue) && opponentBaseValue !== opponentValue
+    ? `<span class="stat-base">base ${opponentBaseValue}</span>`
+    : "";
   return `
     <tr>
       <th scope="row">${escapeHtml(label)}</th>
-      <td class="stat-value ${indicator.class === "stat-advantage" ? "stat-highlight" : ""}">${playerDisplay}${formatStatStage(playerStage)}</td>
+      <td class="stat-value ${indicator.class === "stat-advantage" ? "stat-highlight" : ""}">${playerDisplay}${formatStatStage(playerStage)}${playerBase}</td>
       <td class="stat-indicator ${indicator.class}">${indicator.symbol}</td>
-      <td class="stat-value ${indicator.class === "stat-disadvantage" ? "stat-highlight" : ""}">${opponentDisplay}${formatStatStage(opponentStage)}</td>
+      <td class="stat-value ${indicator.class === "stat-disadvantage" ? "stat-highlight" : ""}">${opponentDisplay}${formatStatStage(opponentStage)}${opponentBase}</td>
     </tr>
   `;
 }
@@ -330,12 +337,24 @@ function renderStatComparison(activePlayer, activePlayerIndex, opponent, playerS
     `;
   }
 
-  const rows = STAT_COMPARISON_ROWS.map((row) =>
-    renderStatComparisonRow(row.label, row.value(activePlayer), row.value(opponent), {
-      playerStage: row.stageKey ? playerStatStages?.[row.stageKey] ?? null : null,
-      opponentStage: row.stageKey ? opponent?.statStages?.[row.stageKey] ?? null : null,
-    }),
-  ).join("");
+  const rows = STAT_COMPARISON_ROWS.map((row) => {
+    const playerBaseValue = row.value(activePlayer);
+    const opponentBaseValue = row.value(opponent);
+    const playerStage = row.stageKey ? playerStatStages?.[row.stageKey] ?? null : null;
+    const opponentStage = row.stageKey ? opponent?.statStages?.[row.stageKey] ?? null : null;
+    const playerValue = row.stageKey && Number.isInteger(playerStage)
+      ? row.stageAdjusted(activePlayer) ?? calculateStageAdjustedStat(playerBaseValue, playerStage)
+      : playerBaseValue;
+    const opponentValue = row.stageKey && Number.isInteger(opponentStage)
+      ? row.stageAdjusted(opponent) ?? calculateStageAdjustedStat(opponentBaseValue, opponentStage)
+      : opponentBaseValue;
+    return renderStatComparisonRow(row.label, playerValue, opponentValue, {
+      playerBaseValue,
+      opponentBaseValue,
+      playerStage,
+      opponentStage,
+    });
+  }).join("");
   const stageOnlyRows = STAT_STAGE_ONLY_ROWS.map((row) =>
     renderStatComparisonRow(row.label, null, null, {
       playerStage: playerStatStages?.[row.stageKey] ?? null,
