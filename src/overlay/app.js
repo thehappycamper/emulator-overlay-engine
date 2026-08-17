@@ -1,4 +1,4 @@
-import { resolveDomain } from "../domains/index.js";
+import { resolveBrowserDomain as resolveDomain } from "../domains/browser.js";
 import { getDomainOverlayPresentation, renderDomainOverlay } from "./host.js";
 import { createLiveStateController } from "./live-state.js";
 import { createNotificationPanel } from "./notification-dom.js";

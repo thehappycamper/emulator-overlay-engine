@@ -29,7 +29,7 @@ Status labels:
 | Safe calculated expressions | mvp | Whitelisted JSON AST with no arbitrary JavaScript execution |
 | Executable mapping pipeline | mvp | Direct fields, ID/value maps, calculated fields, and validation hooks |
 | Repository schema validation | mvp | `npm test` validates extension, template, mapping, and normalized-state examples |
-| Declarative event rules, capability-gated action execution, and local notification delivery | active | `P04-T001` validates domain-neutral rules and emits `overlay.notification`/`system.log` action requests (completed, merged); `P04-T002` adds the fail-closed capability-gated executor (completed, merged); `P04-T003` wires `overlay.notification` to a real local delivery channel (`public/notifications.json`), visible in the browser overlay, independent review pending |
+| Declarative event rules, capability-gated action execution, and local notification delivery | active | `P04-T001` validates domain-neutral rules and emits `overlay.notification`/`system.log` action requests (completed, merged); `P04-T002` adds the fail-closed capability-gated executor (completed, merged); `P04-T003` wires `overlay.notification` to a real local delivery channel (`public/notifications.json`), visible in the browser overlay (completed, merged); `P04-T004` restores the real browser app shell, in review |
 
 ## Planned And Future Features
 

@@ -4,11 +4,11 @@ This is a short pointer, not the project history. For full history, see `docs/ta
 
 ## Current status
 
-- **Active phases:** `P04` — Event Routing And Actions remains active with `P04-T001` and `P04-T002` completed; `P04-T003` (real `overlay.notification` delivery) is completed; the pre-existing browser-shell Ajv module-resolution issue is the immediate follow-up before `P04-T004`. `P05` remains open for real mGBA/BizHawk acceptance and `P06` remains open for real-ROM BizHawk acceptance. See [implementation plan](implementation-plan.md).
+- **Active phases:** `P04` — Event Routing And Actions remains active with `P04-T001` and `P04-T002` completed; `P04-T003` (real `overlay.notification` delivery) is completed; `P04-T004` is in review and restores the real browser app shell. `P05` remains open for real mGBA/BizHawk acceptance and `P06` remains open for real-ROM BizHawk acceptance. See [implementation plan](implementation-plan.md).
 - **Completed phases:** `P03` — Semantic Event Foundation closed with `P03-T001`'s merge (independent review: round 1 REQUEST CHANGES, round 2 APPROVE).
-- **Current review task:** None. `P04-T003` is completed and merged at `main@5da3ee4`.
+- **Current review task:** [`P04-T004`](../tasks/P04/P04-T004.md), browser app-shell module resolution, implemented and pushed for independent review.
 - **Last completed task:** [`P04-T003` — Overlay notification local delivery](../tasks/P04/P04-T003.md) (independent review APPROVE, merged to `main` at `5da3ee4`). [`P04-T002`](../tasks/P04/P04-T002.md), [`P05-T013`](../tasks/P05/P05-T013.md), [`P04-T001`](../tasks/P04/P04-T001.md), [`P03-T001`](../tasks/P03/P03-T001.md), [`P05-T012`](../tasks/P05/P05-T012.md), [`P05-T007`](../tasks/P05/P05-T007.md), [`P05-T011`](../tasks/P05/P05-T011.md), [`P05-T010`](../tasks/P05/P05-T010.md), [`P05-T009`](../tasks/P05/P05-T009.md), [`P05-T001`](../tasks/P05/P05-T001.md) through [`P05-T006`](../tasks/P05/P05-T006.md), and [`P06-T002`](../tasks/P06/P06-T002.md) are also completed.
-- **Next steps:** fix the pre-existing browser-shell Ajv module-resolution issue, run the real one-command faint-to-notification acceptance, then define `P04-T004`. Separately run and record real mGBA and BizHawk end-to-end acceptance tests against the richer `P05` pipeline.
+- **Next steps:** independently review and merge `P04-T004`, run the real one-command faint-to-notification acceptance, then define the next P04 task. Separately run and record real mGBA and BizHawk end-to-end acceptance tests against the richer `P05` pipeline.
 
 ## Most recent session (2026-08-16)
 
