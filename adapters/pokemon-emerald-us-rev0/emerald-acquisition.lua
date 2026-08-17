@@ -101,6 +101,27 @@ local SAVEBLOCK2 = {
     encryptionKeyOffset = 0xAC,
 }
 
+-- See emerald-us-rev0.js's twin constant for the full gBattleMons
+-- address/offset/index-order provenance note (community-maintained
+-- BPEE.ld linker map, cross-checked against five already-verified
+-- addresses in this same table).
+local BATTLE = {
+    ewramStart = 0x02000000,
+    ewramEnd = 0x02040000,
+    battleMonsAddress = 0x02024084,
+    battleMonStructSize = 0x58,
+    statStagesOffset = 0x18,
+    statStageMin = 0,
+    statStageDefault = 6,
+    statStageMax = 12,
+    playerBattlerIndex = 0,
+    opponentBattlerIndex = 1,
+}
+
+-- Order of struct BattlePokemon.statStages[1..7] (index 0, HP, has no
+-- stage and is skipped) - see BATTLE's own comment for the full citation.
+local STAT_STAGE_FIELD_ORDER = { "atk", "def", "spe", "spa", "spd", "acc", "eva" }
+
 -- Substructure order tables for personality % 24 (all four types). See
 -- docs/tasks/P05/P05-T009.md's Implementation Notes for the full
 -- cross-check of every row against pokeemerald's own GetSubstruct()
@@ -401,6 +422,27 @@ local function calculateCatchChance(catchRate, ballMultiplier, maxHp, currentHp,
     return chance
 end
 
+-- Reads one battler's live stat stages from gBattleMons[battlerIndex] - see
+-- emerald-us-rev0.js's readBattlerStatStages twin for the full
+-- address/offset/range citation. Returns nil (not a partial table) if any
+-- raw stage byte falls outside the real [0,12] range, since this is a
+-- fixed global always "readable" numerically even outside battle - range
+-- validation is the only fail-closed signal available here.
+local function readBattlerStatStages(reader, battlerIndex)
+    local battlerAddress = BATTLE.battleMonsAddress + battlerIndex * BATTLE.battleMonStructSize
+    local stages = {}
+    for index = 1, #STAT_STAGE_FIELD_ORDER do
+        -- +1 (Lua's own +1 for 1-based STAT_STAGE_FIELD_ORDER) skips
+        -- statStages[0] (STAT_HP), which carries no stage.
+        local ok, raw = pcall(reader.read8, battlerAddress + BATTLE.statStagesOffset + index)
+        if not ok or type(raw) ~= "number" or raw < BATTLE.statStageMin or raw > BATTLE.statStageMax then
+            return nil
+        end
+        stages[STAT_STAGE_FIELD_ORDER[index]] = raw - BATTLE.statStageDefault
+    end
+    return stages
+end
+
 -- `wildOpponent` is only passed for an active, non-trainer battle - see
 -- emerald-us-rev0.js's readBag twin for the full architecture rationale,
 -- including why `encryptionKey` must be XORed against every raw quantity.
@@ -486,6 +528,29 @@ function M.acquire(reader)
     local trainerBattle = (typeFlags & BATTLE_TYPE_TRAINER) ~= 0
     local wildOpponent = (battleActive and not trainerBattle) and opponent or nil
 
+    -- gBattleMons only holds meaningful data during an active battle (stale
+    -- leftover/zeroed data otherwise), so stat stages are only ever
+    -- attempted - and only ever exposed - while battleActive is true. A
+    -- failed read for either battler nullifies both, matching
+    -- emerald-us-rev0.js's readEmeraldAcquisition exactly.
+    local playerStatStages = nil
+    local opponentStatStages = nil
+    if battleActive then
+        -- readBattlerStatStages never throws (it uses pcall internally and
+        -- returns nil on any failure) - a failed read for either battler
+        -- nullifies both, matching emerald-us-rev0.js's
+        -- readEmeraldAcquisition exactly.
+        local playerStages = readBattlerStatStages(reader, BATTLE.playerBattlerIndex)
+        local opponentStages = readBattlerStatStages(reader, BATTLE.opponentBattlerIndex)
+        if playerStages ~= nil and opponentStages ~= nil then
+            playerStatStages = playerStages
+            opponentStatStages = opponentStages
+        end
+    end
+    if opponent ~= nil then
+        opponent.statStages = opponentStatStages
+    end
+
     local saveBlock1 = reader.read32(address.saveBlock1Pointer)
     local locationReadable = saveBlock1 >= SAVEBLOCK1.ewramStart and saveBlock1 + 5 < SAVEBLOCK1.ewramEnd
     local badgesReadable = saveBlock1 >= SAVEBLOCK1.ewramStart
@@ -540,6 +605,7 @@ function M.acquire(reader)
             typeFlags = typeFlags,
             trainerBattle = trainerBattle,
             opponent = opponent,
+            player = { statStages = playerStatStages },
         },
         location = location,
         badges = badgesReadable and readBadges(reader, saveBlock1) or nil,
@@ -573,6 +639,14 @@ local function statsJson(stats)
     return string.format(
         '{"atk":%d,"def":%d,"spa":%d,"spd":%d,"spe":%d}',
         stats.atk, stats.def, stats.spa, stats.spd, stats.spe
+    )
+end
+
+local function statStagesJson(statStages)
+    if statStages == nil then return "null" end
+    return string.format(
+        '{"atk":%d,"def":%d,"spe":%d,"spa":%d,"spd":%d,"acc":%d,"eva":%d}',
+        statStages.atk, statStages.def, statStages.spe, statStages.spa, statStages.spd, statStages.acc, statStages.eva
     )
 end
 
@@ -612,7 +686,7 @@ local function pokemonJson(pokemon)
     end
     return string.format(
         '{"speciesId":%d,"name":%s,"nickname":%s,"types":%s,"gender":%s,"level":%d,"currentHp":%d,"maxHp":%d,'
-            .. '"status":%s,"item":%s,"itemId":%s,"exp":%d,"expProgress":%s,"catchRate":%s,"stats":%s,"ivs":%s,"moves":%s}',
+            .. '"status":%s,"item":%s,"itemId":%s,"exp":%d,"expProgress":%s,"catchRate":%s,"stats":%s,"ivs":%s,"moves":%s,"statStages":%s}',
         pokemon.speciesId,
         jsonValueOrNull(pokemon.name),
         jsonString(pokemon.nickname or ""),
@@ -629,7 +703,8 @@ local function pokemonJson(pokemon)
         jsonValueOrNull(pokemon.catchRate),
         statsJson(pokemon.stats),
         statsJson(pokemon.ivs),
-        movesJson(pokemon.moves)
+        movesJson(pokemon.moves),
+        statStagesJson(pokemon.statStages)
     )
 end
 
@@ -705,12 +780,17 @@ local function bagJson(bag)
     return '{"balls":[' .. table.concat(parts, ",") .. "]}"
 end
 
+local function battlePlayerJson(player)
+    if player == nil then return "null" end
+    return '{"statStages":' .. statStagesJson(player.statStages) .. "}"
+end
+
 function M.snapshotJson(source, identity, acquisition)
     M.assertIdentity(identity)
     return string.format(
         '{"contract":{"id":%s,"version":%s},"source":%s,"game":{"gameCode":%s,"title":%s,"revision":%d,"crc32":%s},'
             .. '"party":{"count":%d,"slots":%s,"first":%s},'
-            .. '"battle":{"active":%s,"typeFlags":%d,"trainerBattle":%s,"opponent":%s},'
+            .. '"battle":{"active":%s,"typeFlags":%d,"trainerBattle":%s,"opponent":%s,"player":%s},'
             .. '"location":%s,"badges":%s,"bag":%s}',
         jsonString(M.contract.id),
         jsonString(M.contract.version),
@@ -726,6 +806,7 @@ function M.snapshotJson(source, identity, acquisition)
         acquisition.battle.typeFlags,
         tostring(acquisition.battle.trainerBattle),
         pokemonJson(acquisition.battle.opponent),
+        battlePlayerJson(acquisition.battle.player),
         locationJson(acquisition.location),
         badgesJson(acquisition.badges),
         bagJson(acquisition.bag)

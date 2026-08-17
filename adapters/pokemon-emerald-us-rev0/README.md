@@ -26,4 +26,6 @@ Only Emerald English retail Rev 0 is supported: game code `AGB-BPEE`, revision `
 
 The current contract remains intentionally narrow: full occupied party decoding, one fixed opponent entry, battle flags, raw location identifiers, and the Poke Ball pocket. Bag quantities are decrypted from their raw `u16` values with `SaveBlock2.encryptionKey`; if SaveBlock1 or SaveBlock2/key data is unreadable, `bag` is null rather than guessed. Other pockets, seed/frame, and semantic events remain future work.
 
+Live battle stat stages (Attack/Defense/Speed/Sp. Atk/Sp. Def/Accuracy/Evasion modifiers, `-6..+6`) for the player's and opponent's single active battlers are read from `gBattleMons` at a fixed EWRAM address established from a community-maintained, independently cross-checked linker/RAM map (see `emerald-us-rev0.js`'s `battle` constant block for the full citation); `battle.player.statStages` and `battle.opponent.statStages` are null outside of an active battle or when the read is out of the game's real `[0,12]` raw range. This does not resolve which party slot the active battler corresponds to - that remains the same open problem `activePlayerIndex` already discloses.
+
 No ROM, BIOS, save, savestate, emulator binary, or copied game data belongs here. Fixtures contain only synthetic derived values.

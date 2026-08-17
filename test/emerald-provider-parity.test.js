@@ -61,6 +61,12 @@ test("mGBA and BizHawk provenance wrap identical Emerald acquisition semantics",
 
   assert.deepEqual(mgba.party, bizhawk.party);
   assert.deepEqual(mgba.battle, bizhawk.battle);
+  // Explicit call-out: battle stat stages (player and opponent) are part of
+  // the same battle object already asserted equal above, but are checked
+  // by name too since they come from a separate gBattleMons read distinct
+  // from the rest of battle/opponent acquisition.
+  assert.deepEqual(mgba.battle.opponent.statStages, bizhawk.battle.opponent.statStages);
+  assert.deepEqual(mgba.battle.player, bizhawk.battle.player);
   assert.deepEqual(mgba.location, bizhawk.location);
   assert.deepEqual(mgba.game, bizhawk.game);
   assert.equal(mgba.source.provider.id, "mgba");

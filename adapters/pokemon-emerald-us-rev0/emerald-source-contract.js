@@ -69,6 +69,10 @@ export function createEmeraldSourceSnapshot(source, identity, acquisition) {
       typeFlags: acquisition?.battle?.typeFlags,
       trainerBattle: acquisition?.battle?.trainerBattle,
       opponent: freezePokemon(acquisition?.battle?.opponent ?? null),
+      player:
+        acquisition?.battle?.player === null || acquisition?.battle?.player === undefined
+          ? null
+          : Object.freeze({ statStages: acquisition.battle.player.statStages ?? null }),
     }),
     location:
       acquisition?.location === null || acquisition?.location === undefined

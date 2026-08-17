@@ -388,6 +388,23 @@ h3 {
   color: #d1453b;
 }
 
+.stat-stage {
+  font-size: 0.85em;
+  font-weight: 400;
+}
+
+.stat-stage.stage-up {
+  color: var(--green);
+}
+
+.stat-stage.stage-down {
+  color: #d1453b;
+}
+
+.stat-stage.stage-neutral {
+  color: var(--muted);
+}
+
 .encounters-table td,
 .balls-table td {
   padding: 4px 6px;

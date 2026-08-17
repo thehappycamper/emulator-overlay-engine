@@ -2,7 +2,7 @@
   "schemaVersion": "0.1.0",
   "id": "pokemon.emerald.us-rev0-to-overlay-state",
   "name": "Pokemon Emerald US Rev 0 To Pokemon Overlay State",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Maps the provider-neutral, already-enriched Emerald acquisition snapshot (full party, opponent, badges, resolved location name) into the current Pokemon normalized overlay state. Unlike the prior fixed-single-slot mapping this supersedes, no synthetic placeholder Pokemon data is used: party members and the opponent are included only when the source genuinely reports them. P05-T011 additionally maps Poke Ball inventory, per-map wild encounter rates, trainer-battle detection, and per-Pokemon base catch rate.",
   "source": {
     "id": "pokemon.emerald.us-rev0.acquisition",
@@ -668,6 +668,16 @@
       "sourcePath": "/battle/opponent/catchRate",
       "targetPath": "/battle/opponent/catchRate",
       "description": "Base species catch rate (P05-T011); used with the current ball/HP/status to compute live catch odds for a wild opponent."
+    },
+    {
+      "sourcePath": "/battle/opponent/statStages",
+      "targetPath": "/battle/opponent/statStages",
+      "description": "Live in-battle stat stage modifiers for the opponent's active battler, read from gBattleMons; null outside battle or when unreadable."
+    },
+    {
+      "sourcePath": "/battle/player/statStages",
+      "targetPath": "/battle/player/statStages",
+      "description": "Live in-battle stat stage modifiers for the player's active battler, read from gBattleMons; null outside battle or when unreadable."
     }
   ],
   "validation": {

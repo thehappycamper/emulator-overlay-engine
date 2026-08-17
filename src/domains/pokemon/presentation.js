@@ -44,6 +44,7 @@ export function renderPokemonOverlay(state) {
   // actively misleading (balls cannot be thrown there at all).
   const isWildBattle = Boolean(opponent) && state.battle?.trainerBattle === false;
   const balls = state.bag?.balls ?? null;
+  const playerStatStages = state.battle?.player?.statStages ?? null;
 
   return `
     <header class="topbar">
@@ -66,7 +67,7 @@ export function renderPokemonOverlay(state) {
 
       <section class="battle-section">
         <h2>Battle</h2>
-        ${opponent ? renderBattle(opponent, incoming, activePlayer, activePlayerIndex) : '<p class="subtle empty-battle">Not currently in battle.</p>'}
+        ${opponent ? renderBattle(opponent, incoming, activePlayer, activePlayerIndex, playerStatStages) : '<p class="subtle empty-battle">Not currently in battle.</p>'}
         ${isWildBattle ? renderBallsPanel(balls) : ""}
       </section>
     </main>
@@ -215,7 +216,7 @@ function renderMove(move) {
   `;
 }
 
-function renderBattle(opponent, incoming, activePlayer, activePlayerIndex) {
+function renderBattle(opponent, incoming, activePlayer, activePlayerIndex, playerStatStages) {
   const percent = hpPercent(opponent);
   const statusLabel = STATUS_LABEL[opponent.status] ?? opponent.status ?? "";
   const types = Array.isArray(opponent.types) ? opponent.types : [];
@@ -238,7 +239,7 @@ function renderBattle(opponent, incoming, activePlayer, activePlayerIndex) {
       ${statusLabel ? `<div class="status-badge status-${opponent.status}">${statusLabel}</div>` : ""}
       ${moves.length ? `<ol class="moves">${moves.map(renderMove).join("")}</ol>` : '<p class="subtle">No observed moves.</p>'}
     </article>
-    ${renderStatComparison(activePlayer, activePlayerIndex, opponent)}
+    ${renderStatComparison(activePlayer, activePlayerIndex, opponent, playerStatStages)}
     <div class="incoming-damage">
       <h3>Projected Incoming Damage</h3>
       <div class="damage-list">
@@ -259,11 +260,11 @@ function renderBattle(opponent, incoming, activePlayer, activePlayerIndex) {
 // single number.
 const STAT_COMPARISON_ROWS = Object.freeze([
   { label: "Level", value: (pokemon) => (Number.isInteger(pokemon?.level) ? pokemon.level : null) },
-  { label: "Attack", value: (pokemon) => pokemon?.stats?.atk ?? null },
-  { label: "Defense", value: (pokemon) => pokemon?.stats?.def ?? null },
-  { label: "Sp. Atk", value: (pokemon) => pokemon?.stats?.spa ?? null },
-  { label: "Sp. Def", value: (pokemon) => pokemon?.stats?.spd ?? null },
-  { label: "Speed", value: (pokemon) => pokemon?.stats?.spe ?? null },
+  { label: "Attack", value: (pokemon) => pokemon?.stats?.atk ?? null, stageKey: "atk" },
+  { label: "Defense", value: (pokemon) => pokemon?.stats?.def ?? null, stageKey: "def" },
+  { label: "Sp. Atk", value: (pokemon) => pokemon?.stats?.spa ?? null, stageKey: "spa" },
+  { label: "Sp. Def", value: (pokemon) => pokemon?.stats?.spd ?? null, stageKey: "spd" },
+  { label: "Speed", value: (pokemon) => pokemon?.stats?.spe ?? null, stageKey: "spe" },
 ]);
 
 function statComparisonIndicator(playerValue, opponentValue) {
@@ -275,16 +276,28 @@ function statComparisonIndicator(playerValue, opponentValue) {
   return { symbol: "=", class: "stat-even" };
 }
 
-function renderStatComparisonRow(label, playerValue, opponentValue, { playerText, opponentText } = {}) {
+// Renders a live battle stat-stage modifier as "(+1)"/"(-2)"/"(+0)", or an
+// empty string when the stage genuinely was not acquired (outside battle,
+// or gBattleMons was unreadable) - unavailable stage data must never be
+// shown as "(+0)", since that would misreport an unknown modifier as
+// confirmed-neutral.
+function formatStatStage(stage) {
+  if (!Number.isInteger(stage)) return "";
+  const sign = stage > 0 ? "+" : stage < 0 ? "" : "+";
+  const stageClass = stage > 0 ? "stage-up" : stage < 0 ? "stage-down" : "stage-neutral";
+  return ` <span class="stat-stage ${stageClass}">(${sign}${stage})</span>`;
+}
+
+function renderStatComparisonRow(label, playerValue, opponentValue, { playerText, opponentText, playerStage, opponentStage } = {}) {
   const indicator = statComparisonIndicator(playerValue, opponentValue);
   const playerDisplay = playerText ?? (typeof playerValue === "number" ? String(playerValue) : "&ndash;");
   const opponentDisplay = opponentText ?? (typeof opponentValue === "number" ? String(opponentValue) : "&ndash;");
   return `
     <tr>
       <th scope="row">${escapeHtml(label)}</th>
-      <td class="stat-value ${indicator.class === "stat-advantage" ? "stat-highlight" : ""}">${playerDisplay}</td>
+      <td class="stat-value ${indicator.class === "stat-advantage" ? "stat-highlight" : ""}">${playerDisplay}${formatStatStage(playerStage)}</td>
       <td class="stat-indicator ${indicator.class}">${indicator.symbol}</td>
-      <td class="stat-value ${indicator.class === "stat-disadvantage" ? "stat-highlight" : ""}">${opponentDisplay}</td>
+      <td class="stat-value ${indicator.class === "stat-disadvantage" ? "stat-highlight" : ""}">${opponentDisplay}${formatStatStage(opponentStage)}</td>
     </tr>
   `;
 }
@@ -296,7 +309,7 @@ function renderStatComparisonRow(label, playerValue, opponentValue, { playerText
 // verified active-battler tracking - see docs/tasks/P05/P05-T010.md for why
 // that remains a follow-up rather than a guess at a new fixed memory
 // address this task cannot verify in this environment.
-function renderStatComparison(activePlayer, activePlayerIndex, opponent) {
+function renderStatComparison(activePlayer, activePlayerIndex, opponent, playerStatStages) {
   if (!activePlayer) {
     return `
       <details class="stat-compare">
@@ -306,7 +319,12 @@ function renderStatComparison(activePlayer, activePlayerIndex, opponent) {
     `;
   }
 
-  const rows = STAT_COMPARISON_ROWS.map((row) => renderStatComparisonRow(row.label, row.value(activePlayer), row.value(opponent))).join("");
+  const rows = STAT_COMPARISON_ROWS.map((row) =>
+    renderStatComparisonRow(row.label, row.value(activePlayer), row.value(opponent), {
+      playerStage: row.stageKey ? playerStatStages?.[row.stageKey] ?? null : null,
+      opponentStage: row.stageKey ? opponent?.statStages?.[row.stageKey] ?? null : null,
+    }),
+  ).join("");
   const hpRow = renderStatComparisonRow(
     "HP",
     activePlayer.currentHp,

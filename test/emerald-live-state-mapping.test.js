@@ -79,6 +79,8 @@ test("live Emerald fields map every genuinely-present party slot (not just one) 
 
   assert.equal(state.battle.opponent.speciesId, source.battle.opponent.speciesId);
   assert.deepEqual(state.battle.opponent.moves, source.battle.opponent.moves);
+  assert.deepEqual(state.battle.opponent.statStages, source.battle.opponent.statStages);
+  assert.deepEqual(state.battle.player, source.battle.player);
   assert.deepEqual(state.player.badges, source.badges);
   assert.equal(state.location.name, source.location.name);
   assert.deepEqual(acquisition.location, { mapGroup: source.location.mapGroup, mapNumber: source.location.mapNumber, x: source.location.x, y: source.location.y });
@@ -114,7 +116,7 @@ test("resolved species/move/item/location names render as real values, not place
 test("fixed source slots collapse safely (empty party, no battle, unreadable location/badges)", async () => {
   const source = await readJson(sourceFixtureUrl);
   source.party = { count: 0, slots: [], first: null };
-  source.battle = { active: false, typeFlags: 0, trainerBattle: false, opponent: null };
+  source.battle = { active: false, typeFlags: 0, trainerBattle: false, opponent: null, player: { statStages: null } };
   source.location = null;
   source.badges = null;
   source.bag = null;

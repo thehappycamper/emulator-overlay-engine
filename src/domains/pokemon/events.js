@@ -285,6 +285,49 @@ function detectPartyChanged(previousState, currentState) {
   ];
 }
 
+// Returns true if at least one occupied party member has comparable HP > 0,
+// false if every occupied party member has comparable HP and none is > 0,
+// or null if this cannot be determined (an empty party, or an occupied
+// party where no member's HP is comparable) - the caller treats null as
+// "not enough information," never as "defeated," so missing/unreadable HP
+// data can never fabricate a defeat.
+function partyHasAnyUsableMember(party) {
+  if (!Array.isArray(party) || party.length === 0) return null;
+  let sawComparableHp = false;
+  for (const member of party) {
+    if (!hasComparableHp(member)) continue;
+    sawComparableHp = true;
+    if (member.currentHp > 0) return true;
+  }
+  return sawComparableHp ? false : null;
+}
+
+// Fires exactly once on the transition from "at least one occupied party
+// member has HP > 0" to "every occupied party member has HP === 0" - the
+// same 0-crossing-dedup shape as detectFainted, just aggregated across the
+// whole party instead of one individual. Deliberately identity-agnostic
+// (unlike collectTrackedPokemonPairs): it only ever compares the aggregate
+// "is anyone still standing" between two snapshots, so a party reorder
+// alone - which does not change that aggregate - can never fabricate this
+// event. A provider-neutral name is used (not an Emerald-specific term like
+// "blackout") since this detector reads only the canonical schema; see this
+// module's own header comment for why.
+function detectPartyDefeated(previousState, currentState) {
+  const previousParty = previousState.player?.party ?? [];
+  const currentParty = currentState.player?.party ?? [];
+  const previousUsable = partyHasAnyUsableMember(previousParty);
+  const currentUsable = partyHasAnyUsableMember(currentParty);
+  if (previousUsable !== true || currentUsable !== false) return [];
+  return [
+    {
+      type: "player.party.defeated",
+      subject: { kind: "party" },
+      previous: { anyUsable: true },
+      current: { anyUsable: false, partySize: currentParty.length },
+    },
+  ];
+}
+
 function detectBattleStarted(previousState, currentState) {
   const previousOpponent = previousState.battle?.opponent ?? null;
   const currentOpponent = currentState.battle?.opponent ?? null;
@@ -363,6 +406,7 @@ export const POKEMON_EVENT_DETECTORS = Object.freeze([
   detectDamaged,
   detectHealed,
   detectFainted,
+  detectPartyDefeated,
   detectStatusChanged,
   detectPartyChanged,
   detectLocationChanged,

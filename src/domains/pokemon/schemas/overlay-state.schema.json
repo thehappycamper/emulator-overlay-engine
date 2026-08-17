@@ -47,6 +47,23 @@
         "trainerBattle": {
           "description": "True when the current battle is against a trainer, not a wild Pokemon; ball-throw/catch-odds UI should not be shown.",
           "type": "boolean"
+        },
+        "player": {
+          "description": "Live in-battle data about the player's own active battler that has no other home in normalized state (currently just stat stages); null when not in battle or unreadable.",
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "statStages": {
+                  "oneOf": [
+                    { "$ref": "#/$defs/statStages" },
+                    { "type": "null" }
+                  ]
+                }
+              }
+            },
+            { "type": "null" }
+          ]
         }
       }
     },
@@ -162,7 +179,26 @@
           "type": "array",
           "maxItems": 4,
           "items": { "$ref": "#/$defs/move" }
+        },
+        "statStages": {
+          "description": "Live in-battle stat stage modifiers (-6..+6); only ever populated on the battle opponent during an active battle, never on a party member.",
+          "oneOf": [
+            { "$ref": "#/$defs/statStages" },
+            { "type": "null" }
+          ]
         }
+      }
+    },
+    "statStages": {
+      "type": "object",
+      "properties": {
+        "atk": { "type": "integer", "minimum": -6, "maximum": 6 },
+        "def": { "type": "integer", "minimum": -6, "maximum": 6 },
+        "spe": { "type": "integer", "minimum": -6, "maximum": 6 },
+        "spa": { "type": "integer", "minimum": -6, "maximum": 6 },
+        "spd": { "type": "integer", "minimum": -6, "maximum": 6 },
+        "acc": { "type": "integer", "minimum": -6, "maximum": 6 },
+        "eva": { "type": "integer", "minimum": -6, "maximum": 6 }
       }
     },
     "stats": {

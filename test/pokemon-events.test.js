@@ -111,6 +111,88 @@ test("fainted fires exactly once on the 4->0 transition and never again on subse
   assert.equal(faintedEvents[0].current.currentHp, 0);
 });
 
+test("player.party.defeated fires when a single-Pokemon party's last member faints", () => {
+  const previous = state({ party: [pokemon({ currentHp: 1 })] });
+  const current = state({ party: [pokemon({ currentHp: 0 })] });
+  const events = detectPokemonEvents(previous, current);
+  const defeated = events.find((e) => e.type === "player.party.defeated");
+  assert.ok(defeated, "player.party.defeated must fire when the only party member faints");
+  assert.equal(defeated.subject.kind, "party");
+  assert.deepEqual(defeated.previous, { anyUsable: true });
+  assert.deepEqual(defeated.current, { anyUsable: false, partySize: 1 });
+});
+
+test("player.party.defeated fires when the last standing member of a multi-Pokemon party faints, but not for the earlier member", () => {
+  const previous = state({ party: [pokemon({ nickname: "A", currentHp: 0 }), pokemon({ nickname: "B", currentHp: 15 })] });
+  const current = state({ party: [pokemon({ nickname: "A", currentHp: 0 }), pokemon({ nickname: "B", currentHp: 0 })] });
+  const events = detectPokemonEvents(previous, current);
+  const defeatedEvents = events.filter((e) => e.type === "player.party.defeated");
+  assert.equal(defeatedEvents.length, 1);
+});
+
+test("player.party.defeated does not fire on a repeated all-fainted snapshot (no duplicate)", () => {
+  const stampEvent = createEventSequencer({ now: () => "2026-08-16T00:00:00.000Z" });
+  const snapshots = [
+    state({ party: [pokemon({ nickname: "A", currentHp: 0 }), pokemon({ nickname: "B", currentHp: 15 })] }),
+    state({ party: [pokemon({ nickname: "A", currentHp: 0 }), pokemon({ nickname: "B", currentHp: 0 })] }), // defeated here
+    state({ party: [pokemon({ nickname: "A", currentHp: 0 }), pokemon({ nickname: "B", currentHp: 0 })] }), // still defeated
+    state({ party: [pokemon({ nickname: "A", currentHp: 0 }), pokemon({ nickname: "B", currentHp: 0 })] }), // still defeated
+  ];
+  const allEvents = [];
+  for (let i = 1; i < snapshots.length; i += 1) {
+    allEvents.push(...detectPokemonEvents(snapshots[i - 1], snapshots[i], { stampEvent }));
+  }
+  const defeatedEvents = allEvents.filter((e) => e.type === "player.party.defeated");
+  assert.equal(defeatedEvents.length, 1);
+});
+
+test("player.party.defeated does not fire for an empty party", () => {
+  const previous = state({ party: [pokemon({ currentHp: 10 })] });
+  const emptied = state({ party: [] });
+  assert.deepEqual(
+    detectPokemonEvents(previous, emptied).filter((e) => e.type === "player.party.defeated"),
+    [],
+  );
+  assert.deepEqual(
+    detectPokemonEvents(emptied, emptied).filter((e) => e.type === "player.party.defeated"),
+    [],
+  );
+});
+
+test("player.party.defeated does not fire on a revive/heal transition out of an all-fainted party", () => {
+  const allFainted = state({ party: [pokemon({ nickname: "A", currentHp: 0 }), pokemon({ nickname: "B", currentHp: 0 })] });
+  const revived = state({ party: [pokemon({ nickname: "A", currentHp: 10 }), pokemon({ nickname: "B", currentHp: 0 })] });
+  assert.deepEqual(
+    detectPokemonEvents(allFainted, revived).filter((e) => e.type === "player.party.defeated"),
+    [],
+  );
+});
+
+test("player.party.defeated can fire again after a recovery and a later second defeat", () => {
+  const stampEvent = createEventSequencer({ now: () => "2026-08-16T00:00:00.000Z" });
+  const snapshots = [
+    state({ party: [pokemon({ currentHp: 20 })] }),
+    state({ party: [pokemon({ currentHp: 0 })] }), // first defeat
+    state({ party: [pokemon({ currentHp: 25 })] }), // revived/healed
+    state({ party: [pokemon({ currentHp: 0 })] }), // second defeat
+  ];
+  const allEvents = [];
+  for (let i = 1; i < snapshots.length; i += 1) {
+    allEvents.push(...detectPokemonEvents(snapshots[i - 1], snapshots[i], { stampEvent }));
+  }
+  const defeatedEvents = allEvents.filter((e) => e.type === "player.party.defeated");
+  assert.equal(defeatedEvents.length, 2);
+});
+
+test("player.party.defeated is not fabricated by a party reorder alone", () => {
+  const previous = state({ party: [pokemon({ nickname: "A", currentHp: 0 }), pokemon({ nickname: "B", currentHp: 12 })] });
+  const reordered = state({ party: [pokemon({ nickname: "B", currentHp: 12 }), pokemon({ nickname: "A", currentHp: 0 })] });
+  assert.deepEqual(
+    detectPokemonEvents(previous, reordered).filter((e) => e.type === "player.party.defeated"),
+    [],
+  );
+});
+
 test("a battling Pokemon fainting, taking damage, and changing status all in one snapshot fires all applicable events simultaneously", () => {
   const previous = state({
     party: [pokemon({ currentHp: 6, status: "none" })],
@@ -124,7 +206,14 @@ test("a battling Pokemon fainting, taking damage, and changing status all in one
 
   const partyEventTypes = events.filter((e) => e.subject?.kind === "party").map((e) => e.type);
   const opponentEventTypes = events.filter((e) => e.subject?.kind === "opponent").map((e) => e.type);
-  assert.deepEqual(new Set(partyEventTypes), new Set(["pokemon.hp.changed", "pokemon.damaged", "pokemon.fainted", "pokemon.status.changed"]));
+  // This party has exactly one member, so its fainting also crosses the
+  // whole-party "no usable member" threshold - player.party.defeated
+  // correctly fires alongside the per-Pokemon events here, not instead of
+  // them.
+  assert.deepEqual(
+    new Set(partyEventTypes),
+    new Set(["pokemon.hp.changed", "pokemon.damaged", "pokemon.fainted", "pokemon.status.changed", "player.party.defeated"]),
+  );
   assert.deepEqual(new Set(opponentEventTypes), new Set(["pokemon.hp.changed", "pokemon.damaged"]));
 });
 

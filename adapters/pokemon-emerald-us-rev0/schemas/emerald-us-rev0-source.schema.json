@@ -85,7 +85,7 @@
     },
     "battle": {
       "type": "object",
-      "required": ["active", "typeFlags", "opponent", "trainerBattle"],
+      "required": ["active", "typeFlags", "opponent", "trainerBattle", "player"],
       "properties": {
         "active": { "type": "boolean" },
         "typeFlags": { "type": "integer", "minimum": 0, "maximum": 4294967295 },
@@ -93,6 +93,24 @@
         "opponent": {
           "oneOf": [
             { "$ref": "#/$defs/sourcePokemon" },
+            { "type": "null" }
+          ]
+        },
+        "player": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["statStages"],
+              "properties": {
+                "statStages": {
+                  "oneOf": [
+                    { "$ref": "#/$defs/sourceStatStages" },
+                    { "type": "null" }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
             { "type": "null" }
           ]
         }
@@ -201,6 +219,13 @@
           "type": "array",
           "maxItems": 4,
           "items": { "$ref": "#/$defs/sourceMove" }
+        },
+        "statStages": {
+          "description": "Live in-battle stat stage modifiers from gBattleMons; only ever populated for the battle opponent during an active battle, never for a party member.",
+          "oneOf": [
+            { "$ref": "#/$defs/sourceStatStages" },
+            { "type": "null" }
+          ]
         }
       },
       "additionalProperties": false
@@ -243,6 +268,20 @@
         "spa": { "type": "integer", "minimum": 0 },
         "spd": { "type": "integer", "minimum": 0 },
         "spe": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "sourceStatStages": {
+      "type": "object",
+      "required": ["atk", "def", "spe", "spa", "spd", "acc", "eva"],
+      "properties": {
+        "atk": { "type": "integer", "minimum": -6, "maximum": 6 },
+        "def": { "type": "integer", "minimum": -6, "maximum": 6 },
+        "spe": { "type": "integer", "minimum": -6, "maximum": 6 },
+        "spa": { "type": "integer", "minimum": -6, "maximum": 6 },
+        "spd": { "type": "integer", "minimum": -6, "maximum": 6 },
+        "acc": { "type": "integer", "minimum": -6, "maximum": 6 },
+        "eva": { "type": "integer", "minimum": -6, "maximum": 6 }
       },
       "additionalProperties": false
     },

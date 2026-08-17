@@ -179,6 +179,39 @@ test("battle stat comparison escapes HTML-significant nicknames in its table hea
   assert.match(html, /&lt;img src=x onerror=alert\(1\)&gt;/);
 });
 
+test("battle stat comparison shows a positive stat stage as a distinguishable (+N) suffix", () => {
+  const state = readSampleState();
+  state.battle.player = { statStages: { atk: 2, def: 0, spe: 0, spa: 0, spd: 0, acc: 0, eva: 0 } };
+  const html = renderPokemonOverlay(state);
+  assert.match(html, /<span class="stat-stage stage-up">\(\+2\)<\/span>/);
+});
+
+test("battle stat comparison shows a negative stat stage as a distinguishable (-N) suffix", () => {
+  const state = readSampleState();
+  state.battle.opponent.statStages = { atk: 0, def: -3, spe: 0, spa: 0, spd: 0, acc: 0, eva: 0 };
+  const html = renderPokemonOverlay(state);
+  assert.match(html, /<span class="stat-stage stage-down">\(-3\)<\/span>/);
+});
+
+test("battle stat comparison shows a neutral stat stage as (+0), distinguishable from a boost/drop by CSS class", () => {
+  const state = readSampleState();
+  state.battle.player = { statStages: { atk: 0, def: 0, spe: 0, spa: 0, spd: 0, acc: 0, eva: 0 } };
+  const html = renderPokemonOverlay(state);
+  assert.match(html, /<span class="stat-stage stage-neutral">\(\+0\)<\/span>/);
+});
+
+test("battle stat comparison shows no stage suffix at all when stage data is unavailable, never fabricating (+0)", () => {
+  const state = readSampleState();
+  // Neither battle.player nor opponent.statStages is populated - the
+  // sample state's default shape - so no stat-stage span should render
+  // anywhere, and the panel must still be usable (real values still show).
+  delete state.battle.player;
+  delete state.battle.opponent.statStages;
+  const html = renderPokemonOverlay(state);
+  assert.doesNotMatch(html, /stat-stage/);
+  assert.match(html, /<table class="stat-compare-table">/);
+});
+
 test("wild encounter panel (P05-T011) is collapsed by default and lists the real per-location table", () => {
   const state = readSampleState();
   const html = renderPokemonOverlay(state);

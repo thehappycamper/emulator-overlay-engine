@@ -159,7 +159,70 @@ export const EMERALD_US_REV0 = Object.freeze({
     ewramEnd: 0x02040000,
     encryptionKeyOffset: 0xac,
   }),
+  // `gBattleMons` (pret's `include/pokemon.h`: `extern struct BattlePokemon
+  // gBattleMons[MAX_BATTLERS_COUNT];`, MAX_BATTLERS_COUNT = 4 per
+  // `include/constants/battle.h`) is a fixed-address global array holding
+  // the four possible battlers' live in-battle stats, unlike SaveBlock1/2
+  // which are reached through a runtime pointer. `pokeemerald`'s own
+  // decompiled source has no fixed numeric address for it (only the
+  // symbolic name; the real address is whatever the linker assigns for a
+  // specific compiled build) - the same gap P05-T010 disclosed and left
+  // unresolved. This task closes that gap using a community-maintained,
+  // independently cross-checkable linker/RAM-map for this exact retail
+  // build (`Bird404/Pokemon-Emerald-Battle-Engine-Upgrade`'s `BPEE.ld`,
+  // also mirrored in `Gamer2020/Shiny_Hack`'s copy of the same file):
+  // `battle_participants = 0x02024084` (its name for `gBattleMons`). That
+  // same file independently states `sav1 = 0x03005D8C`, `sav2 =
+  // 0x03005D90`, `party_player = 0x020244EC`, `party_opponent =
+  // 0x02024744`, and `battle_flags = 0x02022FEC` - all six of which
+  // exactly match this codebase's own, separately-verified addresses
+  // (`saveBlock1Pointer`, `saveBlock2Pointer`, `playerParty`,
+  // `enemyParty`, `battleTypeFlags`), giving strong independent
+  // corroboration that its `battle_participants` address is correct for
+  // this same build too, not merely a coincidence for the other five.
+  //
+  // `struct BattlePokemon` (pret's `include/pokemon.h`) places `s8
+  // statStages[NUM_BATTLE_STATS]` at byte offset `0x18`; `NUM_BATTLE_STATS`
+  // is 8 (`include/constants/pokemon.h`: `NUM_STATS` (6) + 2 for Accuracy
+  // and Evasion), with index 0 unused for stages (`STAT_HP` = 0) and
+  // indices 1-7 = Attack/Defense/Speed/Sp.Atk/Sp.Def/Accuracy/Evasion in
+  // that exact order (`STAT_ATK`=1 .. `STAT_EVASION`=7). The whole struct
+  // is `sizeof` 0x58 (88) bytes, confirmed by its own last field's offset
+  // (`otId` at 0x54, a u32). `MIN_STAT_STAGE`/`DEFAULT_STAT_STAGE`/
+  // `MAX_STAT_STAGE` (0/6/12, same header) mean every raw stage byte is
+  // always in [0,12] with 6 as the neutral baseline - the semantic
+  // modifier shown to a player (-6..+6) is `raw - 6`, confirmed against
+  // `src/battle_util.c`'s own repeated `< DEFAULT_STAT_STAGE` comparisons.
+  //
+  // Battler slot 0 is the player's single active battler and slot 1 is the
+  // single opponent's, per `include/constants/battle.h`'s `enum
+  // BattlerId`/`enum BattlerPosition` ordering (`B_POSITION_PLAYER_LEFT` =
+  // 0, `B_POSITION_OPPONENT_LEFT` = 1) for the only battle format this
+  // adapter supports today (a single, non-double battle) - the same
+  // "one fixed player entry, one fixed opponent entry" scope already
+  // documented for the rest of this adapter. Resolving which *party slot*
+  // battler 0 corresponds to (`gBattlerPartyIndexes` or equivalent) is a
+  // separate, still-unresolved problem left for a future task exactly like
+  // `activePlayerIndex` already is - this task only adds the battlers'
+  // live stat stages, not battler-to-party-slot identity.
+  battle: Object.freeze({
+    ewramStart: 0x02000000,
+    ewramEnd: 0x02040000,
+    battleMonsAddress: 0x02024084,
+    battleMonStructSize: 0x58,
+    statStagesOffset: 0x18,
+    statStageMin: 0,
+    statStageDefault: 6,
+    statStageMax: 12,
+    playerBattlerIndex: 0,
+    opponentBattlerIndex: 1,
+  }),
 });
+
+// Order of `struct BattlePokemon.statStages[1..7]` (index 0, HP, has no
+// stage and is skipped) - see the `battle` constant block above for the
+// full offset/index citation.
+const STAT_STAGE_FIELD_ORDER = Object.freeze(["atk", "def", "spe", "spa", "spd", "acc", "eva"]);
 
 function requireReader(reader) {
   for (const method of ["read8", "read16", "read32"]) {
@@ -385,6 +448,29 @@ function readBag(reader, saveBlock1Address, wildOpponent, encryptionKey) {
   return Object.freeze({ balls: Object.freeze(balls) });
 }
 
+// Reads one battler's live stat stages from `gBattleMons[battlerIndex]` -
+// see the `battle` constant block's citation for the address/offset/index
+// evidence. Every raw stage byte must fall within the game's own real
+// [MIN_STAT_STAGE, MAX_STAT_STAGE] = [0, 12] bound; a byte outside that
+// range means this read cannot be trusted (this is a fixed global, always
+// "readable" numerically even outside battle, so range validation - not
+// pointer-null validation - is this function's only fail-closed signal)
+// and throws rather than fabricating an out-of-game-bounds stage.
+function readBattlerStatStages(reader, battlerIndex) {
+  const layout = EMERALD_US_REV0.battle;
+  const battlerAddress = layout.battleMonsAddress + battlerIndex * layout.battleMonStructSize;
+  const stages = {};
+  for (let index = 0; index < STAT_STAGE_FIELD_ORDER.length; index += 1) {
+    // +1 skips statStages[0] (STAT_HP), which carries no stage.
+    const raw = readUnsigned(reader, "read8", battlerAddress + layout.statStagesOffset + 1 + index, 0xff);
+    if (raw < layout.statStageMin || raw > layout.statStageMax) {
+      throw new RangeError(`Battler ${battlerIndex} stat stage at index ${index} is out of the valid [0,12] range`);
+    }
+    stages[STAT_STAGE_FIELD_ORDER[index]] = raw - layout.statStageDefault;
+  }
+  return Object.freeze(stages);
+}
+
 export function readEmeraldAcquisition(reader) {
   requireReader(reader);
   const { addresses, saveBlock1, saveBlock2, pokemon } = EMERALD_US_REV0;
@@ -441,6 +527,26 @@ export function readEmeraldAcquisition(reader) {
   const opponent = battleActive ? decodeGen3Pokemon(reader, addresses.enemyParty) : null;
   const wildOpponent = battleActive && !trainerBattle ? opponent : null;
 
+  // gBattleMons only holds meaningful data during an active battle (stale
+  // leftover/zeroed data otherwise), so stat stages are only ever attempted
+  // - and only ever exposed - while battleActive is true. See
+  // readBattlerStatStages for the fail-closed range check that additionally
+  // guards each individual read.
+  let playerStatStages = null;
+  let opponentStatStages = null;
+  if (battleActive) {
+    const battleLayout = EMERALD_US_REV0.battle;
+    try {
+      playerStatStages = readBattlerStatStages(reader, battleLayout.playerBattlerIndex);
+      opponentStatStages = readBattlerStatStages(reader, battleLayout.opponentBattlerIndex);
+    } catch {
+      playerStatStages = null;
+      opponentStatStages = null;
+    }
+  }
+  const opponentWithStatStages =
+    opponent === null ? null : Object.freeze({ ...opponent, statStages: opponentStatStages });
+
   return Object.freeze({
     party: Object.freeze({
       count: partyCount,
@@ -453,7 +559,8 @@ export function readEmeraldAcquisition(reader) {
       active: battleActive,
       typeFlags,
       trainerBattle,
-      opponent,
+      opponent: opponentWithStatStages,
+      player: Object.freeze({ statStages: playerStatStages }),
     }),
     location: locationReadable
       ? (() => {

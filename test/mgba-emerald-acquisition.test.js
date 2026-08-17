@@ -72,7 +72,12 @@ test("Gen III Pokemon decoding reads nickname, species/type/gender lookups, stat
   assert.ok(partySlot0.expProgress.percent > 0 && partySlot0.expProgress.percent < 100);
 
   const opponent = decodeGen3Pokemon(reader, EMERALD_US_REV0.addresses.enemyParty);
-  assert.deepEqual(opponent, fixture.expected.battle.opponent);
+  // decodeGen3Pokemon alone never adds statStages - that field is only
+  // attached by readEmeraldAcquisition, from a separate gBattleMons read
+  // (see the "battle stat stages" acquisition tests below) - so this
+  // comparison excludes it from fixture.expected.battle.opponent.
+  const { statStages: _opponentStatStages, ...opponentWithoutStatStages } = fixture.expected.battle.opponent;
+  assert.deepEqual(opponent, opponentWithoutStatStages);
   assert.equal(opponent.name, "CHARIZARD");
   assert.deepEqual(opponent.types, ["Fire", "Flying"]);
 });
@@ -235,6 +240,83 @@ test("characterizes the original defect: the raw encrypted quantity exceeds the 
   assert.ok(decoded <= 999, "the corrected decode must always fall within the real per-slot cap");
 });
 
+// Regression coverage for battle stat stages, read from gBattleMons
+// (`EMERALD_US_REV0.battle.battleMonsAddress`) - see emerald-us-rev0.js's
+// `battle` constant block for the full pret/pokeemerald source citation
+// establishing the address, struct offset, index order, and [0,12] raw
+// range. The real fixture's battle is already active with distinct,
+// non-neutral player and opponent stages (asserted end to end by
+// "acquisition decoding returns all party slots..." above); these tests
+// isolate specific boundary/failure scenarios by mutating a clone of that
+// same fixture's memory.
+function cloneMemoryWithRead8Overrides(fixture, overrides) {
+  const memory = structuredClone(fixture.memory);
+  for (const [address, value] of Object.entries(overrides)) {
+    memory.read8[address] = value;
+  }
+  return memory;
+}
+
+test("battle stat stages: MIN_STAT_STAGE (0) and MAX_STAT_STAGE (12) decode to the real -6/+6 bounds", async () => {
+  const fixture = JSON.parse(await readFile(fixtureUrl, "utf8"));
+  const memory = cloneMemoryWithRead8Overrides(fixture, {
+    "0x0202409d": 0, // player ATK raw 0 -> -6
+    "0x0202409e": 12, // player DEF raw 12 -> +6
+  });
+  const acquisition = readEmeraldAcquisition(createReader(memory));
+  assert.equal(acquisition.battle.player.statStages.atk, -6);
+  assert.equal(acquisition.battle.player.statStages.def, 6);
+});
+
+test("battle stat stages: a raw byte outside [0,12] fails the whole battle stat-stage read closed (both battlers null), without affecting the rest of acquisition", async () => {
+  const fixture = JSON.parse(await readFile(fixtureUrl, "utf8"));
+  const memory = cloneMemoryWithRead8Overrides(fixture, {
+    "0x0202409d": 13, // one byte past the real MAX_STAT_STAGE
+  });
+  const acquisition = readEmeraldAcquisition(createReader(memory));
+  assert.equal(acquisition.battle.player.statStages, null);
+  assert.equal(acquisition.battle.opponent.statStages, null);
+  // Everything else about the opponent and battle remains intact - only
+  // the stat-stage read is affected.
+  assert.equal(acquisition.battle.opponent.name, "CHARIZARD");
+  assert.equal(acquisition.battle.active, true);
+});
+
+test("battle stat stages are null for both battlers outside of an active battle, and battle.opponent is null", () => {
+  const reader = {
+    read8: () => 0,
+    read16: () => 0,
+    read32: () => 0,
+  };
+  const acquisition = readEmeraldAcquisition(reader);
+  assert.equal(acquisition.battle.active, false);
+  assert.equal(acquisition.battle.opponent, null);
+  assert.deepEqual(acquisition.battle.player, { statStages: null });
+});
+
+test("battle stat stages: player and opponent battlers are read independently from their own gBattleMons slot", async () => {
+  const fixture = JSON.parse(await readFile(fixtureUrl, "utf8"));
+  const acquisition = readEmeraldAcquisition(createReader(fixture.memory));
+  assert.deepEqual(acquisition.battle.player.statStages, {
+    atk: -1,
+    def: 2,
+    spe: -1,
+    spa: 1,
+    spd: -2,
+    acc: -1,
+    eva: 1,
+  });
+  assert.deepEqual(acquisition.battle.opponent.statStages, {
+    atk: 3,
+    def: 0,
+    spe: 0,
+    spa: 0,
+    spd: 0,
+    acc: 0,
+    eva: 0,
+  });
+});
+
 test("shared Lua acquisition constants stay synchronized with the tested layout", async () => {
   const lua = await readFile(
     new URL(
@@ -250,4 +332,22 @@ test("shared Lua acquisition constants stay synchronized with the tested layout"
   for (const value of expectedAddresses) {
     assert.match(lua, new RegExp(`0x${value}`));
   }
+
+  // Cross-checks the JS/Lua battle stat-stage constants stay numerically
+  // identical - not just that the Lua file happens to exist. This is the
+  // automated half of provider parity for this task's new gBattleMons
+  // read; genuine BizHawk/mGBA Lua-runtime execution is still untested in
+  // this environment (no Lua interpreter available - see this file's other
+  // disclosed Lua limitations).
+  assert.match(
+    lua,
+    new RegExp(`battleMonsAddress\\s*=\\s*0x${EMERALD_US_REV0.battle.battleMonsAddress.toString(16).toUpperCase().padStart(8, "0")}`, "i"),
+  );
+  assert.match(lua, new RegExp(`battleMonStructSize\\s*=\\s*0x${EMERALD_US_REV0.battle.battleMonStructSize.toString(16).toUpperCase()}`, "i"));
+  assert.match(lua, new RegExp(`statStagesOffset\\s*=\\s*0x${EMERALD_US_REV0.battle.statStagesOffset.toString(16).toUpperCase()}`, "i"));
+  assert.match(lua, new RegExp(`statStageMin\\s*=\\s*${EMERALD_US_REV0.battle.statStageMin}\\b`));
+  assert.match(lua, new RegExp(`statStageDefault\\s*=\\s*${EMERALD_US_REV0.battle.statStageDefault}\\b`));
+  assert.match(lua, new RegExp(`statStageMax\\s*=\\s*${EMERALD_US_REV0.battle.statStageMax}\\b`));
+  assert.match(lua, new RegExp(`playerBattlerIndex\\s*=\\s*${EMERALD_US_REV0.battle.playerBattlerIndex}\\b`));
+  assert.match(lua, new RegExp(`opponentBattlerIndex\\s*=\\s*${EMERALD_US_REV0.battle.opponentBattlerIndex}\\b`));
 });

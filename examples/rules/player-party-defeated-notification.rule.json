@@ -1,0 +1,15 @@
+{
+  "id": "player-party-defeated-notification",
+  "enabled": true,
+  "eventType": "player.party.defeated",
+  "predicates": [],
+  "actions": [
+    {
+      "actionType": "overlay.notification",
+      "payload": {
+        "message": "Your entire party has fainted",
+        "severity": "warn"
+      }
+    }
+  ]
+}

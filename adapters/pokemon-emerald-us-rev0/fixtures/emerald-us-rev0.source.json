@@ -246,7 +246,27 @@
           "currentPp": 40,
           "maxPp": 40
         }
-      ]
+      ],
+      "statStages": {
+        "atk": 3,
+        "def": 0,
+        "spe": 0,
+        "spa": 0,
+        "spd": 0,
+        "acc": 0,
+        "eva": 0
+      }
+    },
+    "player": {
+      "statStages": {
+        "atk": -1,
+        "def": 2,
+        "spe": -1,
+        "spa": 1,
+        "spd": -2,
+        "acc": -1,
+        "eva": 1
+      }
     }
   },
   "location": {
