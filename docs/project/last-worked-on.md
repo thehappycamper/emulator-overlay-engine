@@ -6,9 +6,9 @@ This is a short pointer, not the project history. For full history, see `docs/ta
 
 - **Active phases:** `P04` — Event Routing And Actions remains active with `P04-T001` through `P04-T004` completed; the real browser app shell (dashboard + notifications) now loads through native ESM with no Node-only dependency. `P05` remains open for real mGBA/BizHawk acceptance and `P06` remains open for real-ROM BizHawk acceptance. See [implementation plan](implementation-plan.md).
 - **Completed phases:** `P03` — Semantic Event Foundation closed with `P03-T001`'s merge (independent review: round 1 REQUEST CHANGES, round 2 APPROVE).
-- **Current review task:** None. `P04-T004` completed independent review and merged to `main` at `819f4b2`.
+- **Current review task:** [`P05-T015`](../tasks/P05/P05-T015.md) — focused Emerald bag-quantity decryption correction, implemented on `fix/P05-emerald-bag-quantity-decryption` and awaiting independent review.
 - **Last completed task:** [`P04-T004` — Restore browser app-shell module resolution](../tasks/P04/P04-T004.md) (independent review APPROVE, merged to `main` at `819f4b2`). [`P04-T003`](../tasks/P04/P04-T003.md), [`P04-T002`](../tasks/P04/P04-T002.md), [`P05-T013`](../tasks/P05/P05-T013.md), [`P04-T001`](../tasks/P04/P04-T001.md), [`P03-T001`](../tasks/P03/P03-T001.md), [`P05-T012`](../tasks/P05/P05-T012.md), [`P05-T007`](../tasks/P05/P05-T007.md), [`P05-T011`](../tasks/P05/P05-T011.md), [`P05-T010`](../tasks/P05/P05-T010.md), [`P05-T009`](../tasks/P05/P05-T009.md), [`P05-T001`](../tasks/P05/P05-T001.md) through [`P05-T006`](../tasks/P05/P05-T006.md), and [`P06-T002`](../tasks/P06/P06-T002.md) are also completed.
-- **Next steps:** run the real one-command BizHawk faint-to-notification acceptance (see the exact operator procedure in `P04-T004`'s task record), then define the next P04 task. Separately run and record real mGBA and BizHawk end-to-end acceptance tests against the richer `P05` pipeline.
+- **Next steps:** independently review P05-T015, then run and record real mGBA and BizHawk end-to-end acceptance tests against the richer P05 pipeline. Keep P05 active until its live acceptance gate is recorded.
 
 ## Most recent session (2026-08-16)
 

@@ -57,6 +57,8 @@ M.addresses = {
     enemyParty = 0x02024744,
     mainInBattleFlags = 0x030026F9,
     saveBlock1Pointer = 0x03005D8C,
+    -- See emerald-us-rev0.js's twin constant for the full address-provenance note.
+    saveBlock2Pointer = 0x03005D90,
 }
 
 local POKEMON = {
@@ -90,6 +92,13 @@ local SAVEBLOCK1 = {
     pokeBallsOffset = 0x650,
     pokeBallsSlotCount = 16,
     pokeBallsSlotSize = 4,
+}
+
+-- See emerald-us-rev0.js's twin constant for the full field-offset note.
+local SAVEBLOCK2 = {
+    ewramStart = 0x02000000,
+    ewramEnd = 0x02040000,
+    encryptionKeyOffset = 0xAC,
 }
 
 -- Substructure order tables for personality % 24 (all four types). See
@@ -393,13 +402,16 @@ local function calculateCatchChance(catchRate, ballMultiplier, maxHp, currentHp,
 end
 
 -- `wildOpponent` is only passed for an active, non-trainer battle - see
--- reference-data.js's readBag twin for the full architecture rationale.
-local function readBag(reader, saveBlock1Address, wildOpponent)
+-- emerald-us-rev0.js's readBag twin for the full architecture rationale,
+-- including why `encryptionKey` must be XORed against every raw quantity.
+local function readBag(reader, saveBlock1Address, wildOpponent, encryptionKey)
+    local quantityKey = encryptionKey & 0xFFFF
     local balls = {}
     for slot = 0, SAVEBLOCK1.pokeBallsSlotCount - 1 do
         local slotAddress = saveBlock1Address + SAVEBLOCK1.pokeBallsOffset + slot * SAVEBLOCK1.pokeBallsSlotSize
         local itemId = reader.read16(slotAddress)
-        local quantity = reader.read16(slotAddress + 2)
+        local rawQuantity = reader.read16(slotAddress + 2)
+        local quantity = (rawQuantity ~ quantityKey) & 0xFFFF
         if itemId ~= 0 then
             local ballInfo = BALLS[itemId]
             local catchChance = nil
@@ -479,6 +491,33 @@ function M.acquire(reader)
     local badgesReadable = saveBlock1 >= SAVEBLOCK1.ewramStart
         and saveBlock1 + SAVEBLOCK1.flagsOffset + SAVEBLOCK1.badges2Through8ByteOffset < SAVEBLOCK1.ewramEnd
 
+    -- Bag quantities are only meaningful once decrypted against
+    -- SaveBlock2's own encryptionKey (see readBag) - bag decoding
+    -- additionally requires SaveBlock2's pointer to resolve to a readable
+    -- EWRAM address, the same fail-closed treatment badgesReadable already
+    -- gives SaveBlock1.
+    local saveBlock2 = 0
+    local saveBlock2Readable = false
+    local saveBlock2PointerOk, saveBlock2PointerValue = pcall(reader.read32, address.saveBlock2Pointer)
+    if saveBlock2PointerOk and type(saveBlock2PointerValue) == "number" then
+        saveBlock2 = saveBlock2PointerValue
+        saveBlock2Readable = saveBlock2 >= SAVEBLOCK2.ewramStart
+            and saveBlock2 + SAVEBLOCK2.encryptionKeyOffset + 4 <= SAVEBLOCK2.ewramEnd
+    end
+    local encryptionKey = 0
+    if saveBlock2Readable then
+        local encryptionKeyOk, encryptionKeyValue = pcall(
+            reader.read32,
+            saveBlock2 + SAVEBLOCK2.encryptionKeyOffset
+        )
+        if encryptionKeyOk and type(encryptionKeyValue) == "number" then
+            encryptionKey = encryptionKeyValue
+        else
+            saveBlock2Readable = false
+        end
+    end
+    local bagReadable = badgesReadable and saveBlock2Readable
+
     local location = nil
     if locationReadable then
         local mapGroup = reader.read8(saveBlock1 + 4)
@@ -504,7 +543,7 @@ function M.acquire(reader)
         },
         location = location,
         badges = badgesReadable and readBadges(reader, saveBlock1) or nil,
-        bag = badgesReadable and readBag(reader, saveBlock1, wildOpponent) or nil,
+        bag = bagReadable and readBag(reader, saveBlock1, wildOpponent, encryptionKey) or nil,
     }
 end
 

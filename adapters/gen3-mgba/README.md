@@ -48,7 +48,7 @@ The current source has one fixed party record and one fixed opponent record. The
 - moves, bag balls, TMs, and encounters: empty arrays;
 - location name: `Location name unavailable`.
 
-These are not inferred gameplay values. Provider provenance, raw revision, CRC, party count, battle flags, and map identifiers/coordinates are retained under `extensions["pokemon.emerald.us-rev0.acquisition"]`.
+These are not inferred gameplay values. Poke Ball quantities are live decoded values when both SaveBlock1 and SaveBlock2's encryption key are readable; otherwise the source exposes `bag: null` rather than falling back to a zero key or fabricated inventory. Provider provenance, raw revision, CRC, party count, battle flags, and map identifiers/coordinates are retained under `extensions["pokemon.emerald.us-rev0.acquisition"]`.
 
 ## Live Fields
 
@@ -181,7 +181,7 @@ The fixtures contain synthetic numeric/derived values only. They contain no ROM,
 - The contract has no timestamp/freshness metadata; file modification time is local handoff metadata, not contract data.
 - The local file is a single-writer snapshot handoff, not a general transport or event stream.
 - Only the first party and first enemy-party records are read.
-- Required names, types, stats, moves, location name, bag, TM, and encounter fields are placeholders, not live values.
+- Required names, types, stats, moves, location name, general inventory, TM, and encounter fields are placeholders or deferred; the Poke Ball pocket is live when SaveBlock2's encryption key is readable.
 - Species names, double-battle active slots, transient loading states, and broader corruption/plausibility checks are deferred.
 - The Lua script constructs the fixed schema shape but cannot run Ajv inside mGBA; tests validate the mirrored Node output and pin shared constants/handoff operations, but CI cannot execute mGBA's embedded Lua runtime.
 - The launcher validates paths and process setup but cannot verify the mGBA version, ROM fingerprint, Lua runtime, or live memory until the script runs. It deliberately does not automate mGBA GUI actions.

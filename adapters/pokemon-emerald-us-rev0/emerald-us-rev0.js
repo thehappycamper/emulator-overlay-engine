@@ -69,6 +69,17 @@ export const EMERALD_US_REV0 = Object.freeze({
     enemyParty: 0x02024744,
     mainInBattleFlags: 0x030026f9,
     saveBlock1Pointer: 0x03005d8c,
+    // gSaveBlock1Ptr, gSaveBlock2Ptr, and gPokemonStoragePtr are declared
+    // consecutively as 4-byte COMMON_DATA pointers, in that order, in
+    // pret/pokeemerald's src/load_save.c ("COMMON_DATA struct SaveBlock1
+    // *gSaveBlock1Ptr = NULL; COMMON_DATA struct SaveBlock2 *gSaveBlock2Ptr
+    // = NULL;"), immediately after gSaveBlock1Ptr's own already-verified
+    // address - independently corroborated by community RAM-map research
+    // describing 0x03005D90 as the pointer to Emerald's player-profile
+    // data (name/gender/trainer ID), which is exactly SaveBlock2's own
+    // first three fields (pret's include/global.h: playerName at 0x00,
+    // playerGender at 0x08, playerTrainerId at 0x0A).
+    saveBlock2Pointer: 0x03005d90,
   }),
   pokemon: Object.freeze({
     structSize: 100,
@@ -135,6 +146,18 @@ export const EMERALD_US_REV0 = Object.freeze({
     pokeBallsOffset: 0x650,
     pokeBallsSlotCount: 16,
     pokeBallsSlotSize: 4,
+  }),
+  // struct SaveBlock2's `encryptionKey` field starts at byte offset 0xAC
+  // (confirmed directly from pret/pokeemerald's include/global.h). Every
+  // bag pocket's ItemSlot.quantity - Poke Balls included - is stored
+  // XORed against this key (pret's src/item.c: `GetBagItemQuantity()`
+  // returns `gSaveBlock2Ptr->encryptionKey ^ *quantity`; applied uniformly
+  // across every pocket type, confirmed by that function's own callers).
+  // Money/Coins use the same key but are not read by this adapter.
+  saveBlock2: Object.freeze({
+    ewramStart: 0x02000000,
+    ewramEnd: 0x02040000,
+    encryptionKeyOffset: 0xac,
   }),
 });
 
@@ -327,13 +350,23 @@ function readBadges(reader, saveBlock1Address) {
 // kind of derived field as `expProgress`/`status`), so it belongs here in
 // the game-owned acquisition layer, not in presentation - see
 // docs/tasks/P05/P05-T011.md's architecture notes.
-function readBag(reader, saveBlock1Address, wildOpponent) {
+//
+// `encryptionKey` (SaveBlock2.encryptionKey) must be XORed against every
+// raw ItemSlot.quantity - pret's own GetBagItemQuantity() does exactly
+// this, uniformly across every bag pocket including Poke Balls. Without
+// it, a real save's quantities decode as XORed garbage: values well above
+// the game's real 999-per-slot stack cap (a schema-enforced bound, not
+// arbitrary), which is what surfaced this bug against a real BizHawk
+// session.
+function readBag(reader, saveBlock1Address, wildOpponent, encryptionKey) {
   const layout = EMERALD_US_REV0.saveBlock1;
+  const quantityKey = encryptionKey & 0xffff;
   const balls = [];
   for (let slot = 0; slot < layout.pokeBallsSlotCount; slot += 1) {
     const slotAddress = saveBlock1Address + layout.pokeBallsOffset + slot * layout.pokeBallsSlotSize;
     const itemId = readUnsigned(reader, "read16", slotAddress, 0xffff);
-    const quantity = readUnsigned(reader, "read16", slotAddress + 2, 0xffff);
+    const rawQuantity = readUnsigned(reader, "read16", slotAddress + 2, 0xffff);
+    const quantity = (rawQuantity ^ quantityKey) & 0xffff;
     if (itemId === 0) continue; // empty slot
     const ballInfo = lookupBallInfo(itemId);
     let catchChance = null;
@@ -354,7 +387,7 @@ function readBag(reader, saveBlock1Address, wildOpponent) {
 
 export function readEmeraldAcquisition(reader) {
   requireReader(reader);
-  const { addresses, saveBlock1, pokemon } = EMERALD_US_REV0;
+  const { addresses, saveBlock1, saveBlock2, pokemon } = EMERALD_US_REV0;
   const partyCount = readUnsigned(reader, "read8", addresses.playerPartyCount, 0xff);
   if (partyCount > 6) {
     throw new RangeError(`Invalid Emerald party count: ${partyCount}`);
@@ -374,6 +407,34 @@ export function readEmeraldAcquisition(reader) {
   const locationReadable =
     saveBlock1Address >= saveBlock1.ewramStart &&
     saveBlock1Address + saveBlock1.mapNumberOffset < saveBlock1.ewramEnd;
+  // The bag pocket's raw ItemSlot.quantity values are only meaningful once
+  // decrypted against SaveBlock2's own encryptionKey (see readBag) - so
+  // bag decoding additionally requires SaveBlock2's pointer to resolve to
+  // a readable EWRAM address, exactly the same fail-closed treatment
+  // saveBlock1Readable already gives SaveBlock1.
+  let saveBlock2Readable = false;
+  let encryptionKey = 0;
+  try {
+    const saveBlock2Address = readUnsigned(reader, "read32", addresses.saveBlock2Pointer, 0xffffffff);
+    saveBlock2Readable =
+      saveBlock2Address >= saveBlock2.ewramStart &&
+      saveBlock2Address + saveBlock2.encryptionKeyOffset + 4 <= saveBlock2.ewramEnd;
+    if (saveBlock2Readable) {
+      encryptionKey = readUnsigned(
+        reader,
+        "read32",
+        saveBlock2Address + saveBlock2.encryptionKeyOffset,
+        0xffffffff,
+      );
+    }
+  } catch {
+    // SaveBlock2 is optional for the currently exposed bag view. A missing
+    // pointer/key must not turn an otherwise readable acquisition into a
+    // zero-key decode or abort unrelated state fields.
+    saveBlock2Readable = false;
+    encryptionKey = 0;
+  }
+  const bagReadable = saveBlock1Readable && saveBlock2Readable;
 
   const typeFlags = readUnsigned(reader, "read32", addresses.battleTypeFlags, 0xffffffff);
   const trainerBattle = (typeFlags & BATTLE_TYPE_TRAINER) !== 0;
@@ -409,6 +470,6 @@ export function readEmeraldAcquisition(reader) {
         })()
       : null,
     badges: saveBlock1Readable ? readBadges(reader, saveBlock1Address) : null,
-    bag: saveBlock1Readable ? readBag(reader, saveBlock1Address, wildOpponent) : null,
+    bag: bagReadable ? readBag(reader, saveBlock1Address, wildOpponent, encryptionKey) : null,
   });
 }

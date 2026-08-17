@@ -44,7 +44,7 @@ Status labels:
 | Learnset upcoming moves | planned | Needs data extension tables |
 | Bag TMs and compatibility | planned | Needs bag export and learnset/TM data |
 | Route encounter viewer | mvp | Static sample only; needs live map ID and encounter data |
-| Battle catch odds from bag | mvp | Static sample only; needs live bag/opponent export |
+| Battle catch odds from bag | mvp | Live Poke Ball quantities/catch odds for wild battles; other bag pockets remain deferred |
 | Shiny/PID/seed/frame display | mvp | Static sample only; needs live export |
 | Battle Factory set identification | planned | Needs vanilla/hack facility set data |
 | Opponent move prediction | planned | Needs AI scoring model and battle state |

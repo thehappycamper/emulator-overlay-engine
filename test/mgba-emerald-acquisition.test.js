@@ -168,6 +168,73 @@ test("invalid save pointers produce a null location and null badges instead of a
   assert.equal(acquisition.badges, null);
 });
 
+// Regression coverage for the real-BizHawk acquisition failure: bag pocket
+// quantities are stored in EWRAM XORed against SaveBlock2's own
+// encryptionKey (pret/pokeemerald src/item.c's GetBagItemQuantity/
+// SetBagItemQuantity; see emerald-us-rev0.js's readBag for the full
+// authoritative-source citation). The fixture's raw memory now encodes
+// this exactly as a real save would: the stored quantities are the
+// encrypted (XORed) values, not the plaintext ball counts.
+test("bag Poke Ball quantities are decrypted against SaveBlock2's encryptionKey, and item ids remain plaintext", async () => {
+  const fixture = JSON.parse(await readFile(fixtureUrl, "utf8"));
+  const acquisition = readEmeraldAcquisition(createReader(fixture.memory));
+  assert.ok(acquisition.bag, "bag must be readable when both SaveBlock1 and SaveBlock2 resolve to valid EWRAM addresses");
+  assert.deepEqual(
+    acquisition.bag.balls.map((ball) => ({ id: ball.id, name: ball.name, quantity: ball.quantity })),
+    [
+      { id: 4, name: "Poke Ball", quantity: 8 },
+      { id: 3, name: "Great Ball", quantity: 3 },
+      { id: 2, name: "Ultra Ball", quantity: 1 },
+    ],
+  );
+});
+
+test("an unreadable SaveBlock2 pointer fails bag acquisition closed (bag: null) - never a zero-key fallback, never clamped/partial data", async () => {
+  const fixture = JSON.parse(await readFile(fixtureUrl, "utf8"));
+  // gSaveBlock2Ptr itself resolves to 0 - the same degenerate-pointer case
+  // already exercised for gSaveBlock1Ptr above. SaveBlock1 remains fully
+  // readable, so location/badges are unaffected - only bag depends on
+  // SaveBlock2's own encryption key.
+  fixture.memory.read32["0x03005d90"] = 0;
+  const acquisition = readEmeraldAcquisition(createReader(fixture.memory));
+  assert.equal(acquisition.bag, null);
+  assert.notEqual(acquisition.location, null);
+  assert.notEqual(acquisition.badges, null);
+});
+
+test("an unreadable SaveBlock2 encryption key fails bag acquisition closed without aborting other state", async () => {
+  const fixture = JSON.parse(await readFile(fixtureUrl, "utf8"));
+  const reader = createReader(fixture.memory);
+  const originalRead32 = reader.read32;
+  reader.read32 = (address) => {
+    if (address === 0x020310ac) throw new RangeError("SaveBlock2 encryption key is unreadable");
+    return originalRead32(address);
+  };
+
+  const acquisition = readEmeraldAcquisition(reader);
+  assert.equal(acquisition.bag, null);
+  assert.notEqual(acquisition.location, null);
+  assert.notEqual(acquisition.badges, null);
+});
+
+test("characterizes the original defect: the raw encrypted quantity exceeds the real 999-per-slot cap if read without decryption, exactly reproducing the real-BizHawk schema failure", async () => {
+  const fixture = JSON.parse(await readFile(fixtureUrl, "utf8"));
+  // The Poke Ball slot's raw, still-encrypted quantity word in EWRAM - what
+  // the pre-fix decoder returned verbatim as "quantity".
+  const rawQuantity = fixture.memory.read16["0x0203065a"];
+  assert.equal(rawQuantity, 15429);
+  assert.ok(
+    rawQuantity > 999,
+    "the raw encrypted value must exceed the schema's real 999-per-slot cap - this is exactly the " +
+      "'data/bag/balls/0/quantity must be <= 999' failure observed against a real BizHawk session",
+  );
+
+  const acquisition = readEmeraldAcquisition(createReader(fixture.memory));
+  const decoded = acquisition.bag.balls.find((ball) => ball.id === 4).quantity;
+  assert.equal(decoded, 8);
+  assert.ok(decoded <= 999, "the corrected decode must always fall within the real per-slot cap");
+});
+
 test("shared Lua acquisition constants stay synchronized with the tested layout", async () => {
   const lua = await readFile(
     new URL(

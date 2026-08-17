@@ -24,6 +24,6 @@ Provider provenance is retained under `source`. The semantic game fields remain 
 
 Only Emerald English retail Rev 0 is supported: game code `AGB-BPEE`, revision `0`, CRC32 `1F1C08FB`, SHA-1 `F3AE088181BF583E55DAF962A92BB46F4F1D07B7`. Providers must fail closed before publishing when they cannot establish that identity or when acquisition invariants fail.
 
-The current contract remains intentionally narrow: one fixed party entry, one fixed opponent entry, battle flags, and raw location identifiers. Whole-party iteration, lookup data, moves, bag contents, seed/frame, and semantic events remain future work.
+The current contract remains intentionally narrow: full occupied party decoding, one fixed opponent entry, battle flags, raw location identifiers, and the Poke Ball pocket. Bag quantities are decrypted from their raw `u16` values with `SaveBlock2.encryptionKey`; if SaveBlock1 or SaveBlock2/key data is unreadable, `bag` is null rather than guessed. Other pockets, seed/frame, and semantic events remain future work.
 
 No ROM, BIOS, save, savestate, emulator binary, or copied game data belongs here. Fixtures contain only synthetic derived values.
