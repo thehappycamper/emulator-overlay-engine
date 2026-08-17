@@ -1,8 +1,10 @@
 import { resolveDomain } from "../domains/index.js";
 import { getDomainOverlayPresentation, renderDomainOverlay } from "./host.js";
 import { createLiveStateController } from "./live-state.js";
+import { createNotificationPanel } from "./notification-dom.js";
 
 const DEFAULT_POLL_INTERVAL_MS = 1000;
+const DEFAULT_NOTIFICATIONS_URL = "/public/notifications.json";
 
 const root = document.querySelector("#app");
 
@@ -12,6 +14,33 @@ async function loadState(stateUrl) {
     throw new Error(`Unable to load ${stateUrl}: ${response.status}`);
   }
   return response.json();
+}
+
+// The notification feed is optional and independent of live game state: no
+// file yet (a fresh session that hasn't published anything) is treated the
+// same as an empty feed, not an error, so the dashboard's own live/stale/
+// error status is never affected by whether any notification has ever
+// fired. A malformed payload (wrong shape, invalid JSON) degrades the same
+// way rather than throwing - the overlay keeps working either way.
+async function loadNotifications(notificationsUrl) {
+  let response;
+  try {
+    response = await fetch(notificationsUrl, { cache: "no-store" });
+  } catch {
+    return { notifications: [] };
+  }
+  if (response.status === 404) {
+    return { notifications: [] };
+  }
+  if (!response.ok) {
+    return { notifications: [] };
+  }
+  try {
+    const data = await response.json();
+    return Array.isArray(data?.notifications) ? data : { notifications: [] };
+  } catch {
+    return { notifications: [] };
+  }
 }
 
 function installStylesheets(stylesheets) {
@@ -66,7 +95,11 @@ function startOverlay() {
   const statusEl = document.createElement("div");
   statusEl.className = "live-status";
   const contentEl = document.createElement("div");
-  root.replaceChildren(statusEl, contentEl);
+  const notificationsEl = document.createElement("div");
+  notificationsEl.className = "notifications";
+  // The notifications panel is a sibling of contentEl, never a replacement
+  // for it - a notification never clears or replaces the dashboard.
+  root.replaceChildren(statusEl, contentEl, notificationsEl);
 
   const pollIntervalMs = Number(root.dataset.pollIntervalMs) || DEFAULT_POLL_INTERVAL_MS;
 
@@ -85,7 +118,15 @@ function startOverlay() {
     }
   });
 
+  const notificationsUrl = root.dataset.notificationsUrl || DEFAULT_NOTIFICATIONS_URL;
+  const notificationsPanel = createNotificationPanel({
+    container: notificationsEl,
+    fetchNotifications: () => loadNotifications(notificationsUrl),
+    intervalMs: pollIntervalMs,
+  });
+
   controller.start();
+  notificationsPanel.start();
 }
 
 startOverlay();

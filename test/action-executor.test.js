@@ -54,7 +54,7 @@ test("a supported, authorized, valid action executes and produces a schema-valid
   const result = await executor.execute(request, { sessionAuthorized: true, notify: (m) => notified.push(m) });
   assert.equal(result.status, "executed");
   assert.equal(result.code, ACTION_EXECUTION_CODES.OK);
-  assert.deepEqual(result.result, { delivered: true, message: "A Pokemon fainted" });
+  assert.deepEqual(result.result, { delivered: true, message: "A Pokemon fainted", severity: "info" });
   assert.deepEqual(notified, ["A Pokemon fainted"]);
   assert.equal(assertValidActionResult(result), true);
 });
