@@ -24,8 +24,10 @@
 | Path | Purpose |
 | --- | --- |
 | `src/platform/domain-registry.js` | Domain-neutral immutable registry for explicitly composed domain packages. |
-| `src/domains/index.js` | Application composition root that registers the currently supported domains. |
-| `src/domains/pokemon/index.js` | Pokemon domain descriptor, named state-contract metadata, calculator surface, presentation capability, and semantic-event capability. |
+| `src/domains/index.js` | Node/application composition root that registers the full supported domains. |
+| `src/domains/pokemon/index.js` | Full Pokemon domain descriptor, including state-contract metadata, calculators, presentation, and semantic-event capability. |
+| `src/domains/browser.js` | Browser-only composition root that registers browser-safe domain descriptors without Node-only validation imports. |
+| `src/domains/pokemon/presentation-descriptor.js` | Browser-safe Pokemon state-contract, calculator, and presentation descriptor. |
 | `src/domains/pokemon/type-chart.js` | Pokemon type effectiveness lookup and multiplier calculation. |
 | `src/domains/pokemon/damage.js` | Pokemon damage range and projected switch-in damage calculations. |
 | `src/domains/pokemon/capture.js` | Pokemon capture chance and bag ball chance calculations. |
