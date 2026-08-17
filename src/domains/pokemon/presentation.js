@@ -267,6 +267,17 @@ const STAT_COMPARISON_ROWS = Object.freeze([
   { label: "Speed", value: (pokemon) => pokemon?.stats?.spe ?? null, stageKey: "spe" },
 ]);
 
+// Accuracy/Evasion have no underlying numeric base stat (they exist only as
+// battle stat stages - see NUM_BATTLE_STATS in emerald-us-rev0.js's `battle`
+// constant block), so unlike the rows above there is never a raw value to
+// compare or show a </>/= indicator for; only the stage badge itself is
+// meaningful. Still rendered through the same row/table shape so a boost or
+// drop is exactly as visible as it is for Attack/Defense/etc.
+const STAT_STAGE_ONLY_ROWS = Object.freeze([
+  { label: "Accuracy", stageKey: "acc" },
+  { label: "Evasion", stageKey: "eva" },
+]);
+
 function statComparisonIndicator(playerValue, opponentValue) {
   if (typeof playerValue !== "number" || typeof opponentValue !== "number") {
     return { symbol: "&ndash;", class: "stat-unknown" };
@@ -325,6 +336,12 @@ function renderStatComparison(activePlayer, activePlayerIndex, opponent, playerS
       opponentStage: row.stageKey ? opponent?.statStages?.[row.stageKey] ?? null : null,
     }),
   ).join("");
+  const stageOnlyRows = STAT_STAGE_ONLY_ROWS.map((row) =>
+    renderStatComparisonRow(row.label, null, null, {
+      playerStage: playerStatStages?.[row.stageKey] ?? null,
+      opponentStage: opponent?.statStages?.[row.stageKey] ?? null,
+    }),
+  ).join("");
   const hpRow = renderStatComparisonRow(
     "HP",
     activePlayer.currentHp,
@@ -351,6 +368,7 @@ function renderStatComparison(activePlayer, activePlayerIndex, opponent, playerS
         <tbody>
           ${hpRow}
           ${rows}
+          ${stageOnlyRows}
         </tbody>
       </table>
     </details>

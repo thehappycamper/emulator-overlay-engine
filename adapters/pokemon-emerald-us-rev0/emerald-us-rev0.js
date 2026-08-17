@@ -197,10 +197,15 @@ export const EMERALD_US_REV0 = Object.freeze({
   // Battler slot 0 is the player's single active battler and slot 1 is the
   // single opponent's, per `include/constants/battle.h`'s `enum
   // BattlerId`/`enum BattlerPosition` ordering (`B_POSITION_PLAYER_LEFT` =
-  // 0, `B_POSITION_OPPONENT_LEFT` = 1) for the only battle format this
-  // adapter supports today (a single, non-double battle) - the same
-  // "one fixed player entry, one fixed opponent entry" scope already
-  // documented for the rest of this adapter. Resolving which *party slot*
+  // 0, `B_POSITION_OPPONENT_LEFT` = 1) for a single (non-double) battle -
+  // the same "one fixed player entry, one fixed opponent entry" scope
+  // already documented for the rest of this adapter. This is a scope
+  // decision, not a runtime gate: `typeFlags`/`BATTLE_TYPE_DOUBLE` is never
+  // checked here, so during an actual double battle these two indices
+  // still resolve to real battlers (0/1, not necessarily whichever Pokemon
+  // is visually relevant) rather than being detected and nulled out - the
+  // same undetected-doubles limitation this adapter's opponent/catch-odds
+  // reading already has everywhere else. Resolving which *party slot*
   // battler 0 corresponds to (`gBattlerPartyIndexes` or equivalent) is a
   // separate, still-unresolved problem left for a future task exactly like
   // `activePlayerIndex` already is - this task only adds the battlers'

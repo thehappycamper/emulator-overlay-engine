@@ -193,6 +193,33 @@ test("player.party.defeated is not fabricated by a party reorder alone", () => {
   );
 });
 
+test("player.party.defeated never fabricates a defeat from missing/unknown HP data (treated as unknown, not fainted)", () => {
+  const knownAlive = state({ party: [pokemon({ currentHp: 10 })] });
+  const unknownHp = state({ party: [pokemon({ currentHp: undefined })] });
+  assert.deepEqual(
+    detectPokemonEvents(knownAlive, unknownHp).filter((e) => e.type === "player.party.defeated"),
+    [],
+    "a transition from known-alive to unknown HP must not be read as a defeat",
+  );
+  assert.deepEqual(
+    detectPokemonEvents(unknownHp, unknownHp).filter((e) => e.type === "player.party.defeated"),
+    [],
+    "unknown HP on both sides must never fabricate a defeat",
+  );
+  // A party where only some members have known HP: the previous snapshot's
+  // known-alive member establishes "usable", the current snapshot's known-0
+  // member (alongside one still-unknown member) establishes "no known
+  // usable member" - this must still fire, since at least one member's
+  // fate actually is known to have crossed to 0.
+  const mixedPrevious = state({ party: [pokemon({ nickname: "A", currentHp: 10 }), pokemon({ nickname: "B", currentHp: undefined })] });
+  const mixedCurrent = state({ party: [pokemon({ nickname: "A", currentHp: 0 }), pokemon({ nickname: "B", currentHp: undefined })] });
+  assert.equal(
+    detectPokemonEvents(mixedPrevious, mixedCurrent).filter((e) => e.type === "player.party.defeated").length,
+    1,
+    "a known member crossing to 0 must still fire even while a sibling's HP remains unknown",
+  );
+});
+
 test("a battling Pokemon fainting, taking damage, and changing status all in one snapshot fires all applicable events simultaneously", () => {
   const previous = state({
     party: [pokemon({ currentHp: 6, status: "none" })],

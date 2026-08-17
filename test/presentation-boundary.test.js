@@ -212,6 +212,19 @@ test("battle stat comparison shows no stage suffix at all when stage data is una
   assert.match(html, /<table class="stat-compare-table">/);
 });
 
+test("battle stat comparison represents Accuracy and Evasion stage changes, even though they have no underlying numeric stat", () => {
+  const state = readSampleState();
+  state.battle.player = { statStages: { atk: 0, def: 0, spe: 0, spa: 0, spd: 0, acc: -2, eva: 0 } };
+  state.battle.opponent.statStages = { atk: 0, def: 0, spe: 0, spa: 0, spd: 0, acc: 0, eva: 1 };
+  const html = renderPokemonOverlay(state);
+  const accuracyRow = html.match(/<tr>\s*<th scope="row">Accuracy<\/th>[\s\S]*?<\/tr>/)?.[0];
+  const evasionRow = html.match(/<tr>\s*<th scope="row">Evasion<\/th>[\s\S]*?<\/tr>/)?.[0];
+  assert.ok(accuracyRow, "an Accuracy row must be present in the comparison table");
+  assert.ok(evasionRow, "an Evasion row must be present in the comparison table");
+  assert.match(accuracyRow, /<span class="stat-stage stage-down">\(-2\)<\/span>/);
+  assert.match(evasionRow, /<span class="stat-stage stage-up">\(\+1\)<\/span>/);
+});
+
 test("wild encounter panel (P05-T011) is collapsed by default and lists the real per-location table", () => {
   const state = readSampleState();
   const html = renderPokemonOverlay(state);
