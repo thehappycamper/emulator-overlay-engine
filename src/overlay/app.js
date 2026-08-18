@@ -1,4 +1,5 @@
 import { resolveBrowserDomain as resolveDomain } from "../domains/browser.js";
+import { captureDisclosureState, restoreDisclosureState } from "./disclosure-state.js";
 import { getDomainOverlayPresentation, renderDomainOverlay } from "./host.js";
 import { createLiveStateController } from "./live-state.js";
 import { createNotificationPanel } from "./notification-dom.js";
@@ -107,7 +108,15 @@ function startOverlay() {
     fetchState: () => loadState(stateUrl),
     intervalMs: pollIntervalMs,
     onRender(state) {
+      // A changed poll fully replaces contentEl's markup, which would
+      // otherwise silently collapse any <details> panel the user had
+      // expanded (open/closed is live DOM state, never part of `state`
+      // itself). Snapshotting by each panel's own stable
+      // `data-disclosure-id` and restoring it after the swap keeps that
+      // choice intact without persisting anything beyond this page load.
+      const disclosureState = captureDisclosureState(contentEl);
       contentEl.innerHTML = renderDomainOverlay(domain, state);
+      restoreDisclosureState(contentEl, disclosureState);
     },
     onStatus(status) {
       statusEl.dataset.state = status.phase;

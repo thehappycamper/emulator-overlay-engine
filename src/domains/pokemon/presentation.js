@@ -90,7 +90,7 @@ export function renderPokemonOverlay(state) {
 function renderEncounters(encounters) {
   if (!Array.isArray(encounters) || encounters.length === 0) {
     return `
-      <details class="encounters-panel">
+      <details class="encounters-panel" data-disclosure-id="location-encounters">
         <summary>Wild Encounters Here</summary>
         <p class="subtle">No wild encounters at this location.</p>
       </details>
@@ -109,7 +109,7 @@ function renderEncounters(encounters) {
     .join("");
 
   return `
-    <details class="encounters-panel">
+    <details class="encounters-panel" data-disclosure-id="location-encounters">
       <summary>Wild Encounters Here (${encounters.length})</summary>
       <table class="encounters-table">
         <tbody>${rows}</tbody>
@@ -127,7 +127,7 @@ function renderEncounters(encounters) {
 function renderBallsPanel(balls) {
   if (!Array.isArray(balls) || balls.length === 0) {
     return `
-      <details class="balls-panel">
+      <details class="balls-panel" data-disclosure-id="battle-balls">
         <summary>Poke Balls</summary>
         <p class="subtle">No Poke Balls in the bag.</p>
       </details>
@@ -145,7 +145,7 @@ function renderBallsPanel(balls) {
     .join("");
 
   return `
-    <details class="balls-panel">
+    <details class="balls-panel" data-disclosure-id="battle-balls">
       <summary>Poke Balls</summary>
       <table class="balls-table">
         <thead><tr><th></th><th></th><th>Catch Odds</th></tr></thead>
@@ -336,7 +336,7 @@ function renderStatComparisonRow(label, playerValue, opponentValue, { playerText
 function renderStatComparison(activePlayer, activePlayerIndex, opponent, playerStatStages, playerStageAdjustedStats) {
   if (!activePlayer) {
     return `
-      <details class="stat-compare">
+      <details class="stat-compare" data-disclosure-id="battle-stat-compare">
         <summary>Compare Stats</summary>
         <p class="subtle stat-compare-note">No battle-ready party member available to compare.</p>
       </details>
@@ -382,7 +382,7 @@ function renderStatComparison(activePlayer, activePlayerIndex, opponent, playerS
   );
 
   return `
-    <details class="stat-compare">
+    <details class="stat-compare" data-disclosure-id="battle-stat-compare">
       <summary>Compare Stats</summary>
       <p class="subtle stat-compare-note">Your Pokemon (party slot ${activePlayerIndex + 1})${activePlayerIndex === 0 ? " - active-battler tracking is not yet implemented, so this always shows slot 1" : ""} vs. ${escapeHtml(opponent.nickname || opponent.name || "the opponent")}.</p>
       <table class="stat-compare-table">

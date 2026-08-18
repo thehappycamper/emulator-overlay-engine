@@ -39,8 +39,9 @@
 | `src/expressions/evaluate.js` | Pure evaluator for the whitelisted JSON expression AST. |
 | `src/mapping/apply.js` | Executes direct, value, and calculated mappings into a new target value. |
 | `src/overlay/host.js` | Domain-neutral validation and dispatch for a selected domain overlay presentation. |
-| `src/overlay/app.js` | Domain-neutral browser bootstrap: state URL/domain resolution, stylesheets, live-status display, presentation dispatch, and the notifications panel. |
+| `src/overlay/app.js` | Domain-neutral browser bootstrap: state URL/domain resolution, stylesheets, live-status display, presentation dispatch, and the notifications panel. Preserves `<details>` disclosure state (`src/overlay/disclosure-state.js`) around each re-render. |
 | `src/overlay/live-state.js` | Domain-neutral, dependency-injectable polling controller: no-overlap fetch scheduling, change-only rendering, live/stale/error status. |
+| `src/overlay/disclosure-state.js` | Domain-neutral capture/restore of browser-local `<details data-disclosure-id>` open/closed state across an `innerHTML` re-render; no persistence beyond the current page load. |
 | `src/overlay/notification-feed.js` | Pure, in-memory, TTL-pruned, capped notification feed store; `publish()` for direct use, and a two-phase `prepare()`/`commit()` for commit-after-success callers (see `tools/emerald-live-state.mjs`). |
 | `src/overlay/write-notification-feed.js` | Atomic writer for `public/notifications.json`. |
 | `src/overlay/notification-view.js` | Pure client-side reconciliation: which feed entries are newly visible vs. expired/dismissed. |
@@ -108,6 +109,8 @@
 | `test/write-notification-feed.test.js` | Atomic notification-feed-file writer tests: success, directory creation, rename-failure cleanup, input validation. |
 | `test/notification-view.test.js` | Pure client-side reconciliation tests: new/duplicate/expired/dismissed entries, malformed feeds, reconnect behavior. |
 | `test/notification-dom.test.js` | `textContent`-only DOM safety proof and polling notification panel reconciliation tests (fake-DOM harness). |
+| `test/overlay-disclosure-state.test.js` | Fast capture/restore logic tests for `<details data-disclosure-id>` state preservation (minimal DOM-like stand-in, not a real browser). |
+| `test/browser-shell.test.js` | Real headless-Chrome tests (skipped without Chrome): app-shell import resolution/notification rendering, and an interactive Chrome DevTools Protocol session proving disclosure state survives real live-state re-renders end to end. |
 | `test/overlay-notification-delivery.test.js` | Real provider + real executor + real feed integration: delivery, replay non-republish, ordering, failure containment, gating, state-mutation isolation. |
 | `test/notification-delivery-atomicity.test.js` | Transactional (commit-after-success) publication tests: failed-write/retry semantics, concurrency serialization, TTL/bounds through `prepare()`/`commit()`. |
 | `test/emerald-live-state-notifications.test.js` | Real Emerald fixture + real mapping/event/rule/executor/feed integration through `tools/emerald-live-state.mjs`'s own exported functions. |

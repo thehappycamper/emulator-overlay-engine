@@ -45,7 +45,8 @@ Status labels:
 | Bag TMs and compatibility | planned | Needs bag export and learnset/TM data |
 | Route encounter viewer | mvp | Static sample only; needs live map ID and encounter data |
 | Battle catch odds from bag | mvp | Live Poke Ball quantities/catch odds for wild battles; other bag pockets remain deferred |
-| Battle stat stages and stage-adjusted comparison | active | Emerald acquisition supplies `-6..+6` stages; the Pokemon domain preserves raw stats and derives Gen III stage-adjusted Attack/Defense/Sp. Atk/Sp. Def/Speed values; real BizHawk acceptance remains pending |
+| Battle stat stages and stage-adjusted comparison | active | Emerald acquisition supplies `-6..+6` stages; the Pokemon domain preserves raw stats and derives Gen III stage-adjusted Attack/Defense/Sp. Atk/Sp. Def/Speed values; real single-battle BizHawk acceptance passed (repeated drops, adjusted values, and battle-exit reset all confirmed); double-battle acceptance not performed |
+| Dashboard disclosure state persistence | active | Expanded/collapsed `<details>` panels (Compare Stats, Wild Encounters, Poke Balls) survive ordinary live-state re-renders instead of collapsing on every update; browser-local only, no cross-session persistence |
 | Shiny/PID/seed/frame display | mvp | Static sample only; needs live export |
 | Battle Factory set identification | planned | Needs vanilla/hack facility set data |
 | Opponent move prediction | planned | Needs AI scoring model and battle state |

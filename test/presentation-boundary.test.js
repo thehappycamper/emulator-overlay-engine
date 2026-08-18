@@ -126,8 +126,8 @@ test("battle stat comparison (P05-T010) is collapsed by default and shows a play
   const state = readSampleState();
   const html = renderPokemonOverlay(state);
 
-  assert.match(html, /<details class="stat-compare">/);
-  assert.doesNotMatch(html, /<details class="stat-compare" open/);
+  assert.match(html, /<details class="stat-compare" data-disclosure-id="battle-stat-compare">/);
+  assert.doesNotMatch(html, /<details class="stat-compare"[^>]* open/);
   assert.match(html, /<summary>Compare Stats<\/summary>/);
   // Sample state: player party[0] Swampert (atk 118) vs Absol opponent (atk 130) - opponent has the attack advantage.
   assert.match(html, /Swampert/);
@@ -263,8 +263,8 @@ test("wild encounter panel (P05-T011) is collapsed by default and lists the real
   const state = readSampleState();
   const html = renderPokemonOverlay(state);
 
-  assert.match(html, /<details class="encounters-panel">/);
-  assert.doesNotMatch(html, /<details class="encounters-panel" open/);
+  assert.match(html, /<details class="encounters-panel" data-disclosure-id="location-encounters">/);
+  assert.doesNotMatch(html, /<details class="encounters-panel"[^>]* open/);
   assert.match(html, /Wild Encounters Here \(4\)/);
   assert.match(html, /Zigzagoon/i);
 });
@@ -282,8 +282,8 @@ test("Poke Ball catch-odds panel (P05-T011) renders only during an explicitly wi
   const state = readSampleState();
   state.battle.trainerBattle = false;
   const wildHtml = renderPokemonOverlay(state);
-  assert.match(wildHtml, /<details class="balls-panel">/);
-  assert.doesNotMatch(wildHtml, /<details class="balls-panel" open/);
+  assert.match(wildHtml, /<details class="balls-panel" data-disclosure-id="battle-balls">/);
+  assert.doesNotMatch(wildHtml, /<details class="balls-panel"[^>]* open/);
   assert.match(wildHtml, /Poke Ball/);
 
   state.battle.trainerBattle = true;

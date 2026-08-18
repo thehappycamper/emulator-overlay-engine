@@ -18,7 +18,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | `P02` | Domain Boundary | completed |
 | `P03` | Semantic Event Foundation | completed |
 | `P04` | Event Routing And Actions | active - `P04-T001` through `P04-T004` completed; real BizHawk faint-to-notification acceptance still pending |
-| `P05` | Live Gameplay Source | active - `P05-T001`-`T007`, `T009`-`T013`, `T015`-`T017` completed; real mGBA/BizHawk end-to-end acceptance still required |
+| `P05` | Live Gameplay Source | active - `P05-T001`-`T007`, `T009`-`T013`, `T015`-`T017` completed; `T018` in review; real single-battle stat-stage BizHawk acceptance passed (`T017`); broader mGBA/BizHawk end-to-end acceptance still required |
 | `P06` | Second Source / Domain Proof | active (provider-neutral acquisition implemented and reviewed; real-ROM BizHawk acceptance and `P05` gate remain open) |
 | — | Later Product Tracks | coarse / not phased yet |
 
@@ -148,7 +148,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P05 — Live Gameplay Source
 
-**Status:** active. `P05-T001` through `P05-T007`, and `P05-T009` through `P05-T013`, `P05-T015` through `P05-T017` are complete. The phase gate still requires real mGBA/BizHawk end-to-end acceptance evidence against the richer pipeline. `P05` remains active and is not complete until the real live acceptance test is performed and recorded.
+**Status:** active. `P05-T001` through `P05-T007`, and `P05-T009` through `P05-T013`, `P05-T015` through `P05-T017` are complete; `P05-T018` is in review. Real single-battle BizHawk acceptance of the `P05-T017` stat-stage work passed (repeated drops, adjusted values, battle-exit reset); double-battle acceptance has not been performed. The phase gate still requires broader real mGBA/BizHawk end-to-end acceptance evidence against the richer pipeline. `P05` remains active and is not complete until that live acceptance test is performed and recorded.
 
 **Objective:** Implement the first live source integration — the Gen 3 mGBA adapter sketched in `adapters/gen3-mgba/README.md` and `docs/project/roadmap.md`'s "First Real Live Integration" — against the source-agnostic platform boundary clarified in `P01-T006`.
 
@@ -169,7 +169,8 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 - [`P05-T013`](../tasks/P05/P05-T013.md) - Isolated Libretro provider prototype: native cores run in a child process behind a versioned local JSON-lines IPC boundary for lifecycle, identity, capabilities, memory regions, bounded reads, frame execution, structured errors, and shutdown. Completed after focused FIFO/shutdown review fixes; no Pokemon semantics or production frontend behavior.
 - [`P05-T015`](../tasks/P05/P05-T015.md) - Focused Emerald bag-quantity decryption correction: decode Poke Ball slot quantities with the SaveBlock2 encryption key, preserve plaintext item IDs, and fail closed when SaveBlock2/key data is unreadable. Independent review APPROVE (re-verified against live `pret/pokeemerald` source and independently reproduced the fixture math); merged to `main` at `f2744ca`. Does not weaken the quantity schema or change downstream contracts. Real BizHawk acceptance of the fix is still outstanding.
 - [`P05-T016`](../tasks/P05/P05-T016.md) — Provider-neutral `player.party.defeated` semantic event (wired through the existing P04 rule/action/executor path to an `overlay.notification`) plus live Emerald battle stat-stage acquisition/presentation (`gBattleMons`, resolving the fixed-address gap `P05-T010` explicitly left open, via an independently cross-checked community linker/RAM map, corroborated by a second, unrelated source during review). Independent review APPROVE after three small fix commits (Accuracy/Evasion display gap, a missing regression test, an overclaiming comment); merged to `main` at `2760f7d`. Does not touch `activePlayerIndex`/active-battler-slot identity, schema bounds, or the proof-session orchestrator. Real BizHawk acceptance is still outstanding.
-- [`P05-T017`](../tasks/P05/P05-T017.md) — Preserve acquired Emerald stat stages through normalized state and expose Gen III stage-adjusted ordinary battle stats in Compare Stats. Independent review APPROVE after one fix commit (a player-side stat-adjustment wiring bug where the mapping layer's precomputed value was never actually consumed by presentation, plus a missing-stage-key test gap); merged to `main` at `9c583ce`. Real BizHawk acceptance remains outstanding.
+- [`P05-T017`](../tasks/P05/P05-T017.md) — Preserve acquired Emerald stat stages through normalized state and expose Gen III stage-adjusted ordinary battle stats in Compare Stats. Independent review APPROVE after one fix commit (a player-side stat-adjustment wiring bug where the mapping layer's precomputed value was never actually consumed by presentation, plus a missing-stage-key test gap); merged to `main` at `9c583ce`. Real single-battle BizHawk acceptance passed (see the task record's addendum); double-battle acceptance not performed.
+- [`P05-T018`](../tasks/P05/P05-T018.md) — Preserve browser-local `<details>` disclosure state (Compare Stats, Wild Encounters, Poke Balls) across ordinary live-state re-renders, closing a UI-lifecycle defect discovered during `P05-T017`'s real acceptance session. Browser-local only, no new persistence mechanism. In review.
 
 Remaining roadmap deliverables will be scoped separately: real mGBA/BizHawk end-to-end acceptance against the richer pipeline.
 
