@@ -1,0 +1,34 @@
+{
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Bash(git push --force*) on thehappycamper/emulator-overlay-engine — force-push to a public repo with no branch protection configured"
+    ],
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: PUBLIC — thehappycamper/emulator-overlay-engine (github.com)",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: None configured",
+      "**Default / protected branches**: main (default); no rulesets or protected branches listed via gh",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: None configured",
+      "**Source control**: thehappycamper/emulator-overlay-engine (github.com), the trusted repo and its remote only",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: None configured",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: .env, .env.local, .env.*.local, .env.bizhawk.local, .env.bizhawk.local.example, .env.local.example, experiments/libretro-direct-host/.env.local, experiments/libretro-direct-host/.env.local.example — local machine paths, ROM/save locations, and any credentials; keep out of commits and out of this public repo",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development — Emulator Overlay Engine (game telemetry/overlay platform)",
+      "**Trusted repo**: thehappycamper/emulator-overlay-engine (github.com, PUBLIC) — this repo's own work is OK to push here; confidential/secret material (.env files, local paths, ROM/save locations) is never cleared into it regardless of visibility; content ported from other repos (e.g. ai-trading-system, Bitfinex-historical-data) is not this repo's own work",
+      "**Org-specific CLIs**: None configured",
+      "routine under thehappycamper/emulator-overlay-engine prefix: git and npm operations scoped to this repo and its remote are routine"
+    ]
+  }
+}
