@@ -15,7 +15,7 @@ This is the engineering execution sequence: phases with stable IDs, entry/exit c
 | --- | --- | --- |
 | `P00` | Initial MVP | completed |
 | `P01` | Platform Mapping Foundation | completed |
-| `P02` | Domain Boundary | active — `P02-T001` (calculators) merged; `P02-T002`/`P02-T003` planned |
+| `P02` | Domain Boundary | active — `P02-T001` merged; `P02-T002` planned; `P02-T003` in review |
 | `P03` | Semantic Event Foundation | planned |
 | `P04` | Event Routing And Actions | planned |
 | `P05` | Live Gameplay Source | planned |
@@ -81,7 +81,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 
 ## P02 — Domain Boundary
 
-**Status:** active. `P01` completed at `f1cc577`; `P02-T001` completed and merged at `2617f4a` (independent review APPROVE WITH FIXES — one non-blocking finding, deferred to `P02-T003`). The phase itself remains open: calculators are now behind a domain boundary, but Pokemon state-schema ownership and presentation/UI migration are not yet done.
+**Status:** active. `P01` completed at `f1cc577`; `P02-T001` completed and merged at `2617f4a`; `P02-T003` is implemented with focused fixes applied after independent review and is awaiting independent re-review. `P02-T002` remains unmerged. The phase itself remains open: calculators are behind a domain boundary, but Pokemon state-schema ownership and presentation/UI migration are not yet done on `main`.
 
 **Objective:** Extract Pokemon-specific assumptions (currently `src/schemas/overlay-state.schema.json`'s Pokemon-shaped payload, and `src/overlay/app.js`'s Pokemon-specific rendering) behind a real Pokemon domain boundary, per the direction already recorded in ADR 0008 and `docs/knowledge/domain-extensibility.md`, while keeping shared platform code domain-neutral. (`src/engine/{damage,capture,type-chart}.js` is done — see `P02-T001`.)
 
@@ -90,7 +90,7 @@ Summary of what `P01` delivered: a domain-neutral, safe declarative mapping cont
 **Major tasks:**
 - [`P02-T001`](../tasks/P02/P02-T001.md) — Introduce the first Pokemon domain boundary around existing calculators. Completed (merged to `main` at `2617f4a`).
 - [`P02-T002`](../tasks/P02/P02-T002.md) — Pokemon state/schema boundary (decide and implement envelope-vs-move for `overlay-state.schema.json`). Planned.
-- [`P02-T003`](../tasks/P02/P02-T003.md) — Domain registry descriptor immutability hardening (closes `P02-T001`'s non-blocking review finding). Planned.
+- [`P02-T003`](../tasks/P02/P02-T003.md) — Domain registry descriptor immutability hardening (closes `P02-T001`'s non-blocking review finding). Review; focused fixes applied after independent `REQUEST CHANGES` verdict.
 
 `P02-T002` and `P02-T003` are intentionally parallelizable — they touch disjoint files (schema/fixture paths vs. `src/platform/domain-registry.js` only). Further separately scoped tasks must still migrate remaining Pokemon presentation/UI. No single completed task above satisfies the full `P02` exit gate by itself.
 
